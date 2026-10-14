@@ -596,6 +596,38 @@ function initDb(overrideDb) {
     CREATE INDEX IF NOT EXISTS idx_alerts_fingerprint ON commute_disruption_alerts(fingerprint);
     CREATE INDEX IF NOT EXISTS idx_alerts_status_valid ON commute_disruption_alerts(status, valid_until);
     CREATE INDEX IF NOT EXISTS idx_alerts_disruption_id ON commute_disruption_alerts(disruption_id);
+
+    -- 17. Commute Alert Preferences & Delivery Tracking (Day 20)
+    CREATE TABLE IF NOT EXISTS commute_alert_preferences (
+      user_id TEXT PRIMARY KEY,
+      alerts_enabled INTEGER NOT NULL DEFAULT 1,
+      minimum_severity TEXT NOT NULL DEFAULT 'moderate',
+      enabled_categories TEXT NOT NULL DEFAULT '["delay","cancellation","service_suspension","traffic","waterlogging","maintenance","crowding"]',
+      preferred_channels TEXT NOT NULL DEFAULT '["in_app"]',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_cap_user_id ON commute_alert_preferences(user_id);
+
+    CREATE TABLE IF NOT EXISTS commute_alert_deliveries (
+      id TEXT PRIMARY KEY,
+      alert_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      status TEXT NOT NULL,
+      idempotency_key TEXT UNIQUE NOT NULL,
+      attempt_count INTEGER NOT NULL DEFAULT 1,
+      error_message TEXT,
+      fallback_used TEXT,
+      payload_summary TEXT,
+      delivered_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_cad_user ON commute_alert_deliveries(user_id);
+    CREATE INDEX IF NOT EXISTS idx_cad_alert ON commute_alert_deliveries(alert_id);
+    CREATE INDEX IF NOT EXISTS idx_cad_status ON commute_alert_deliveries(status);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_cad_idempotency ON commute_alert_deliveries(idempotency_key);
   `);
 
   // Seed Prototype Transport & Disruption Data

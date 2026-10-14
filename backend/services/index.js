@@ -146,8 +146,23 @@ const {
   commuteAlertLifecycleService,
   CommuteAlertLifecycleService
 } = require('./commuteAlertLifecycleService');
+const {
+  commuteAlertDeliveryService,
+  CommuteAlertDeliveryService,
+  InAppNotificationProvider,
+  SocketNotificationProvider,
+  EmailNotificationProvider,
+  BrowserPushNotificationProvider
+} = require('./commuteAlertDeliveryService');
 
 module.exports = {
+  // Commute Alert Delivery Service (Day 20)
+  commuteAlertDeliveryService,
+  CommuteAlertDeliveryService,
+  InAppNotificationProvider,
+  SocketNotificationProvider,
+  EmailNotificationProvider,
+  BrowserPushNotificationProvider,
   // Commute Alert Lifecycle & Deduplication Service (Day 20)
   commuteAlertLifecycleService,
   CommuteAlertLifecycleService,
