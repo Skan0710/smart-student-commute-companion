@@ -91,6 +91,7 @@
     "test:contextual-explanations-api": "node scripts/integration_contextual_commute_explanations_api_test.js",
     "test:contextual-commute-master": "node scripts/integration_contextual_commute_master_verification_test.js",
     "test:disruption-alert-models": "node scripts/test_commute_disruption_alert_models.js",
+    "test:disruption-detection": "node scripts/test_commute_disruption_detection.js",
     "test:alternate-routes": "node scripts/test_alternate_route_generation.js",
     "test:commute-integration": "node scripts/integration_commute_route_generation_test.js",
     "test:study-resource-service": "node scripts/test_study_resource_service.js",

@@ -132,8 +132,15 @@ const {
   PersonalizationUncertaintyService,
   FRESHNESS_THRESHOLDS_MS
 } = require('./personalizationUncertaintyService');
+const {
+  commuteDisruptionDetectionService,
+  CommuteDisruptionDetectionService
+} = require('./commuteDisruptionDetectionService');
 
 module.exports = {
+  // Commute Disruption Detection Service
+  commuteDisruptionDetectionService,
+  CommuteDisruptionDetectionService,
   // Personalization & Uncertainty Details Service
   personalizationUncertaintyService,
   PersonalizationUncertaintyService,
