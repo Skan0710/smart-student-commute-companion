@@ -171,7 +171,7 @@ class CommuteAlertProcessingService {
       let hasEstimated = false;
 
       for (const d of disruptions) {
-        const tier = (d.provenance?.tier || d.provenance_tier || '').toUpperCase();
+        const tier = (d.provenance?.sourceTier || d.provenance?.tier || d.provenance_tier || '').toUpperCase();
         if (tier === 'SYNTHETIC') hasSynthetic = true;
         if (tier === 'USER_REPORTED') hasUserReported = true;
         if (tier === 'VERIFIED') hasVerified = true;
@@ -192,16 +192,20 @@ class CommuteAlertProcessingService {
       for (const disruption of disruptions) {
         try {
           let target = disruption;
+          const context = options.context || (options.targetUserId ? { userId: options.targetUserId } : {});
+
           if (
             !(target instanceof CommuteDisruptionAlert) &&
             !(target && target.scope && target.disruptionType)
           ) {
-            target = CommuteDisruptionAlert.fromDisruption(target, {
-              userId: options.targetUserId || null
-            });
+            if (!context.routes) {
+              target = CommuteDisruptionAlert.fromDisruption(target, {
+                userId: options.targetUserId || context.userId || null
+              });
+            }
           }
 
-          const outcome = this.lifecycleService.processDisruptionAlert(target, {}, { currentTime: asOfTime });
+          const outcome = this.lifecycleService.processDisruptionAlert(target, context, { currentTime: asOfTime });
 
           if (outcome.action === 'CREATED') {
             lifecycleResults.created.push(outcome.alert);

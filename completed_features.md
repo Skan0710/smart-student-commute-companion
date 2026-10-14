@@ -372,6 +372,142 @@ API Response Envelope (commuteCandidateController)
 
 ---
 
+### Day 20: Commute Disruption Alert Delivery Pipeline
+
+#### 17. Commute Disruption Alert Models & Contracts
+- **Domain Models**:
+  - `backend/models/CommuteDisruptionAlert.js`: Standardized domain entity with unique ID, student ID, disruption ID, disruption type, severity, spatial/modal scope, validity times (`validFrom`, `validUntil`), lifecycle status (`active`, `dismissed`, `expired`, `resolved`), grounded title, understandable description, relevance reason, structured recommended action, alternative route summary, 4-tier provenance, and stable deduplication fingerprint.
+  - `backend/models/CommuteDisruption.js`: Disruption model tracking Mumbai transit corridors, modes, delay duration, and multi-tier provenance.
+  - `backend/models/CommuteContracts.js`: Centralized Zod contracts, enums, normalization utilities, and `DataProvenance` schema.
+- **Privacy & Security Safeguards**:
+  - Automatically forbids tracking fields, home addresses, door numbers, and raw GPS decimal coordinates.
+  - Enforces `validUntil >= validFrom` invariant.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_disruption_alert_models.js` (`npm run test:disruption-alert-models`): 13/13 passing tests.
+
+#### 18. Relevant Commute Disruption Detection Service
+- **Service**: `backend/services/commuteDisruptionDetectionService.js`
+- **Capabilities**:
+  - Evaluates disruptions against candidate and recommended routes, route segments, transit corridors, and preferred transport modes.
+  - Detects train/metro delays, bus cancellations/suspensions, road congestion along auto/bus legs, and severe weather impacts.
+  - Evaluates schedule impacts: flags disruptions that cause estimated arrival to exceed class start times or desired arrival deadlines.
+  - Identifies disruptions that cause a previously feasible route to become infeasible.
+  - Never flags unrelated disruptions in distant transit corridors.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_disruption_detection.js` (`npm run test:disruption-detection`): 11/11 passing tests.
+
+#### 19. Actionable Commute Alert Generation Service
+- **Service**: `backend/services/commuteAlertGenerationService.js`
+- **Capabilities**:
+  - Formulates calm, concise titles and grounded messages strictly adhering to verified evidence.
+  - Adheres strictly to the defined project template when supported: `"Your selected train route is reported delayed. The current estimate adds approximately 20 minutes. Consider the available alternative route."`
+  - Recommends alternative routes only when strictly feasible and verified (never recommends infeasible alternatives).
+  - Explicitly distinguishes between verified, user-reported, estimated, and synthetic provenance without fabricating live feed details.
+  - In-memory key caching and duplicate suppression prevents duplicate generation for unchanged disruptions.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_alert_generation_service.js` (`npm run test:commute-alert-generation`): 9/9 passing tests.
+
+#### 20. Alert Lifecycle Management & Deduplication Service
+- **Service**: `backend/services/commuteAlertLifecycleService.js`
+- **Repository**: `backend/repositories/commuteDisruptionAlertRepository.js` (SQLite-backed persistent store).
+- **Capabilities**:
+  - Stable fingerprinting (`alert-fp:userId:disruptionId:routeOrService:category`) ensures identical reprocessed events are cleanly deduplicated (`DUPLICATE_IGNORED`).
+  - Detects material changes: severity escalation, delay changes >= 5 minutes, action changes, or validity extensions trigger atomic alert updates (`UPDATED`) without duplicate alerts.
+  - Automatically sweeps and marks overdue active alerts as `expired` (`EXPIRED_IGNORED` / `markExpiredAlerts`).
+  - Supports disruption resolution (`resolveAlertsForDisruption`): transitions active alerts to `resolved` and refuses to repeatedly reopen resolved alerts without meaningful state change (`RESOLVED_UNCHANGED`).
+  - Authorized dismissal (`dismissAlert`): transitions alert to `dismissed` while maintaining complete audit history and preventing cross-student access.
+  - SQLite database transactions guarantee race-condition safety during concurrent processing.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_alert_lifecycle.js` (`npm run test:alert-lifecycle`): 12/12 passing tests.
+
+#### 21. Personalized Commute Alert Delivery Service
+- **Service**: `backend/services/commuteAlertDeliveryService.js`
+- **Repositories**:
+  - `backend/repositories/commuteAlertPreferenceRepository.js`: Student alert preferences (alerts enabled/disabled, minimum severity threshold, enabled categories, preferred channels).
+  - `backend/repositories/commuteAlertDeliveryRepository.js`: Delivery tracking, attempt counts, provider receipts, and error history.
+- **Notification Channels**:
+  - **In-App Persistent Inbox (`in_app`)**: Fully functional and operational. Creates student `Notification` records in the primary database with priority mapping, deep links, and unread counters.
+  - **WebSocket / Socket.IO (`socket`)**: Integrated with backend Socket.io server. Dispatches live `commute:alert` events targeted to student-specific private rooms (`user:{userId}`) without leaking personal details to public channels.
+  - **Email (`email`)**: Operational fallback. When external SMTP credentials are unconfigured, logs diagnostic status cleanly without throwing and falls back safely to in-app delivery. Mock providers accurately receive payloads in test suites.
+  - **Browser Push (`push`)**: Operational fallback. Accurately reports unconfigured when VAPID keys / push subscriptions are absent without claiming browser push works on the server side. Safely falls back to in-app inbox.
+- **Safeguards**:
+  - Checks preferences first: suppresses delivery when alerts are disabled or below severity threshold.
+  - Idempotent delivery: checks `commuteAlertDeliveryRepository` before dispatching to prevent duplicate delivery.
+  - Failure tracking: records delivery errors without leaking secrets or tokens; supports clean retry on recovery.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_alert_delivery.js` (`npm run test:alert-delivery`): 12/12 passing tests.
+
+#### 22. Commute Alerts API & Background Processing Service
+- **Routes**: `backend/routes/commuteAlertRoutes.js`
+  - Mounted under `/api/commute/alerts` and alias `/api/student/commute/alerts`:
+    - `GET /api/commute/alerts`: Lists authenticated student's active and historical alerts with query filters (`status`, `severity`, `limit`).
+    - `GET /api/commute/alerts/:id`: Retrieves full alert detail with strict authorization (blocks cross-student access with 403 `FORBIDDEN`).
+    - `POST /api/commute/alerts/:id/dismiss`: Allows authenticated student to dismiss their own alert.
+    - `GET /api/commute/alerts/preferences`: Retrieves student's notification preferences with sensible defaults.
+    - `PUT /api/commute/alerts/preferences`: Updates student's alert preferences with Zod validation.
+    - `GET /api/commute/alerts/status`: Reports background scheduler status, configured channels, and live/synthetic feed status.
+    - `POST /api/commute/alerts/process`: Internal trigger for authorized alert processing jobs (dry-run, target user, batch evaluations).
+- **Background Processing**:
+  - `backend/services/commuteAlertProcessingService.js`: Evaluates active disruptions, detects relevance, updates lifecycles, and dispatches notifications atomically.
+  - Seamlessly hooked into `backend/services/ReminderScheduler.js` inside the existing single-loop scheduler (`processCommuteDisruptionAlerts`), avoiding separate unmonitored background cron processes.
+- **Automated Verification**:
+  - `backend/scripts/test_commute_alerts_api.js` (`npm run test:commute-alerts-api`): 11/11 passing tests.
+
+#### 23. Master Integration Verification: Commute Alert Delivery Pipeline
+- **Verification Suite**: `backend/scripts/integration_commute_alert_pipeline_master_test.js`
+- **Command**: `npm run test:alert-pipeline-master`
+- **Status**: 20/20 Scenarios Passing
+- **Verified End-to-End Pipeline**:
+  `available disruption data → relevance detection → route impact evaluation → alert generation → lifecycle management → deduplication → notification preference checks → delivery → authenticated alert API`
+- **Scenario Breakdown**:
+  1. **No disruption**: Clean evaluation produces zero active alerts or spurious notifications.
+  2. **Relevant train delay**: Detected on student's Western line corridor, generated with guidance, and delivered to in-app inbox.
+  3. **Irrelevant disruption**: Distant Harbor line disruption is safely ignored without alerting Western line commuters.
+  4. **Bus or transport service unavailable**: Flags route cancellation, marks route infeasible, and prompts alternative route.
+  5. **Multiple simultaneous disruptions**: Aggregates multi-modal delays (train + road congestion) cleanly into a unified impact summary.
+  6. **Route becoming infeasible**: Disruption threatening class arrival deadline recommends feasible alternative route.
+  7. **Updated disruption with materially changed impact**: Escalates severity and delay on existing active alert without creating a duplicate.
+  8. **Repeated processing of the same disruption**: Stable fingerprint ensures idempotent deduplication (`DUPLICATE_IGNORED`).
+  9. **Expired disruption**: Rejects stale creation and automatically marks elapsed active alerts as `expired`.
+  10. **Resolved disruption**: Transitions active alerts to `resolved` and refuses to reopen without meaningful state changes.
+  11. **Disabled notifications**: Respects student preference `alertsEnabled: false` and suppresses notification delivery.
+  12. **Severity preferences**: Filters alerts below student's minimum threshold (`severe`) while delivering matching critical ones.
+  13. **Successful notification delivery**: Dispatches to in-app inbox and records delivery status atomically.
+  14. **Delivery failure and retry**: Tracks failure without leaking secrets, safely retrying and succeeding on recovery.
+  15. **Duplicate delivery prevention**: Repeated calls to delivery service on identical alert are idempotent and never send repeated notifications.
+  16. **Unauthorized access**: Rejects cross-student alert inspection and dismissal with HTTP 403 `FORBIDDEN`.
+  17. **Provenance integrity**: Preserves distinct tiers (`VERIFIED`, `USER_REPORTED`, `ESTIMATED`, `SYNTHETIC`) and never treats synthetic data as verified live feed.
+  18. **Missing external feed / credentials**: Reports unconfigured status transparently without pretending live telemetry exists.
+  19. **Background job idempotency**: Consecutive background processing runs produce zero duplicate active alerts or deliveries.
+  20. **Existing backend regression coverage**: Verifies core health, transit stops, ride groups, live reports, feedback, and authentication endpoints remain functional.
+
+---
+
+### System Operational Status & Feed Configuration
+
+- **Implemented Alert Functionality**:
+  - Complete end-to-end alert pipeline: detection, grounded generation, atomic lifecycle management, fingerprint deduplication, preference-based delivery, authorized REST API, and scheduler integration.
+- **Operational Notification Channels**:
+  - `in_app`: **Active and Fully Operational** (persisted in SQLite database, exposed via authenticated API).
+  - `socket`: **Configured and Active** (emits to authenticated student private rooms via Socket.IO).
+  - `email`: **Operational Fallback** (mock provider supported for tests; transparently logs unconfigured status and safely falls back to `in_app` when SMTP credentials are not present).
+  - `push`: **Operational Fallback** (accurately reports unconfigured when VAPID keys/subscriptions are missing; safely falls back to `in_app` without claiming false browser push capabilities).
+- **Background Processing Configuration**:
+  - Integrated directly into the existing single-loop `ReminderScheduler.js` (`processCommuteDisruptionAlerts`), executing periodically alongside academic reminders.
+  - Concurrency-safe: utilizes SQLite transactions and in-memory execution locks (`isProcessing`) to ensure job idempotency.
+  - Manual trigger endpoint (`POST /api/commute/alerts/process`) available for testing, health verification, and external schedulers.
+- **Transport Feed Status (Live vs Mocked vs Synthetic)**:
+  - **Local Disruption Database**: Active (stores verified alerts and simulated scenarios).
+  - **Crowdsourced Community Reports**: Active (integrated via `LiveReport` voting and confirmation pipeline).
+  - **GTFS Static Transit Schedule**: Active (Mumbai suburban railway and BEST routes).
+  - **GTFS-RT / Real-Time Live Feed**: **Unconfigured (Mocked/Synthetic Fallback)**. Accurately reported as `unconfigured` (`isLiveFeed: false`, `sourceTier: 'SYNTHETIC' | 'USER_REPORTED'`). The system never fabricates live telemetry.
+- **Outstanding Production Setup**:
+  - Production SMTP service credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) for live email delivery.
+  - Production VAPID key pair (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`) and browser service worker push subscriptions for web push.
+  - Production GTFS-RT feed URL and API key from Mumbai transit agencies for live vehicle positions and trip updates.
+
+---
+
 ## Known Boundaries & Non-Claims
 - **No AI Guesswork in Route Selection**: All route scores, rankings, departure windows, and feasibility evaluations are 100% deterministic mathematical calculations based on timetables, disruptions, traffic levels, and weather.
 - **Optional AI Explanations Grounded & Audited**: AI only provides natural language phrasing of already verified recommendations. All AI output is strictly validated against underlying candidate data and instantly falls back to deterministic explanations upon any divergence or error.
@@ -380,6 +516,7 @@ API Response Envelope (commuteCandidateController)
 - **Privacy Guaranteed**: Precise student coordinates, door numbers, tokens, and personal calendars are never transmitted to external AI providers.
 - **No Fabrication of Academic Schedules**: Students without scheduled calendar entries are never assumed to have classes. Missing context falls back safely to user input or documented defaults.
 - **No Inferred Location Connections**: Missing or mismatched class locations are never assumed to connect to commute destinations.
+
 
 
 

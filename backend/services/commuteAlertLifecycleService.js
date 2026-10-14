@@ -165,7 +165,7 @@ class CommuteAlertLifecycleService {
         const genResult = this.generationService.generateAlertForDisruption(
           disruptionOrAlert,
           context,
-          options
+          { ...options, forceRegenerate: true }
         );
 
         if (!genResult.isGenerated || !genResult.alert) {
