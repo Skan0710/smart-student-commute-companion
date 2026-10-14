@@ -139,6 +139,23 @@ class ReminderScheduler {
   }
 
   /**
+   * Evaluates transit disruptions, manages alert lifecycle, and delivers notifications.
+   * Reuses the existing scheduler loop without creating an unnecessary second scheduler.
+   *
+   * @param {number} [asOfTime=Date.now()]
+   * @param {object} [options={}]
+   * @returns {Promise<object>}
+   */
+  async processCommuteDisruptionAlerts(asOfTime = Date.now(), options = {}) {
+    const { commuteAlertProcessingService } = require('./commuteAlertProcessingService');
+    return commuteAlertProcessingService.runProcessingJob({
+      currentTime: asOfTime,
+      trigger: options.trigger || 'scheduled',
+      ...options
+    });
+  }
+
+  /**
    * Starts background recurring processing.
    */
   startScheduler(options = {}) {
@@ -147,11 +164,17 @@ class ReminderScheduler {
     const intervalMs = options.intervalMs || 60000;
     this.isRunning = true;
 
-    this.timer = setInterval(() => {
+    this.timer = setInterval(async () => {
       try {
         this.processDueReminders();
       } catch (err) {
-        console.error('[ReminderScheduler] Error during scheduled tick:', err.message);
+        console.error('[ReminderScheduler] Error during scheduled reminder tick:', err.message);
+      }
+
+      try {
+        await this.processCommuteDisruptionAlerts();
+      } catch (err) {
+        console.error('[ReminderScheduler] Error during scheduled commute alert tick:', err.message);
       }
     }, intervalMs);
 

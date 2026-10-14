@@ -95,6 +95,7 @@
     "test:commute-alert-generation": "node scripts/test_commute_alert_generation_service.js",
     "test:alert-lifecycle": "node scripts/test_commute_alert_lifecycle.js",
     "test:alert-delivery": "node scripts/test_commute_alert_delivery.js",
+    "test:commute-alerts-api": "node scripts/integration_commute_alerts_api_test.js",
     "test:alternate-routes": "node scripts/test_alternate_route_generation.js",
     "test:commute-integration": "node scripts/integration_commute_route_generation_test.js",
     "test:study-resource-service": "node scripts/test_study_resource_service.js",

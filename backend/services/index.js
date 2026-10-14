@@ -154,8 +154,15 @@ const {
   EmailNotificationProvider,
   BrowserPushNotificationProvider
 } = require('./commuteAlertDeliveryService');
+const {
+  commuteAlertProcessingService,
+  CommuteAlertProcessingService
+} = require('./commuteAlertProcessingService');
 
 module.exports = {
+  // Commute Alert Processing Service (Day 20)
+  commuteAlertProcessingService,
+  CommuteAlertProcessingService,
   // Commute Alert Delivery Service (Day 20)
   commuteAlertDeliveryService,
   CommuteAlertDeliveryService,

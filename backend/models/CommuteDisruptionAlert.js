@@ -393,7 +393,9 @@ class CommuteDisruptionAlert {
       validFrom: Number(disruption.startTime || now),
       validUntil: Number(disruption.endTime || (now + 3600000)),
       status,
-      provenance: disruption.provenance ? disruption.provenance.toJSON() : undefined,
+      provenance: disruption.provenance
+        ? (typeof disruption.provenance.toJSON === 'function' ? disruption.provenance.toJSON() : disruption.provenance)
+        : undefined,
       title: `[${modeName} Alert] ${disruption.type.replace(/_/g, ' ')} near ${areaName}`,
       message: disruption.description || `Disruption reported on ${disruption.affectedMode} near ${areaName}.`,
       relevanceReason,

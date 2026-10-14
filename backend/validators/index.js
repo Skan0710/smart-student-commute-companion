@@ -229,7 +229,9 @@ module.exports = {
   planningInsightsQuerySchema,
   processPlanningRemindersSchema,
   // Student Commute Preferences (P9)
-  ...require('./commutePreferenceValidators')
+  ...require('./commutePreferenceValidators'),
+  // Commute Disruption Alerts & Processing (Day 20)
+  ...require('./commuteAlertValidators')
 };
 
 
