@@ -142,8 +142,15 @@ const {
   buildDeterministicAlertTitle,
   buildDeterministicAlertDescription
 } = require('./commuteAlertGenerationService');
+const {
+  commuteAlertLifecycleService,
+  CommuteAlertLifecycleService
+} = require('./commuteAlertLifecycleService');
 
 module.exports = {
+  // Commute Alert Lifecycle & Deduplication Service (Day 20)
+  commuteAlertLifecycleService,
+  CommuteAlertLifecycleService,
   // Commute Alert Generation Service
   commuteAlertGenerationService,
   CommuteAlertGenerationService,

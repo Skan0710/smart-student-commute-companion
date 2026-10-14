@@ -60,6 +60,7 @@ module.exports = {
   transportRepository,
   DisruptionRepository,
   disruptionRepository,
+  ...require('./CommuteDisruptionAlertRepository'),
   ...require('./StudentCommutePreferenceRepository'),
   ...require('./TransportNetworkRepository')
 };

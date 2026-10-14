@@ -241,6 +241,7 @@ const commuteDisruptionAlertSchema = z.object({
   recommendedAction: alertRecommendedActionSchema.nullable().optional().default(null),
   alternativeRoute: alertAlternativeRouteSchema.nullable().optional().default(null),
   affectedContext: affectedCommuteContextSchema.nullable().optional().default(null),
+  fingerprint: z.string().max(250).nullable().optional().default(null),
   isLiveFeed: z.boolean().default(false),
   dismissedAt: z.number().int().positive().nullable().optional().default(null),
   resolvedAt: z.number().int().positive().nullable().optional().default(null),
@@ -680,12 +681,92 @@ class CommuteDisruptionAlert {
         matchedSegments: [...(this.affectedContext.matchedSegments || [])],
         plannedDepartureTime: this.affectedContext.plannedDepartureTime
       } : null,
+      fingerprint: this.fingerprint || null,
       isLiveFeed: this.isLiveFeed,
       dismissedAt: this.dismissedAt,
       resolvedAt: this.resolvedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     };
+  }
+
+  /**
+   * Serializes domain instance to relational SQLite row format.
+   * @param {string} [fingerprint]
+   * @returns {object}
+   */
+  toRow(fingerprint = '') {
+    return {
+      id: this.id,
+      user_id: this.userId || null,
+      disruption_id: this.disruptionId || null,
+      fingerprint: fingerprint || this.fingerprint || '',
+      disruption_type: this.disruptionType,
+      severity: this.severity,
+      status: this.status,
+      title: this.title,
+      message: this.message,
+      relevance_reason: this.relevanceReason,
+      scope_json: JSON.stringify(this.scope || {}),
+      recommended_action_json: this.recommendedAction ? JSON.stringify(this.recommendedAction) : null,
+      alternative_route_json: this.alternativeRoute ? JSON.stringify(this.alternativeRoute) : null,
+      affected_context_json: this.affectedContext ? JSON.stringify(this.affectedContext) : null,
+      provenance_json: JSON.stringify(this.provenance?.toJSON ? this.provenance.toJSON() : (this.provenance || {})),
+      is_live_feed: this.isLiveFeed ? 1 : 0,
+      valid_from: this.validFrom,
+      valid_until: this.validUntil,
+      dismissed_at: this.dismissedAt || null,
+      resolved_at: this.resolvedAt || null,
+      created_at: this.createdAt,
+      updated_at: this.updatedAt
+    };
+  }
+
+  /**
+   * Reconstitutes a CommuteDisruptionAlert domain instance from a database row.
+   * @param {object} row
+   * @returns {CommuteDisruptionAlert|null}
+   */
+  static fromRow(row) {
+    if (!row) return null;
+    let scope = { area: 'Mumbai Metropolitan Region' };
+    let recommendedAction = null;
+    let alternativeRoute = null;
+    let affectedContext = null;
+    let provenance = undefined;
+
+    try { if (row.scope_json) scope = JSON.parse(row.scope_json); } catch (_) {}
+    try { if (row.recommended_action_json) recommendedAction = JSON.parse(row.recommended_action_json); } catch (_) {}
+    try { if (row.alternative_route_json) alternativeRoute = JSON.parse(row.alternative_route_json); } catch (_) {}
+    try { if (row.affected_context_json) affectedContext = JSON.parse(row.affected_context_json); } catch (_) {}
+    try { if (row.provenance_json) provenance = JSON.parse(row.provenance_json); } catch (_) {}
+
+    const alert = new CommuteDisruptionAlert({
+      id: row.id,
+      userId: row.user_id || null,
+      disruptionId: row.disruption_id || null,
+      disruptionType: row.disruption_type,
+      severity: row.severity,
+      scope,
+      validFrom: Number(row.valid_from),
+      validUntil: Number(row.valid_until),
+      status: row.status,
+      provenance,
+      title: row.title,
+      message: row.message,
+      relevanceReason: row.relevance_reason,
+      recommendedAction,
+      alternativeRoute,
+      affectedContext,
+      fingerprint: row.fingerprint || null,
+      isLiveFeed: Boolean(row.is_live_feed),
+      dismissedAt: row.dismissed_at ? Number(row.dismissed_at) : null,
+      resolvedAt: row.resolved_at ? Number(row.resolved_at) : null,
+      createdAt: Number(row.created_at),
+      updatedAt: Number(row.updated_at)
+    });
+
+    return alert;
   }
 }
 
