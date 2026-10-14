@@ -174,6 +174,49 @@ const recommendationStatusEnum = z.enum([
   'INFEASIBLE'
 ]);
 
+/**
+ * Status lifecycle of a commute disruption alert.
+ */
+const ALERT_STATUSES = Object.freeze({
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  DISMISSED: 'dismissed',
+  RESOLVED: 'resolved'
+});
+
+const alertStatusEnum = z.preprocess(
+  val => (typeof val === 'string' ? val.toLowerCase() : val),
+  z.enum(['active', 'expired', 'dismissed', 'resolved'])
+);
+
+/**
+ * Commuter-focused action types for disruption alerts.
+ */
+const ALERT_ACTION_TYPES = Object.freeze({
+  DEPART_EARLIER: 'depart_earlier',
+  SWITCH_MODE: 'switch_mode',
+  AVOID_CORRIDOR: 'avoid_corridor',
+  TAKE_ALTERNATIVE_ROUTE: 'take_alternative_route',
+  MONITOR_STATUS: 'monitor_status',
+  PROCEED_WITH_CAUTION: 'proceed_with_caution',
+  SEEK_ASSISTANCE: 'seek_assistance',
+  NONE: 'none'
+});
+
+const alertActionTypeEnum = z.preprocess(
+  val => (typeof val === 'string' ? val.toLowerCase() : val),
+  z.enum([
+    'depart_earlier',
+    'switch_mode',
+    'avoid_corridor',
+    'take_alternative_route',
+    'monitor_status',
+    'proceed_with_caution',
+    'seek_assistance',
+    'none'
+  ])
+);
+
 // ============================================================================
 // 2. HELPER FUNCTIONS
 // ============================================================================
@@ -719,6 +762,8 @@ module.exports = {
   ROUTE_PREFERENCES,
   LEG_TYPES,
   RECOMMENDATION_STATUS,
+  ALERT_STATUSES,
+  ALERT_ACTION_TYPES,
 
   // Enums
   transportModeEnum,
@@ -729,6 +774,8 @@ module.exports = {
   routePreferenceEnum,
   legTypeEnum,
   recommendationStatusEnum,
+  alertStatusEnum,
+  alertActionTypeEnum,
 
   // Schemas
   provenanceSchema,

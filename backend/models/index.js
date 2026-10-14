@@ -124,7 +124,8 @@ module.exports = {
   ...require('./PersonalizedCommuteRecommendation'),
   ...require('./PersonalizedRecommendationExplanation'),
   ...require('./DepartureAdvice'),
-  ...require('./ContextualCommutePersonalization')
+  ...require('./ContextualCommutePersonalization'),
+  ...require('./CommuteDisruptionAlert')
 };
 
 
