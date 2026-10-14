@@ -136,8 +136,19 @@ const {
   commuteDisruptionDetectionService,
   CommuteDisruptionDetectionService
 } = require('./commuteDisruptionDetectionService');
+const {
+  commuteAlertGenerationService,
+  CommuteAlertGenerationService,
+  buildDeterministicAlertTitle,
+  buildDeterministicAlertDescription
+} = require('./commuteAlertGenerationService');
 
 module.exports = {
+  // Commute Alert Generation Service
+  commuteAlertGenerationService,
+  CommuteAlertGenerationService,
+  buildDeterministicAlertTitle,
+  buildDeterministicAlertDescription,
   // Commute Disruption Detection Service
   commuteDisruptionDetectionService,
   CommuteDisruptionDetectionService,

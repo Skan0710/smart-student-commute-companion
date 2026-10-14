@@ -207,6 +207,19 @@ const affectedCommuteContextSchema = z.object({
   plannedDepartureTime: z.number().int().positive().nullable().optional().default(null)
 });
 
+/**
+ * Alternative route summary when available.
+ */
+const alertAlternativeRouteSchema = z.object({
+  routeId: z.string().min(1).max(100),
+  name: z.string().max(150).optional().default(''),
+  primaryMode: transportModeEnum.optional(),
+  totalDurationMinutes: z.number().int().min(0).optional(),
+  estimatedArrivalTime: z.string().max(10).optional(),
+  summary: z.string().max(300).optional().default(''),
+  isFeasible: z.boolean().default(true)
+});
+
 // ============================================================================
 // 3. CORE DISRUPTION ALERT SCHEMA
 // ============================================================================
@@ -226,6 +239,7 @@ const commuteDisruptionAlertSchema = z.object({
   message: z.string().min(5, 'Message must be at least 5 characters').max(500),
   relevanceReason: z.string().min(3, 'Relevance reason must be at least 3 characters').max(300),
   recommendedAction: alertRecommendedActionSchema.nullable().optional().default(null),
+  alternativeRoute: alertAlternativeRouteSchema.nullable().optional().default(null),
   affectedContext: affectedCommuteContextSchema.nullable().optional().default(null),
   isLiveFeed: z.boolean().default(false),
   dismissedAt: z.number().int().positive().nullable().optional().default(null),
@@ -645,6 +659,15 @@ class CommuteDisruptionAlert {
         suggestedAlternativeMode: this.recommendedAction.suggestedAlternativeMode,
         suggestedCorridor: this.recommendedAction.suggestedCorridor,
         guidance: this.recommendedAction.guidance
+      } : null,
+      alternativeRoute: this.alternativeRoute ? {
+        routeId: this.alternativeRoute.routeId,
+        name: this.alternativeRoute.name,
+        primaryMode: this.alternativeRoute.primaryMode,
+        totalDurationMinutes: this.alternativeRoute.totalDurationMinutes,
+        estimatedArrivalTime: this.alternativeRoute.estimatedArrivalTime,
+        summary: this.alternativeRoute.summary,
+        isFeasible: this.alternativeRoute.isFeasible !== false
       } : null,
       affectedContext: this.affectedContext ? {
         userId: this.affectedContext.userId,
