@@ -284,6 +284,52 @@ const travelOrganizerSchema = z.object({
   avatarUrl: z.string().url().nullable().optional().default(null)
 });
 
+/**
+ * Journey compatibility tiers for shared travel matching.
+ */
+const COMPATIBILITY_TIERS = Object.freeze({
+  EXCELLENT: 'EXCELLENT',
+  HIGH: 'HIGH',
+  MODERATE: 'MODERATE',
+  INCOMPATIBLE: 'INCOMPATIBLE'
+});
+
+const compatibilityTierEnum = z.enum([
+  'EXCELLENT',
+  'HIGH',
+  'MODERATE',
+  'INCOMPATIBLE'
+]);
+
+/**
+ * Rejection reason codes for incompatible shared journey pairs.
+ */
+const MATCH_REJECTION_REASONS = Object.freeze({
+  DESTINATION_MISMATCH: 'DESTINATION_MISMATCH',
+  TIMING_MISMATCH: 'TIMING_MISMATCH',
+  MODE_MISMATCH: 'MODE_MISMATCH',
+  GROUP_FULL: 'GROUP_FULL',
+  GROUP_EXPIRED: 'GROUP_EXPIRED',
+  INVITE_ONLY: 'INVITE_ONLY',
+  ALREADY_MEMBER: 'ALREADY_MEMBER',
+  CONSENT_REQUIRED: 'CONSENT_REQUIRED',
+  SCORE_BELOW_THRESHOLD: 'SCORE_BELOW_THRESHOLD',
+  PRIVACY_VIOLATION: 'PRIVACY_VIOLATION'
+});
+
+const matchRejectionReasonEnum = z.enum([
+  'DESTINATION_MISMATCH',
+  'TIMING_MISMATCH',
+  'MODE_MISMATCH',
+  'GROUP_FULL',
+  'GROUP_EXPIRED',
+  'INVITE_ONLY',
+  'ALREADY_MEMBER',
+  'CONSENT_REQUIRED',
+  'SCORE_BELOW_THRESHOLD',
+  'PRIVACY_VIOLATION'
+]);
+
 module.exports = {
   SHARED_TRAVEL_STATUSES,
   sharedTravelStatusEnum,
@@ -305,5 +351,9 @@ module.exports = {
   suggestedMeetingPointSchema,
   travelOrganizerSchema,
   TRANSPORT_MODES,
-  transportModeEnum
+  transportModeEnum,
+  COMPATIBILITY_TIERS,
+  compatibilityTierEnum,
+  MATCH_REJECTION_REASONS,
+  matchRejectionReasonEnum
 };

@@ -99,6 +99,7 @@
     "test:alert-pipeline-master": "node scripts/integration_commute_alert_pipeline_master_test.js",
     "test:shared-travel-models": "node scripts/test_shared_travel_domain_models.js",
     "test:shared-travel-consent": "node scripts/test_shared_travel_consent_service.js",
+    "test:shared-travel-matching": "node scripts/test_shared_travel_matching_service.js",
     "test:alternate-routes": "node scripts/test_alternate_route_generation.js",
     "test:commute-integration": "node scripts/integration_commute_route_generation_test.js",
     "test:study-resource-service": "node scripts/test_study_resource_service.js",
