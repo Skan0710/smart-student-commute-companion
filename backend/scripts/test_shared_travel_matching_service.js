@@ -64,6 +64,14 @@ async function runTests() {
   const baseStart = now + 7200000; // 2 hours from now
   const baseEnd = baseStart + 1800000; // 30 min window
 
+  // Clean up any stale test groups from previous runs
+  try {
+    userRepository.database.prepare("DELETE FROM shared_travel_groups WHERE id LIKE 'stg-test-%' OR id LIKE 'compat-%' OR id LIKE 'powai-%' OR id LIKE 'afternoon-%' OR id LIKE 'adjacent-%' OR id LIKE 'corridor-%' OR id LIKE 'missing-%' OR id LIKE 'dup-%' OR id LIKE 'full-%' OR id LIKE 'auto-%' OR id LIKE 'expired-%' OR id LIKE 'invite-only-%'").run();
+    userRepository.database.prepare("DELETE FROM shared_travel_members WHERE group_id LIKE 'stg-test-%' OR group_id LIKE 'compat-%' OR group_id LIKE 'powai-%' OR group_id LIKE 'afternoon-%' OR group_id LIKE 'adjacent-%' OR group_id LIKE 'corridor-%' OR group_id LIKE 'missing-%' OR group_id LIKE 'dup-%' OR group_id LIKE 'full-%' OR group_id LIKE 'auto-%' OR group_id LIKE 'expired-%' OR group_id LIKE 'invite-only-%'").run();
+  } catch (e) {
+    // ignore
+  }
+
   // Setup test users in user repository
   const userA = userRepository.create({
     email: `student_alpha_${now}@djsce.edu`,

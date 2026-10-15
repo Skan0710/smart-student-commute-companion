@@ -141,7 +141,7 @@ class SharedTravelGroupRepository {
       params.push(`%${options.destination}%`);
     }
 
-    const limit = Math.min(50, Number(options.limit) || 20);
+    const limit = Math.min(500, Number(options.limit) || 100);
     params.push(limit);
 
     const query = `

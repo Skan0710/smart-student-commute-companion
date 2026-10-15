@@ -198,7 +198,11 @@ class SharedTravelMatchingService {
     };
 
     // 4. Retrieve candidate active groups from repository (with members loaded for capacity check)
-    const candidateGroups = this.groupRepo.findActive({ currentTime, includeMembers: true });
+    const candidateGroups = this.groupRepo.findActive({
+      currentTime,
+      includeMembers: true,
+      limit: options.queryLimit || 100
+    });
 
     // 5. Evaluate and deduplicate matches
     const matches = [];
