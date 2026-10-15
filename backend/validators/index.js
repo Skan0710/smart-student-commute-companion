@@ -231,7 +231,9 @@ module.exports = {
   // Student Commute Preferences (P9)
   ...require('./commutePreferenceValidators'),
   // Commute Disruption Alerts & Processing (Day 20)
-  ...require('./commuteAlertValidators')
+  ...require('./commuteAlertValidators'),
+  // Shared Travel & Voluntary Commute Coordination (Day 21)
+  ...require('./sharedTravelValidators')
 };
 
 
