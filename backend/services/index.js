@@ -158,8 +158,16 @@ const {
   commuteAlertProcessingService,
   CommuteAlertProcessingService
 } = require('./commuteAlertProcessingService');
+const {
+  sharedTravelConsentService,
+  SharedTravelConsentService
+} = require('./sharedTravelConsentService');
 
 module.exports = {
+  // Shared Travel & Voluntary Commute Coordination (Day 21)
+  sharedTravelConsentService,
+  SharedTravelConsentService,
+
   // Commute Alert Processing Service (Day 20)
   commuteAlertProcessingService,
   CommuteAlertProcessingService,

@@ -64,7 +64,10 @@ module.exports = {
   ...require('./CommuteAlertPreferenceRepository'),
   ...require('./CommuteAlertDeliveryRepository'),
   ...require('./StudentCommutePreferenceRepository'),
-  ...require('./TransportNetworkRepository')
+  ...require('./TransportNetworkRepository'),
+  ...require('./StudentTravelSharingPreferenceRepository'),
+  ...require('./SharedTravelGroupRepository'),
+  ...require('./SharedTravelMemberRepository')
 };
 
 
