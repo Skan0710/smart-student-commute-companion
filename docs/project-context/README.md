@@ -77,7 +77,7 @@ See `GIT_WORKFLOW.md` and `days/`.
 - Every file in `backend/docs/*.md` is stamped `**Author:** Skan (Backend Developer)`
   (15+ documents: architecture, authentication, database, service layer, notifications,
   planning, academic, goals…).
-- All backend commits are authored by `SkanxGladiatorr07` / `Skan0710`
+- All backend commits are authored by `Skan0710`
   (`anirudhvshenoy07@gmail.com`).
 
 Skan owns `backend/` (server, database, API, Socket.IO). Xcaliber must not modify it.
