@@ -126,7 +126,13 @@ module.exports = {
   ...require('./DepartureAdvice'),
   ...require('./ContextualCommutePersonalization'),
   ...require('./CommuteDisruptionAlert'),
-  ...require('./CommuteAlertPreference')
+  ...require('./CommuteAlertPreference'),
+
+  // Shared Travel & Voluntary Student Commute Coordination
+  ...require('./SharedTravelContracts'),
+  ...require('./SharedTravelMember'),
+  ...require('./SharedTravelGroup'),
+  ...require('./StudentTravelSharingPreference')
 };
 
 

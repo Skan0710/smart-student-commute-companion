@@ -97,6 +97,7 @@
     "test:alert-delivery": "node scripts/test_commute_alert_delivery.js",
     "test:commute-alerts-api": "node scripts/integration_commute_alerts_api_test.js",
     "test:alert-pipeline-master": "node scripts/integration_commute_alert_pipeline_master_test.js",
+    "test:shared-travel-models": "node scripts/test_shared_travel_domain_models.js",
     "test:alternate-routes": "node scripts/test_alternate_route_generation.js",
     "test:commute-integration": "node scripts/integration_commute_route_generation_test.js",
     "test:study-resource-service": "node scripts/test_study_resource_service.js",
