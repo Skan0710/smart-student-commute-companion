@@ -171,6 +171,10 @@ const {
   SharedMeetingPointService,
   MEETING_POINT_SAFETY_DISCLAIMER
 } = require('./sharedMeetingPointService');
+const {
+  sharedTravelCoordinationService,
+  SharedTravelCoordinationService
+} = require('./sharedTravelCoordinationService');
 
 module.exports = {
   // Shared Travel & Voluntary Commute Coordination (Day 21)
@@ -180,6 +184,8 @@ module.exports = {
   SharedTravelMatchingService,
   sharedMeetingPointService,
   SharedMeetingPointService,
+  sharedTravelCoordinationService,
+  SharedTravelCoordinationService,
   MEETING_POINT_SAFETY_DISCLAIMER,
 
   // Commute Alert Processing Service (Day 20)

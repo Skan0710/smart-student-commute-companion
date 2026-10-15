@@ -101,6 +101,7 @@
     "test:shared-travel-consent": "node scripts/test_shared_travel_consent_service.js",
     "test:shared-travel-matching": "node scripts/test_shared_travel_matching_service.js",
     "test:shared-meeting-points": "node scripts/test_shared_meeting_point_service.js",
+    "test:shared-travel-coordination": "node scripts/test_shared_travel_coordination_service.js",
     "test:alternate-routes": "node scripts/test_alternate_route_generation.js",
     "test:commute-integration": "node scripts/integration_commute_route_generation_test.js",
     "test:study-resource-service": "node scripts/test_study_resource_service.js",

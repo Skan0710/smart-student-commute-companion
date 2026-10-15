@@ -43,13 +43,25 @@ class SharedTravelConsentService {
     memberRepo = sharedTravelMemberRepository,
     preferenceRepo = studentTravelSharingPreferenceRepository,
     userRepo = userRepository,
+    coordinationService = null,
     dbInstance = null
   } = {}) {
     this.groupRepo = groupRepo;
     this.memberRepo = memberRepo;
     this.preferenceRepo = preferenceRepo;
     this.userRepo = userRepo;
+    this.coordinationService = coordinationService;
     this.db = dbInstance;
+  }
+
+  get coordinator() {
+    if (this.coordinationService) return this.coordinationService;
+    try {
+      const { sharedTravelCoordinationService } = require('./sharedTravelCoordinationService');
+      return sharedTravelCoordinationService;
+    } catch (e) {
+      return null;
+    }
   }
 
   get database() {
@@ -243,6 +255,19 @@ class SharedTravelConsentService {
       this.memberRepo.save(member);
     })();
 
+    // Notify invited student via coordination service
+    if (candidateUser && this.coordinator) {
+      try {
+        this.coordinator.notifyInvitation({
+          groupId,
+          organizerId,
+          inviteeId: candidateUser.id
+        });
+      } catch (e) {
+        // Safe delivery handling
+      }
+    }
+
     return {
       success: true,
       invited: true,
@@ -389,6 +414,19 @@ class SharedTravelConsentService {
         group: updatedGroup.toSafeView(studentId)
       };
     })();
+
+    // Notify organizer and members
+    if (this.coordinator) {
+      try {
+        this.coordinator.notifyMembershipChange({
+          groupId,
+          studentId,
+          action: 'ACCEPT'
+        });
+      } catch (e) {}
+    }
+
+    return result;
   }
 
   /**
@@ -405,7 +443,7 @@ class SharedTravelConsentService {
       throw new UnauthorizedError('Student authentication is required.');
     }
 
-    return this.database.transaction(() => {
+    const result = this.database.transaction(() => {
       const member = this.memberRepo.findByGroupAndUser(groupId, studentId);
       if (!member) {
         throw new NotFoundError('Invitation or membership not found.');
@@ -423,6 +461,18 @@ class SharedTravelConsentService {
         status: SHARED_MEMBER_STATUSES.DECLINED
       };
     })();
+
+    if (this.coordinator) {
+      try {
+        this.coordinator.notifyMembershipChange({
+          groupId,
+          studentId,
+          action: 'DECLINE'
+        });
+      } catch (e) {}
+    }
+
+    return result;
   }
 
   /**
@@ -439,7 +489,7 @@ class SharedTravelConsentService {
       throw new UnauthorizedError('Student authentication is required.');
     }
 
-    return this.database.transaction(() => {
+    const result = this.database.transaction(() => {
       const member = this.memberRepo.findByGroupAndUser(groupId, studentId);
       if (!member) {
         throw new NotFoundError('Membership record not found for this shared travel group.');
@@ -460,6 +510,18 @@ class SharedTravelConsentService {
         status: SHARED_MEMBER_STATUSES.LEFT
       };
     })();
+
+    if (this.coordinator) {
+      try {
+        this.coordinator.notifyMembershipChange({
+          groupId,
+          studentId,
+          action: 'WITHDRAW'
+        });
+      } catch (e) {}
+    }
+
+    return result;
   }
 
   /**
@@ -477,7 +539,7 @@ class SharedTravelConsentService {
       throw new UnauthorizedError('Organizer authentication is required.');
     }
 
-    return this.database.transaction(() => {
+    const result = this.database.transaction(() => {
       const group = this.groupRepo.findById(groupId, true);
       if (!group) {
         throw new NotFoundError('Shared travel group not found.');
@@ -501,6 +563,18 @@ class SharedTravelConsentService {
         status: SHARED_TRAVEL_STATUSES.CANCELLED
       };
     })();
+
+    if (this.coordinator) {
+      try {
+        this.coordinator.cancelJourney({
+          groupId,
+          organizerId,
+          reason
+        });
+      } catch (e) {}
+    }
+
+    return result;
   }
 
   /**
@@ -644,6 +718,15 @@ class SharedTravelConsentService {
           }
         }
       })();
+
+      if (this.coordinator) {
+        try {
+          this.coordinator.expireJourney({
+            groupId: group.id,
+            now
+          });
+        } catch (e) {}
+      }
     }
 
     return {
