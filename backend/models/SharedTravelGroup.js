@@ -135,6 +135,15 @@ class SharedTravelGroup {
     const id = input.id || `stg-${now}-${Math.random().toString(36).substring(2, 7)}`;
     const expiresAt = input.expiresAt || input.departureWindow?.endTime || (now + 4 * 3600 * 1000);
 
+    // Provide default public transit meeting point if omitted
+    const defaultMeetingPoint = input.suggestedMeetingPoint || {
+      name: `${input.originArea || 'Station'} Main Concourse Gate`,
+      area: input.originArea || 'Mumbai Metropolitan Region',
+      type: 'station_gate',
+      landmark: 'Main Station Booking Concourse',
+      notes: 'Initial meeting point proposed at origin transit concourse'
+    };
+
     // Automatically create organizer member entry with explicit voluntary opt-in
     const organizerMember = SharedTravelMember.create({
       groupId: id,
@@ -151,6 +160,7 @@ class SharedTravelGroup {
     return new SharedTravelGroup({
       ...input,
       id,
+      suggestedMeetingPoint: defaultMeetingPoint,
       expiresAt,
       members: [organizerMember],
       createdAt: input.createdAt || now,

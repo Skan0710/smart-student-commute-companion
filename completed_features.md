@@ -508,14 +508,132 @@ API Response Envelope (commuteCandidateController)
 
 ---
 
+## Day 21: Privacy-Aware Voluntary Shared Travel & Coordination
+
+Day 21 establishes domain models, privacy safeguards, matching algorithms, public meeting point recommendations, lifecycle coordination notifications, and authenticated REST APIs for voluntary student commute coordination across the Mumbai Metropolitan Region (MMR).
+
+### Architecture & Workflows
+```
+Student Opt-In Consent (PUT /api/shared-travel/preferences)
+  ↓
+Create Voluntary Journey (POST /api/shared-travel/journeys)
+  ↓
+Invite / Participation Request (POST /api/shared-travel/journeys/:id/invite | /join)
+  ↓
+Explicit Voluntary Consent (POST /api/shared-travel/journeys/:id/accept - consentConfirmed: true)
+  ↓
+Privacy-Aware Corridor Matching (POST /api/shared-travel/journeys/match)
+  ↓
+Verified Public Meeting Points (GET /api/shared-travel/meeting-points)
+  ↓
+Journey Coordination & Updates (PATCH /api/shared-travel/journeys/:id)
+  ↓
+Idempotent Notification Delivery (Day 20 In-App & Socket Infrastructure)
+  ↓
+Voluntary Withdrawal / Cancellation (POST /api/shared-travel/journeys/:id/withdraw | /cancel)
+```
+
+---
+
+### Features Implemented & Verified
+
+#### 1. Domain Models & Contracts (`SharedTravelContracts`, `SharedTravelGroup`, `SharedTravelMember`, `StudentTravelSharingPreference`)
+- **Location**: `backend/models/SharedTravelContracts.js`, `backend/models/SharedTravelGroup.js`, `backend/models/SharedTravelMember.js`, `backend/models/StudentTravelSharingPreference.js`
+- **Capabilities**:
+  - Voluntary participation: sharing is disabled by default (`sharing_enabled: 0`, `opted_out`). Requires explicit student opt-in.
+  - Strict privacy-by-design: accepts coarse areas only (`Borivali West`, `Andheri East`), rejecting GPS decimal coordinates, room/door numbers, and residential patterns.
+  - Anti-tracking enforcement: rejects live tracking telemetry, breadcrumbs, device IDs, and location history fields.
+  - Granular lifecycle states: `draft`, `open`, `active`, `completed`, `cancelled`, `expired` for journeys; `pending`, `accepted`, `declined`, `left`, `removed`, `cancelled` for members.
+  - Privacy boundaries: `toSafeView(viewerId)` strips participant rosters, member identities, and coordination notes from non-members.
+
+#### 2. Consent Service (`SharedTravelConsentService`)
+- **Location**: `backend/services/sharedTravelConsentService.js`
+- **Capabilities**:
+  - Manages student voluntary preferences (`enableSharing`, `disableSharing`).
+  - Journey creation: enforces organizer opt-in and saves organizer member atomically inside SQLite transactions.
+  - Non-enumeration invitations: unknown or opted-out student identifiers return safe neutral acknowledgment without leaking account existence.
+  - Explicit consent enforcement: accepting an invitation strictly requires `consentConfirmed: true`.
+  - Unconditional decline: students can decline without providing any reason.
+  - Safe voluntary withdrawal: participants can withdraw at any time, immediately terminating future sharing of their information.
+  - Role-based authorization: only organizers can cancel or modify journeys.
+
+#### 3. Privacy-Preserving Matching Service (`SharedTravelMatchingService`)
+- **Location**: `backend/services/sharedTravelMatchingService.js`
+- **Capabilities**:
+  - Identifies compatible shared travel opportunities using ONLY consented coarse information.
+  - Considers coarse origin areas, destination campus clusters, departure windows, and compatible transport modes.
+  - Hard incompatibility gates: strict rejection of destination mismatches, disjoint departure windows, and disallowed transport modes.
+  - Bounded departure windows with configurable flex buffer minutes.
+  - Information minimization: returns only high-level compatibility scores, tiers (`EXCELLENT`, `HIGH`, `MODERATE`), and privacy-safe explanations.
+  - Proximity disclaimer: explicitly clarifies that matches are corridor estimates and live physical proximity is never tracked.
+
+#### 4. Grounded Public Meeting Point Service (`SharedMeetingPointService`)
+- **Location**: `backend/services/sharedMeetingPointService.js`
+- **Capabilities**:
+  - Suggests verified, accessible public meeting points grounded in physical transit hubs, station concourses, and campus arrival gates.
+  - Grounded knowledge base: Western Railway stations, Central Railway hubs, Metro Line 1 concourses, and college arrival gates.
+  - Transparent access timing: walking times labeled with `ESTIMATED` confidence and pedestrian notes.
+  - Honest limitation reporting: returns zero fabricated locations for unmapped areas with an explicit limitation notice.
+  - Safety disclaimer: universal disclaimer stating that suggested points are public transit landmarks and do not guarantee personal safety.
+
+#### 5. Journey Coordination Service (`SharedTravelCoordinationService`)
+- **Location**: `backend/services/sharedTravelCoordinationService.js`
+- **Capabilities**:
+  - Reuses the Day 20 notification infrastructure (`Notification` domain model with type `ride_group`, `NotificationRepository`, `CommuteAlertDeliveryRepository`).
+  - Coordinates proposed/confirmed timing changes and meeting points with explicit `[PROPOSED]` or `[CONFIRMED]` labels.
+  - Strict withdrawal invariant: never notifies or silently re-enrolls students who have withdrawn (`status === 'left'`).
+  - Idempotency & deduplication: deterministic idempotency keys (`stg-coord:...`) prevent duplicate deliveries on repeated processing.
+  - Respects student opt-out and alert preference settings.
+
+#### 6. Authenticated REST API (`SharedTravelController`, `SharedTravelRoutes`)
+- **Location**: `backend/controllers/sharedTravelController.js`, `backend/routes/sharedTravelRoutes.js`, `backend/validators/sharedTravelValidators.js`, `backend/docs/SHARED_TRAVEL_API.md`
+- **Endpoints**:
+  - `GET /api/shared-travel/preferences` & `PUT /api/shared-travel/preferences`
+  - `GET /api/shared-travel/meeting-points`
+  - `POST /api/shared-travel/journeys/match`
+  - `GET /api/shared-travel/journeys` & `POST /api/shared-travel/journeys`
+  - `GET /api/shared-travel/journeys/:id` & `PATCH /api/shared-travel/journeys/:id`
+  - `POST /api/shared-travel/journeys/:id/invite` & `POST /api/shared-travel/journeys/:id/join`
+  - `POST /api/shared-travel/journeys/:id/accept` & `POST /api/shared-travel/journeys/:id/decline`
+  - `POST /api/shared-travel/journeys/:id/withdraw` & `POST /api/shared-travel/journeys/:id/cancel`
+  - Dual-mounted under `/api/student/shared-travel/*` for flexible frontend client routing.
+
+---
+
+### Verification Summary
+- **Master Integration Suite**: `backend/scripts/integration_shared_travel_master_test.js` (`npm run test:shared-travel-master`)
+  - **Status**: 21/21 Scenarios Passing
+  - **Coverage**:
+    1. Creating a shared journey.
+    2. Inviting a student.
+    3. Accepting an invitation.
+    4. Declining an invitation.
+    5. Withdrawing consent.
+    6. Cancelling a journey.
+    7. Duplicate invitations or memberships.
+    8. Invalid lifecycle transitions.
+    9. Compatible journeys.
+    10. Incompatible destinations or departure windows.
+    11. Expired journeys and invitations.
+    12. Meeting-point suggestions based on supported data.
+    13. Missing or incomplete location-area data.
+    14. Unauthorized access to another student's journey.
+    15. Unauthorized membership changes.
+    16. Withdrawal stopping future sharing.
+    17. Notification delivery and retry behavior.
+    18. Duplicate notification prevention.
+    19. Cross-student data isolation.
+    20. Absence of precise home-address storage and continuous tracking.
+    21. Existing backend regression coverage.
+
+---
+
 ## Known Boundaries & Non-Claims
-- **No AI Guesswork in Route Selection**: All route scores, rankings, departure windows, and feasibility evaluations are 100% deterministic mathematical calculations based on timetables, disruptions, traffic levels, and weather.
-- **Optional AI Explanations Grounded & Audited**: AI only provides natural language phrasing of already verified recommendations. All AI output is strictly validated against underlying candidate data and instantly falls back to deterministic explanations upon any divergence or error.
-- **Qualitative Uncertainty Only**: Uncertainty is communicated via qualitative tiers (`LOW`, `MODERATE`, `HIGH`, `SEVERE`) and evidence indicators; numerical confidence percentages are never fabricated.
-- **Transparent Provenance**: Grounded in multi-tier audit trails (`VERIFIED`, `USER_REPORTED`, `ESTIMATED`, `SYNTHETIC`) without inventing unverified facts or claiming real-time transit telemetry.
-- **Privacy Guaranteed**: Precise student coordinates, door numbers, tokens, and personal calendars are never transmitted to external AI providers.
-- **No Fabrication of Academic Schedules**: Students without scheduled calendar entries are never assumed to have classes. Missing context falls back safely to user input or documented defaults.
-- **No Inferred Location Connections**: Missing or mismatched class locations are never assumed to connect to commute destinations.
+- **No Continuous Live Tracking**: The system does not support GPS breadcrumbs, device telemetry, or live student tracking.
+- **No Fabrication of Locations**: If public transit stop data is not available for an area, the system reports the limitation honestly rather than fabricating meeting spots.
+- **No Safety Guarantees**: Meeting point recommendations are public transit rendezvous points and do not claim to ensure physical safety or security.
+- **Voluntary Consent Required**: No student is ever matched or enrolled without explicit voluntary consent.
+
 
 
 

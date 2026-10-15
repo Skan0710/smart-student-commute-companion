@@ -82,7 +82,7 @@ const createSharedJourneySchema = z.object({
   maxParticipants: z.number().int().min(2, 'Minimum participants is 2').max(10, 'Maximum participants is 10').optional().default(4),
   visibility: sharingVisibilityEnum.optional().default('campus_only'),
   notes: z.string().trim().max(300).optional().default('')
-}).superRefine((data, ctx) => {
+}).passthrough().superRefine((data, ctx) => {
   const forbidden = findForbiddenTravelPrivacyFields(data);
   if (forbidden.length > 0) {
     ctx.addIssue({

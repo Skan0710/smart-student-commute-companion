@@ -214,7 +214,7 @@ class SharedTravelCoordinationService {
           reason
         }
       });
-      if (result.delivered) {
+      if (result.delivered && !result.isDuplicate) {
         dispatched.push(member.userId);
       }
     }
@@ -305,7 +305,7 @@ class SharedTravelCoordinationService {
           meetingPointArea: validatedPoint.area
         }
       });
-      if (result.delivered) {
+      if (result.delivered && !result.isDuplicate) {
         dispatched.push(member.userId);
       }
     }
