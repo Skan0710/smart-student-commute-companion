@@ -470,7 +470,7 @@ export default function Navbar({
 
       {/* Mobile Bottom Fixed Navigation Bar (Sticky Thumb Navigation) */}
       <nav 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/90 px-0.5 py-2 flex items-center justify-around shadow-2xl"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/90 px-0.5 py-2 pb-safe flex items-center justify-around shadow-2xl"
         role="navigation"
         aria-label="Mobile quick navigation"
       >
@@ -482,7 +482,7 @@ export default function Navbar({
               key={item.id}
               onClick={() => handleSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`min-w-0 flex flex-col items-center justify-center py-1 px-0 rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              className={`min-w-0 flex flex-col items-center justify-center py-1 px-0 min-h-[44px] rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                 isActive
                   ? 'text-emerald-400 font-bold'
                   : 'text-slate-400 hover:text-slate-200'
