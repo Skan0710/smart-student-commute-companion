@@ -69,3 +69,9 @@ export { default as TimeRangeInput } from './TimeRangeInput';
 
 // Reusable Password Input with Reveal Toggle (Day 14)
 export { default as PasswordField } from './PasswordField';
+
+// Reusable Mobility & Commute Primitives (Commute Flagship)
+export { default as RouteBadge } from './RouteBadge';
+export { default as ProvenanceTag } from './ProvenanceTag';
+export { default as TradeoffPill } from './TradeoffPill';
+export { default as StatusIndicator } from './StatusIndicator';

@@ -31,6 +31,20 @@ export default {
           800: '#1e293b',
           900: '#0f172a',
           950: '#020617'
+        },
+        transit: {
+          rail: '#0284c7',
+          metro: '#8b5cf6',
+          bus: '#f97316',
+          auto: '#eab308',
+          walk: '#10b981',
+          shared: '#14b8a6'
+        },
+        provenance: {
+          verified: '#10b981',
+          reported: '#38bdf8',
+          estimated: '#f59e0b',
+          synthetic: '#a855f7'
         }
       },
       fontFamily: {
