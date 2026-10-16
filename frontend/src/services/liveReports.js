@@ -68,3 +68,52 @@ export function voteStillHappening(reportId) {
 export function voteCleared(reportId) {
   return contradictReport(reportId);
 }
+
+// ─── Commute Disruption Alerts (Backend Day 20) ─────────────────────────────
+
+import {
+  fetchCommuteAlerts,
+  fetchCommuteAlertDetails,
+  dismissCommuteAlert as dismissAlertApi,
+  fetchCommuteAlertPreferences,
+  updateCommuteAlertPreferences,
+  fetchCommuteAlertStatus
+} from './api';
+
+/**
+ * List active commute disruption alerts from the backend engine.
+ * @param {Object} [filters]
+ * @returns {Promise<Array>}
+ */
+export async function listCommuteAlerts(filters = {}) {
+  try {
+    const res = await fetchCommuteAlerts(filters);
+    const data = res?.data || res;
+    return Array.isArray(data?.alerts) ? data.alerts : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
+ * Dismiss an active commute disruption alert.
+ * @param {string} alertId
+ */
+export async function dismissAlert(alertId) {
+  return dismissAlertApi(alertId);
+}
+
+/**
+ * Get commute alert preferences.
+ */
+export async function getAlertPreferences() {
+  return fetchCommuteAlertPreferences();
+}
+
+/**
+ * Update commute alert preferences.
+ * @param {Object} prefs
+ */
+export async function setAlertPreferences(prefs) {
+  return updateCommuteAlertPreferences(prefs);
+}

@@ -341,3 +341,56 @@ export async function resetDemoState() {
     method: 'POST'
   });
 }
+
+// ─── Commute Disruption Alerts (Day 20 Backend Integration) ──────────────────
+
+/**
+ * Fetch active commute disruption alerts for authenticated student
+ * @param {Object} [params] - Query filters (severity, corridor, status)
+ */
+export async function fetchCommuteAlerts(params = {}) {
+  return request(`/commute/alerts${buildQuery(params)}`);
+}
+
+/**
+ * Fetch details for a specific commute alert
+ * @param {string} alertId
+ */
+export async function fetchCommuteAlertDetails(alertId) {
+  return request(`/commute/alerts/${alertId}`);
+}
+
+/**
+ * Dismiss a commute disruption alert
+ * @param {string} alertId
+ */
+export async function dismissCommuteAlert(alertId) {
+  return request(`/commute/alerts/${alertId}/dismiss`, {
+    method: 'POST'
+  });
+}
+
+/**
+ * Fetch commute alert notification preferences
+ */
+export async function fetchCommuteAlertPreferences() {
+  return request('/commute/alerts/preferences');
+}
+
+/**
+ * Update commute alert notification preferences
+ * @param {Object} preferences
+ */
+export async function updateCommuteAlertPreferences(preferences) {
+  return request('/commute/alerts/preferences', {
+    method: 'PUT',
+    body: JSON.stringify(preferences)
+  });
+}
+
+/**
+ * Fetch commute alert channel status and diagnostic info
+ */
+export async function fetchCommuteAlertStatus() {
+  return request('/commute/alerts/status');
+}

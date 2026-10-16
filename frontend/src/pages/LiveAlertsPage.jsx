@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { Search as SearchIcon, RefreshCw, AlertTriangle, AlertCircle, MapPin } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search as SearchIcon, RefreshCw, AlertTriangle, AlertCircle, MapPin, ShieldAlert, CheckCircle2, X } from 'lucide-react';
 import LiveStudentFeed from '../components/LiveStudentFeed';
-import { LoadingState, ErrorState, EmptyState, SearchInput, FilterBar, Select, StatTile, Alert } from '../components/ui';
+import { LoadingState, ErrorState, EmptyState, SearchInput, FilterBar, Select, StatTile, Alert, RouteBadge, ProvenanceTag, StatusIndicator } from '../components/ui';
 import { applyListControls, buildActiveFilters } from '../utils/listControls';
+import { listCommuteAlerts, dismissAlert } from '../services/liveReports';
 
 const IMPACT_LABELS = { low: 'Low', medium: 'Medium', high: 'High' };
 const MODE_LABELS = {
@@ -16,13 +17,11 @@ const MODE_LABELS = {
 /**
  * LiveAlertsPage - Core "Live Alerts" feature page structure
  *
- * Composes the crowd-sourced disruption feed into a single semantic page:
+ * Composes the crowd-sourced disruption feed and verified transit alerts into a single semantic page:
  * - Page heading (h1) for document outline
+ * - Verified corridor disruption alerts with severity and detour advice
  * - Reusable search / filter / sort controls (client-side over the active list)
  * - Live report feed with loading/error placeholders
- *
- * Filter and sort state is kept here (view state), separate from the
- * presentational feed component.
  */
 export default function LiveAlertsPage({
   reports = [],
@@ -42,6 +41,28 @@ export default function LiveAlertsPage({
   const [impact, setImpact] = useState('all');
   const [mode, setMode] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [officialAlerts, setOfficialAlerts] = useState([]);
+  const [dismissingId, setDismissingId] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    listCommuteAlerts().then((alerts) => {
+      if (isMounted && Array.isArray(alerts)) {
+        setOfficialAlerts(alerts);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleDismissOfficial = async (alertId) => {
+    setDismissingId(alertId);
+    try {
+      await dismissAlert(alertId);
+      setOfficialAlerts((prev) => prev.filter((a) => a.id !== alertId));
+    } finally {
+      setDismissingId(null);
+    }
+  };
 
   const visibleReports = useMemo(
     () =>
@@ -145,6 +166,83 @@ export default function LiveAlertsPage({
             )}
           </div>
         </Alert>
+      )}
+
+      {/* Official Corridor Advisories & Verified Disruptions */}
+      {officialAlerts.length > 0 && (
+        <section aria-label="Official transit corridor advisories" className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              <span>Official Corridor Advisories ({officialAlerts.length})</span>
+            </h2>
+            <ProvenanceTag tier="VERIFIED" size="xs" />
+          </div>
+          <div className="space-y-2.5">
+            {officialAlerts.map((alert) => {
+              const isCritical = alert.severity === 'CRITICAL';
+              const isHigh = alert.severity === 'HIGH';
+              const isDismissing = dismissingId === alert.id;
+
+              return (
+                <div
+                  key={alert.id}
+                  className={`p-3.5 rounded-xl border backdrop-blur-sm transition-all ${
+                    isCritical
+                      ? 'bg-rose-950/30 border-rose-500/50 text-rose-200'
+                      : isHigh
+                      ? 'bg-amber-950/30 border-amber-500/50 text-amber-200'
+                      : 'bg-slate-900/80 border-slate-800 text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
+                        isCritical
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          : isHigh
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}>
+                        {alert.severity || 'ADVISORY'}
+                      </span>
+                      {alert.mode && <RouteBadge mode={alert.mode} size="xs" />}
+                      <span className="font-bold text-sm text-white">{alert.title || alert.corridor}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDismissOfficial(alert.id)}
+                      disabled={isDismissing}
+                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 shrink-0"
+                      title="Dismiss alert"
+                      aria-label={`Dismiss alert: ${alert.title || alert.corridor}`}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+                    {alert.message}
+                  </p>
+                  {(alert.recommendedAction || alert.estimatedDelayMinutes) && (
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60 text-xs">
+                      {alert.recommendedAction && (
+                        <span className="text-emerald-300 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>Detour advice: {alert.recommendedAction}</span>
+                        </span>
+                      )}
+                      {alert.estimatedDelayMinutes > 0 && (
+                        <span className="text-amber-400 font-mono text-[11px] ml-auto">
+                          +{alert.estimatedDelayMinutes}m delay
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {/* Search / filter / sort controls */}
