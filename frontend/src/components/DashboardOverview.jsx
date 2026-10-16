@@ -2,6 +2,9 @@ import React from 'react';
 import {
   AlertTriangle,
   Bookmark,
+  Calendar,
+  Clock,
+  GraduationCap,
   Plus,
   Search,
   Users,
@@ -151,6 +154,15 @@ export default function DashboardOverview({
           type="button"
           size="sm"
           variant="secondary"
+          icon={<Users className="w-3.5 h-3.5" aria-hidden="true" />}
+          onClick={() => onNavigate?.('together')}
+        >
+          Travel Together
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
           icon={<Search className="w-3.5 h-3.5" aria-hidden="true" />}
           onClick={() => onNavigate?.('transit')}
         >
@@ -165,6 +177,35 @@ export default function DashboardOverview({
         >
           Post a disruption
         </Button>
+      </div>
+
+      {/* Academic & Schedule Context — Smart Commute Alignment */}
+      <div className="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+            <GraduationCap className="w-4 h-4 text-indigo-400" />
+            <span>Academic Schedule & Commute Target</span>
+          </div>
+          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+            DJSCE Sync
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="bg-slate-950/60 rounded-lg p-2.5 border border-slate-800/60 flex items-start gap-2.5">
+            <Calendar className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-slate-200">Next Class: 09:15 AM</p>
+              <p className="text-[11px] text-slate-400">Operating Systems • Room 302</p>
+            </div>
+          </div>
+          <div className="bg-slate-950/60 rounded-lg p-2.5 border border-slate-800/60 flex items-start gap-2.5">
+            <Clock className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-slate-200">Suggested Departure: 08:05 AM</p>
+              <p className="text-[11px] text-slate-400">Includes 15m suburban line buffer</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Recent searches — jump back into a previous query */}

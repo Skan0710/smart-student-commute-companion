@@ -53,3 +53,105 @@ export function createGroup(group) {
 export function joinGroup(groupId) {
   return joinRideGroup(groupId);
 }
+
+// ─── Voluntary Privacy-Aware Shared Travel (Day 21 Backend Integration) ─────
+
+import {
+  fetchSharedJourneys,
+  createSharedJourney as createSharedJourneyApi,
+  fetchSharedJourneyDetails,
+  inviteSharedJourneyMember,
+  joinSharedJourney as joinSharedJourneyApi,
+  acceptSharedJourneyInvitation,
+  declineSharedJourneyInvitation,
+  withdrawSharedJourney,
+  cancelSharedJourney as cancelSharedJourneyApi,
+  matchSharedJourneys,
+  fetchMeetingPoints,
+  fetchSharingPreferences,
+  updateSharingPreferences
+} from './api';
+
+/**
+ * List active shared journeys visible to authenticated student
+ */
+export async function listSharedJourneys() {
+  try {
+    const res = await fetchSharedJourneys();
+    const data = res?.data || res;
+    return Array.isArray(data?.journeys) ? data.journeys : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
+ * Create a new voluntary shared journey
+ * @param {Object} journeyData
+ */
+export async function createVoluntaryJourney(journeyData) {
+  return createSharedJourneyApi(journeyData);
+}
+
+/**
+ * Accept invitation to a shared travel journey with explicit consent
+ * @param {string} journeyId
+ */
+export async function acceptJourneyInvite(journeyId) {
+  return acceptSharedJourneyInvitation(journeyId);
+}
+
+/**
+ * Decline invitation without penalty
+ * @param {string} journeyId
+ * @param {string} [reason]
+ */
+export async function declineJourneyInvite(journeyId, reason) {
+  return declineSharedJourneyInvitation(journeyId, reason);
+}
+
+/**
+ * Withdraw participation from a shared journey
+ * @param {string} journeyId
+ */
+export async function withdrawFromJourney(journeyId) {
+  return withdrawSharedJourney(journeyId);
+}
+
+/**
+ * Cancel a shared journey (Organizer only)
+ * @param {string} journeyId
+ * @param {string} [reason]
+ */
+export async function cancelJourney(journeyId, reason) {
+  return cancelSharedJourneyApi(journeyId, reason);
+}
+
+/**
+ * Fetch verified public transit meeting points
+ * @param {Object} query
+ */
+export async function getMeetingPoints(query) {
+  try {
+    const res = await fetchMeetingPoints(query);
+    const data = res?.data || res;
+    return Array.isArray(data?.meetingPoints) ? data.meetingPoints : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
+ * Get student travel sharing consent preferences
+ */
+export async function getSharingConsent() {
+  return fetchSharingPreferences();
+}
+
+/**
+ * Update student travel sharing consent preferences
+ * @param {boolean} enabled
+ */
+export async function setSharingConsent(enabled) {
+  return updateSharingPreferences({ sharingEnabled: enabled });
+}

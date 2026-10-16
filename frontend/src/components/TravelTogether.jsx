@@ -41,11 +41,38 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
         </button>
       </div>
 
-      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-300 flex items-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-        <span>
-          <strong>Privacy Preserving:</strong> Only area-level landmarks and departure times are shared. No home addresses.
-        </span>
+      <div className="bg-slate-950/70 border border-emerald-500/30 rounded-xl p-3.5 text-xs text-slate-300 flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold text-emerald-300">
+            Privacy-Preserving & Consent-Grounded
+          </p>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Only general station areas, public meeting hubs, and departure time windows are shared. Home addresses are never requested or stored. You can withdraw your participation consent anytime.
+          </p>
+        </div>
+      </div>
+
+      {/* Suggested Public Meeting Points Pill Banner */}
+      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-bold text-slate-300 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+            Verified Transit Meeting Points
+          </span>
+          <span className="text-[10px] text-slate-400">Public hubs only</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {['Vile Parle Station East Gate', 'Andheri Metro Concourse', 'D.J. Sanghvi Main Entry', 'Dadar Central FOB', 'Bandra Skywalk Deck'].map((pt) => (
+            <span
+              key={pt}
+              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300"
+            >
+              <Check className="w-2.5 h-2.5 text-emerald-400" />
+              {pt}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Groups List */}
@@ -57,7 +84,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
           action={
             <button
               onClick={onOpenCreateGroup}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+              className="touch-target px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
             >
               Start a Commute Group
             </button>
@@ -101,7 +128,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                         onClick={() => handleJoin(grp.id)}
                         disabled={isFull || isJoining}
                         aria-label={isFull ? 'Group is full' : `Join group from ${grp.origin_area}`}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                        className={`touch-target px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                           isFull
                             ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
                             : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 active:scale-95 shadow-sm'
@@ -111,8 +138,8 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                           <span>Full</span>
                         ) : (
                           <>
-                            <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />
-                            <span>{isJoining ? 'Joining...' : 'Join'}</span>
+                            <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
+                            <span>{isJoining ? 'Joining...' : 'Join Group'}</span>
                           </>
                         )}
                       </button>
@@ -134,6 +161,13 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     valueClassName="text-indigo-300 font-semibold"
                   >
                     {grp.destination_college}
+                  </MetaRow>
+                  <MetaRow
+                    icon={<ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />}
+                    label="Meeting Hub"
+                    valueClassName="text-slate-300 font-medium text-xs"
+                  >
+                    {grp.meeting_point || 'Public Station Concourse / Main Gate'}
                   </MetaRow>
                 </MetaList>
 

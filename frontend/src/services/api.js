@@ -394,3 +394,153 @@ export async function updateCommuteAlertPreferences(preferences) {
 export async function fetchCommuteAlertStatus() {
   return request('/commute/alerts/status');
 }
+
+// ─── Shared Travel & Voluntary Commute Coordination (Day 21 Backend Integration) ─
+
+/**
+ * Fetch journeys visible to authenticated student
+ */
+export async function fetchSharedJourneys() {
+  return request('/shared-travel/journeys');
+}
+
+/**
+ * Create a new voluntary shared travel journey
+ * @param {Object} journeyData
+ */
+export async function createSharedJourney(journeyData) {
+  return request('/shared-travel/journeys', {
+    method: 'POST',
+    body: JSON.stringify(journeyData)
+  });
+}
+
+/**
+ * Fetch shared journey details by ID
+ * @param {string} journeyId
+ */
+export async function fetchSharedJourneyDetails(journeyId) {
+  return request(`/shared-travel/journeys/${journeyId}`);
+}
+
+/**
+ * Invite a student to a shared travel journey
+ * @param {string} journeyId
+ * @param {Object} inviteData - { inviteeStudentId, invitationRole }
+ */
+export async function inviteSharedJourneyMember(journeyId, inviteData) {
+  return request(`/shared-travel/journeys/${journeyId}/invite`, {
+    method: 'POST',
+    body: JSON.stringify(inviteData)
+  });
+}
+
+/**
+ * Request to join a shared travel journey
+ * @param {string} journeyId
+ * @param {Object} joinData
+ */
+export async function joinSharedJourney(journeyId, joinData = {}) {
+  return request(`/shared-travel/journeys/${journeyId}/join`, {
+    method: 'POST',
+    body: JSON.stringify(joinData)
+  });
+}
+
+/**
+ * Accept an invitation to a shared travel journey with explicit consent
+ * @param {string} journeyId
+ */
+export async function acceptSharedJourneyInvitation(journeyId) {
+  return request(`/shared-travel/journeys/${journeyId}/accept`, {
+    method: 'POST',
+    body: JSON.stringify({ consentConfirmed: true })
+  });
+}
+
+/**
+ * Decline an invitation to a shared travel journey
+ * @param {string} journeyId
+ * @param {string} [reason]
+ */
+export async function declineSharedJourneyInvitation(journeyId, reason = '') {
+  return request(`/shared-travel/journeys/${journeyId}/decline`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+/**
+ * Withdraw participation from a shared travel journey
+ * @param {string} journeyId
+ */
+export async function withdrawSharedJourney(journeyId) {
+  return request(`/shared-travel/journeys/${journeyId}/withdraw`, {
+    method: 'POST'
+  });
+}
+
+/**
+ * Cancel a shared travel journey (Organizer only)
+ * @param {string} journeyId
+ * @param {string} [reason]
+ */
+export async function cancelSharedJourney(journeyId, reason = 'Organizer cancelled journey') {
+  return request(`/shared-travel/journeys/${journeyId}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
+}
+
+/**
+ * Discover compatible shared travel opportunities
+ * @param {Object} query - Coarse corridor query
+ */
+export async function matchSharedJourneys(query) {
+  return request('/shared-travel/journeys/match', {
+    method: 'POST',
+    body: JSON.stringify(query)
+  });
+}
+
+/**
+ * Fetch verified public transit meeting points
+ * @param {Object} [query] - { area, transitMode }
+ */
+export async function fetchMeetingPoints(query = {}) {
+  return request(`/shared-travel/meeting-points${buildQuery(query)}`);
+}
+
+/**
+ * Fetch student sharing consent preferences
+ */
+export async function fetchSharingPreferences() {
+  return request('/shared-travel/preferences');
+}
+
+/**
+ * Update student sharing consent preferences
+ * @param {Object} prefs - { sharingEnabled: boolean }
+ */
+export async function updateSharingPreferences(prefs) {
+  return request('/shared-travel/preferences', {
+    method: 'PUT',
+    body: JSON.stringify(prefs)
+  });
+}
+
+// ─── Academic Hub & Calendar Schedule ────────────────────────────────────────
+
+/**
+ * Fetch today's academic timetable events & classes
+ */
+export async function fetchTodaySchedule() {
+  return request('/calendar/today');
+}
+
+/**
+ * Fetch upcoming assignments & deadlines
+ */
+export async function fetchAssignments() {
+  return request('/academic/assignments');
+}
