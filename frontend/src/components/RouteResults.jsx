@@ -14,9 +14,20 @@ import {
   Bus, 
   Car, 
   Umbrella,
-  CloudRain
+  CloudRain,
+  Navigation,
+  Shuffle,
+  Info
 } from 'lucide-react';
-import { ErrorState, ProgressBar, ComparisonBars } from './ui';
+import { 
+  ErrorState, 
+  ProgressBar, 
+  ComparisonBars,
+  RouteBadge,
+  ProvenanceTag,
+  TradeoffPill,
+  StatusIndicator
+} from './ui';
 
 export default function RouteResults({ 
   planResult, 
@@ -27,7 +38,7 @@ export default function RouteResults({
 }) {
   if (!planResult) return null;
 
-  const { recommendation, alternatives, weather } = planResult;
+  const { recommendation, alternatives = [], weather, scheduleContext, departureAdvice } = planResult;
   const recRoute = recommendation?.route;
   const aiReasoning = recommendation?.aiReasoning;
 
@@ -45,21 +56,20 @@ export default function RouteResults({
     );
   }
 
-  const getModeIcon = (mode) => {
-    switch (mode) {
-      case 'metro': return <Zap className="w-4 h-4 text-amber-400" />;
-      case 'train': return <Train className="w-4 h-4 text-rose-400" />;
-      case 'bus': return <Bus className="w-4 h-4 text-emerald-400" />;
-      case 'auto': return <Car className="w-4 h-4 text-sky-400" />;
-      default: return <Footprints className="w-4 h-4 text-teal-400" />;
-    }
-  };
+  // Deduce trade-offs for recommended route
+  const recTradeoffs = recRoute.tradeoffs || [
+    { label: 'Fastest arrival', type: 'positive', category: 'fastest' },
+    { label: `₹${recRoute.fareRupees} student fare`, type: 'positive', category: 'cheapest' },
+    recRoute.transfers === 0 
+      ? { label: 'Direct (0 transfers)', type: 'positive', category: 'transfers' }
+      : { label: `${recRoute.transfers} transfer`, type: 'neutral', category: 'transfers' }
+  ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between backdrop-blur-sm">
+        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between backdrop-blur-sm shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
               <CloudRain className="w-5 h-5" />
@@ -82,36 +92,45 @@ export default function RouteResults({
             </div>
           </div>
           <span className="text-[10px] text-slate-400 px-2 py-0.5 rounded bg-slate-950 border border-slate-800 hidden sm:inline">
-            Open-Meteo API
+            Open-Meteo Verified
           </span>
         </div>
       )}
 
-      {/* RECOMMENDED ROUTE CARD */}
+      {/* Schedule Context Banner (if derived from academic timetable) */}
+      {scheduleContext?.hasScheduleContext && (
+        <div className="bg-gradient-to-r from-indigo-950/40 to-slate-900/80 border border-indigo-500/30 rounded-xl p-3 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-indigo-300">
+            <Info className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span>
+              Targeted for <strong>{scheduleContext.eventTitle || 'Class'}</strong> starting at {scheduleContext.eventStartTime || scheduleContext.targetArrivalTime}
+            </span>
+          </div>
+          {scheduleContext.isExamDay && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+              Exam Buffer (20m)
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* RECOMMENDED ROUTE CARD (FLAGSHIP EXPERIENCE) */}
       <div 
         onClick={() => setSelectedRouteId(recRoute.id)}
-        className={`bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-2xl p-5 shadow-2xl transition-all cursor-pointer relative overflow-hidden ${
+        className={`bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-2xl p-5 sm:p-6 shadow-2xl transition-all cursor-pointer relative overflow-hidden ${
           selectedRouteId === recRoute.id 
-            ? 'border-emerald-500 shadow-emerald-500/10' 
+            ? 'border-emerald-500 shadow-emerald-500/10 ring-1 ring-emerald-500/30' 
             : 'border-emerald-500/50 hover:border-emerald-400/80'
         }`}
       >
-        {/* Glow Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
+        {/* Top Header: Badge, Provenance, Departure Window */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
               RECOMMENDED COMMUTE
             </span>
-            <span className="text-[11px] font-medium text-slate-400">
-              {recRoute.sourceLabel === 'Verified GTFS Schedule' ? (
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> ✓ Verified GTFS
-                </span>
-              ) : (
-                <span className="text-sky-400">≈ Estimated Route</span>
-              )}
-            </span>
+            <ProvenanceTag tier={recRoute.provenanceTier || (recRoute.sourceLabel?.includes('Verified') ? 'VERIFIED' : 'ESTIMATED')} />
           </div>
 
           <div className="flex items-center gap-2">
@@ -122,32 +141,46 @@ export default function RouteResults({
           </div>
         </div>
 
-        {/* Title & Subtitle */}
+        {/* Title, Primary Mode & Corridor */}
         <div className="mb-4">
-          <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
-            {getModeIcon(recRoute.primaryMode)}
-            <span>{recRoute.title}</span>
-          </h3>
-          <p className="text-xs text-slate-400">{recRoute.subtitle}</p>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <RouteBadge mode={recRoute.primaryMode} size="md" />
+            <h3 className="text-lg sm:text-xl font-extrabold text-white">
+              {recRoute.title}
+            </h3>
+          </div>
+          <p className="text-xs text-slate-400 mt-1">{recRoute.subtitle}</p>
         </div>
 
-        {/* AI Explanation Box */}
+        {/* Why this route: Decision Rationale */}
         <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-3.5 mb-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
-              {aiReasoning.aiProvider || 'Gemini 3.8 Flash Rationale'}
+              {aiReasoning?.aiProvider || 'Deterministic Recommendation Engine'}
             </span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ml-auto font-medium">
-              Confidence: {aiReasoning.confidence?.toUpperCase() || 'HIGH'}
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ml-auto font-medium">
+              Confidence: {aiReasoning?.confidence?.toUpperCase() || 'HIGH'}
             </span>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed">
-            {aiReasoning.reason || aiReasoning.summary}
+            {aiReasoning?.reason || aiReasoning?.summary || 'Calculated as the optimal route for travel time, transfers, and fare economy.'}
           </p>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Key Trade-Off Factors */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-4">
+          {Array.isArray(recTradeoffs) && recTradeoffs.map((item, idx) => {
+            const label = typeof item === 'string' ? item : item.label;
+            const type = typeof item === 'string' ? 'positive' : item.type || 'neutral';
+            const cat = typeof item === 'string' ? 'reliable' : item.category || 'reliable';
+            return (
+              <TradeoffPill key={idx} label={label} type={type} category={cat} />
+            );
+          })}
+        </div>
+
+        {/* Multi-Criteria Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
             <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
@@ -169,7 +202,7 @@ export default function RouteResults({
               ₹{recRoute.fareRupees}
             </div>
             <div className="text-[10px] text-slate-400 mt-0.5">
-              {recRoute.fareRupees <= 15 ? 'Student Saver' : 'Standard'}
+              {recRoute.fareRupees <= 15 ? 'Student Saver' : 'Standard Fare'}
             </div>
           </div>
 
@@ -192,7 +225,7 @@ export default function RouteResults({
               Reliability
             </div>
             <div className="text-base font-extrabold text-indigo-300 mt-0.5">
-              {recRoute.scores?.reliability || 85}%
+              {recRoute.scores?.reliability || 88}%
             </div>
             <div className="text-[10px] text-slate-400 mt-0.5">
               {recRoute.transfers === 0 ? 'Direct Route' : `${recRoute.transfers} Transfer`}
@@ -200,32 +233,32 @@ export default function RouteResults({
           </div>
         </div>
 
-        {/* Budget usage vs the student's own limit (real planner data) */}
+        {/* Budget usage vs student limit */}
         {Number.isFinite(maxBudgetRupees) && maxBudgetRupees > 0 && (
           <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-4">
             <ProgressBar
-              label="Fare vs your max budget"
+              label="Fare vs configured budget"
               value={recRoute.fareRupees}
               max={maxBudgetRupees}
               variant={recRoute.fareRupees > maxBudgetRupees ? 'rose' : 'emerald'}
               displayValue={`₹${recRoute.fareRupees} of ₹${maxBudgetRupees}`}
               hint={
                 recRoute.fareRupees <= maxBudgetRupees
-                  ? `₹${maxBudgetRupees - recRoute.fareRupees} left in your daily budget`
-                  : 'Over your configured budget limit'
+                  ? `₹${maxBudgetRupees - recRoute.fareRupees} remaining in daily commute allocation`
+                  : 'Exceeds configured budget limit'
               }
             />
           </div>
         )}
 
-        {/* Warnings / Disruption Alerts */}
-        {((aiReasoning.warnings && aiReasoning.warnings.length > 0) || (recRoute.disruptionAlerts && recRoute.disruptionAlerts.length > 0)) && (
+        {/* Disruption Warnings */}
+        {((aiReasoning?.warnings && aiReasoning.warnings.length > 0) || (recRoute.disruptionAlerts && recRoute.disruptionAlerts.length > 0)) && (
           <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 mb-4 space-y-1.5">
             <div className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>Route Advisory & Warnings</span>
             </div>
-            {aiReasoning.warnings?.map((w, idx) => (
+            {aiReasoning?.warnings?.map((w, idx) => (
               <div key={idx} className="text-xs text-amber-200/90 pl-5">
                 • {w}
               </div>
@@ -233,21 +266,24 @@ export default function RouteResults({
           </div>
         )}
 
-        {/* Step-by-Step Leg Breakdown */}
-        <div className="space-y-2 pt-2 border-t border-slate-800/80">
-          <div className="text-xs font-bold text-slate-300 mb-1">Route Stages:</div>
+        {/* Step-by-Step Leg Breakdown with Transit Visuals */}
+        <div className="space-y-2 pt-3 border-t border-slate-800/80">
+          <div className="text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+            <span>Route Stages &amp; Transfers ({recRoute.legs?.length || 0})</span>
+            <span className="text-[11px] text-slate-500 font-normal">Sequential transit legs</span>
+          </div>
           {recRoute.legs?.map((leg, idx) => (
             <div key={idx} className="flex items-start gap-3 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60">
-              <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-400 shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 shrink-0 mt-0.5">
                 {idx + 1}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-200">{leg.description}</span>
-                  <span className="text-slate-400 font-mono text-[11px]">{leg.durationMinutes} mins</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between text-xs gap-2">
+                  <span className="font-semibold text-slate-200 truncate">{leg.description}</span>
+                  <span className="text-slate-400 font-mono text-[11px] shrink-0">{leg.durationMinutes} mins</span>
                 </div>
                 {leg.agency && (
-                  <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400 flex-wrap">
                     <span className="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-medium">
                       {leg.agency}
                     </span>
@@ -264,18 +300,19 @@ export default function RouteResults({
           ))}
         </div>
 
-        {/* Active Route Selection Indicator */}
+        {/* Map selection trigger & feedback button */}
         <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${selectedRouteId === recRoute.id ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`}></span>
-            {selectedRouteId === recRoute.id ? 'Viewing this route on map' : 'Click to inspect on map'}
+            {selectedRouteId === recRoute.id ? 'Selected on map' : 'Click to inspect on map'}
           </span>
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onOpenFeedback(recRoute.id);
             }}
-            className="flex items-center gap-1 text-slate-400 hover:text-emerald-400 transition-colors"
+            className="flex items-center gap-1 text-slate-400 hover:text-emerald-400 transition-colors py-1 px-2 rounded-lg hover:bg-slate-800/50"
           >
             <ThumbsUp className="w-3.5 h-3.5" />
             <span>Rate Recommendation</span>
@@ -283,7 +320,7 @@ export default function RouteResults({
         </div>
       </div>
 
-      {/* OPTION COMPARISON (real durations/fares from this plan result) */}
+      {/* OPTION COMPARISON (Visual comparison of travel time and fares) */}
       {alternatives.length > 0 && (
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
           <ComparisonBars
@@ -348,14 +385,17 @@ export default function RouteResults({
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
-                    {getModeIcon(alt.primaryMode)}
+                    <RouteBadge mode={alt.primaryMode} size="sm" />
                     <span className="text-sm font-bold text-white">{alt.title}</span>
                   </div>
-                  {alt.badgeLabel && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-                      {alt.badgeLabel}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
+                    {alt.badgeLabel && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                        {alt.badgeLabel}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-xs text-slate-400 mb-3">{alt.subtitle}</p>

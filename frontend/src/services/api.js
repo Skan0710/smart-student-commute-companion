@@ -179,13 +179,35 @@ export async function checkHealth() {
 }
 
 /**
- * Plan a multi-modal commute route
+ * Plan a multi-modal commute route (Legacy Plan Endpoint)
  * @param {Object} planData - Commute planning parameters
  */
 export async function planCommute(planData) {
   return request('/plan', {
     method: 'POST',
     body: JSON.stringify(planData)
+  });
+}
+
+/**
+ * Request candidate journeys generation (Day 15/17 Commute Pipeline)
+ * @param {Object} candidateData - Commute query parameters
+ */
+export async function fetchCommuteCandidates(candidateData) {
+  return request('/commute/candidates', {
+    method: 'POST',
+    body: JSON.stringify(candidateData)
+  });
+}
+
+/**
+ * Request personalized student commute recommendations (Day 18/20 Commute Intelligence)
+ * @param {Object} params - Student commute preferences & constraints
+ */
+export async function fetchCommuteRecommendations(params) {
+  return request('/commute/recommendations', {
+    method: 'POST',
+    body: JSON.stringify(params)
   });
 }
 
