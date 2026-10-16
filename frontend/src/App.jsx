@@ -82,9 +82,13 @@ import {
 } from './services/pwaAnalytics';
 import useAsyncResource from './hooks/useAsyncResource';
 import usePwaInstall from './hooks/usePwaInstall';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
+  // Desktop smooth scrolling via Lenis + GSAP ticker (no-ops on mobile/touch & reduced motion)
+  useSmoothScroll();
+
   // Deep links (PWA app shortcuts & shared links) open a specific screen once
   // on load via /?tab=<screenId>; unknown or missing values fall back to the
   // planner. Navigation afterwards is the existing in-app tab switching.

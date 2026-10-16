@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { 
   Sparkles, 
   CheckCircle2, 
@@ -28,6 +28,7 @@ import {
   TradeoffPill,
   StatusIndicator
 } from './ui';
+import { staggerRouteCards } from '../utils/motion';
 
 export default function RouteResults({ 
   planResult, 
@@ -36,6 +37,14 @@ export default function RouteResults({
   onOpenFeedback,
   maxBudgetRupees
 }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      staggerRouteCards(containerRef.current.querySelectorAll('.route-card-animate'));
+    }
+  }, [planResult]);
+
   if (!planResult) return null;
 
   const { recommendation, alternatives = [], weather, scheduleContext, departureAdvice } = planResult;
@@ -66,7 +75,7 @@ export default function RouteResults({
   ];
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div ref={containerRef} className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between backdrop-blur-sm shadow-sm">
@@ -117,7 +126,7 @@ export default function RouteResults({
       {/* RECOMMENDED ROUTE CARD (FLAGSHIP EXPERIENCE) */}
       <div 
         onClick={() => setSelectedRouteId(recRoute.id)}
-        className={`bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-2xl p-5 sm:p-6 shadow-2xl transition-all cursor-pointer relative overflow-hidden ${
+        className={`route-card-animate bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-2xl p-5 sm:p-6 shadow-2xl transition-all cursor-pointer relative overflow-hidden ${
           selectedRouteId === recRoute.id 
             ? 'border-emerald-500 shadow-emerald-500/10 ring-1 ring-emerald-500/30' 
             : 'border-emerald-500/50 hover:border-emerald-400/80'
@@ -377,7 +386,7 @@ export default function RouteResults({
               <div
                 key={alt.id}
                 onClick={() => setSelectedRouteId(alt.id)}
-                className={`bg-slate-900/90 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-600 ${
+                className={`route-card-animate bg-slate-900/90 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-600 ${
                   isSelected 
                     ? 'border-indigo-500 bg-slate-900/95 ring-1 ring-indigo-500/50 shadow-lg' 
                     : 'border-slate-800'
