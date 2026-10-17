@@ -24,21 +24,6 @@ import { Alert, Button, StatTile } from './ui';
  * - Quick-access actions to the most common student tasks
  * - Recent transit searches (client-side preference store) as jump-off chips
  * - Honest loading, error, and empty states for every section
- *
- * Presentation only: all data and callbacks arrive via props.
- *
- * @param {Object} props
- * @param {number} props.savedCommutesCount - Commutes saved on this device
- * @param {number} props.groupsCount - Active ride groups
- * @param {number} props.reportsCount - Live disruption reports
- * @param {boolean} props.isConnected - Live socket connection status
- * @param {boolean} props.isLoading - Whether initial counts are loading
- * @param {string|null} props.loadError - Initial load failure message
- * @param {Function} props.onRetryLoad - Retry the failed initial load
- * @param {string[]} props.recentSearches - Recent transit search queries
- * @param {Function} props.onSelectRecent - Run a recent search
- * @param {Function} props.onNavigate - Navigate to another screen (tab id)
- * @param {Function} props.onOpenCreateReport - Open the disruption report dialog
  */
 export default function DashboardOverview({
   savedCommutesCount = 0,
@@ -53,21 +38,19 @@ export default function DashboardOverview({
   onNavigate,
   onOpenCreateReport,
 }) {
-  // Counts render as "—" while the first load is in flight instead of a
-  // misleading 0, and keep their last value during background refreshes.
   const count = (value) => (isLoading ? '—' : value);
 
   return (
-    <section aria-label="Commute dashboard" className="space-y-3">
+    <section aria-label="Commute dashboard" className="space-y-3.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-slate-200 tracking-tight">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
           Your commute at a glance
         </h2>
         <span
-          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
             isConnected
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-              : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'
           }`}
         >
           {isConnected ? (
@@ -180,29 +163,29 @@ export default function DashboardOverview({
       </div>
 
       {/* Academic & Schedule Context — Smart Commute Alignment */}
-      <div className="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 space-y-2">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-            <GraduationCap className="w-4 h-4 text-indigo-400" />
-            <span>Academic Schedule & Commute Target</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+            <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>Academic Schedule &amp; Commute Target</span>
           </div>
-          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
             DJSCE Sync
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div className="bg-slate-950/60 rounded-lg p-2.5 border border-slate-800/60 flex items-start gap-2.5">
-            <Calendar className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+          <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-200/80 dark:border-slate-800/60 flex items-start gap-2.5">
+            <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-slate-200">Next Class: 09:15 AM</p>
-              <p className="text-[11px] text-slate-400">Operating Systems • Room 302</p>
+              <p className="font-semibold text-slate-800 dark:text-slate-200">Next Class: 09:15 AM</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Operating Systems • Room 302</p>
             </div>
           </div>
-          <div className="bg-slate-950/60 rounded-lg p-2.5 border border-slate-800/60 flex items-start gap-2.5">
-            <Clock className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+          <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-200/80 dark:border-slate-800/60 flex items-start gap-2.5">
+            <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-slate-200">Suggested Departure: 08:05 AM</p>
-              <p className="text-[11px] text-slate-400">Includes 15m suburban line buffer</p>
+              <p className="font-semibold text-slate-800 dark:text-slate-200">Suggested Departure: 08:05 AM</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Includes 15m suburban line buffer</p>
             </div>
           </div>
         </div>
@@ -210,11 +193,11 @@ export default function DashboardOverview({
 
       {/* Recent searches — jump back into a previous query */}
       <div>
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide pb-1.5">
+        <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide pb-1.5">
           Recent searches
         </h3>
         {recentSearches.length === 0 ? (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Search a station or line on Transit Search and it will appear here
             for one-tap reuse.
           </p>
@@ -225,7 +208,7 @@ export default function DashboardOverview({
                 <button
                   type="button"
                   onClick={() => onSelectRecent?.(query)}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   {query}
                 </button>

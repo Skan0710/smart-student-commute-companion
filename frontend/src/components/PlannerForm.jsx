@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
-import { 
-  Navigation, 
-  GraduationCap, 
-  Clock, 
-  Sliders, 
-  IndianRupee, 
-  Footprints, 
-  Sparkles, 
-  Train, 
-  Bus, 
-  Car, 
-  Umbrella, 
-  Zap, 
-  Scale, 
-  Coins,
+import {
+  Navigation,
+  GraduationCap,
+  Clock,
+  Sliders,
+  IndianRupee,
+  Footprints,
+  Sparkles,
+  Train,
+  Bus,
+  Car,
+  Zap,
   Bookmark,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import {
   validateForm,
@@ -48,6 +47,7 @@ const ORIGIN_PRESETS = [
 
 export default function PlannerForm({ formData, setFormData, onPlan, isLoading, onSaveCommute, isCommuteSaved = false }) {
   const [errors, setErrors] = useState({});
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const clearError = (field) => {
     setErrors((prev) => (prev[field] ? { ...prev, [field]: null } : prev));
@@ -88,6 +88,9 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
 
     if (!isValid) {
       setErrors(validationErrors);
+      if (validationErrors.maxBudgetRupees) {
+        setIsFiltersOpen(true);
+      }
       focusFirstInvalid(validationErrors, FIELD_IDS);
       return;
     }
@@ -96,13 +99,14 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
     onPlan();
   };
 
-  // Persist the current setup to "My Commutes" (validated the same way as
-  // planning, so a saved commute is always usable later).
   const handleSaveCommute = () => {
     const { isValid, errors: validationErrors } = validatePlanner();
 
     if (!isValid) {
       setErrors(validationErrors);
+      if (validationErrors.maxBudgetRupees) {
+        setIsFiltersOpen(true);
+      }
       focusFirstInvalid(validationErrors, FIELD_IDS);
       return;
     }
@@ -112,23 +116,23 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-bold text-white flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-emerald-400" />
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm transition-colors">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Navigation className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           <span>Student Commute Planner</span>
         </h2>
-        <span className="text-[11px] font-medium text-emerald-400/90 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+        <span className="text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
           GTFS + Gemini Grounded
         </span>
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        {/* Origin */}
+        {/* Core Decision 1: Origin */}
         <div>
-          <label htmlFor="planner-origin" className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+          <label htmlFor="planner-origin" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"></span>
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" aria-hidden="true"></span>
               Starting Area (Neighborhood / Station)
             </span>
           </label>
@@ -145,14 +149,14 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
               clearError('origin');
             }}
             placeholder="e.g. Andheri East, Borivali, Dadar..."
-            className={`w-full bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition-all ${
+            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all ${
               errors.origin
-                ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/50'
-                : 'border-slate-700/80 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500'
+                ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
+                : 'border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
             }`}
           />
           {errors.origin && (
-            <p id="planner-origin-error" className="mt-1.5 text-xs text-rose-400" role="alert">
+            <p id="planner-origin-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400" role="alert">
               {errors.origin}
             </p>
           )}
@@ -166,10 +170,10 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                   setFormData({ ...formData, origin: area });
                   clearError('origin');
                 }}
-                className={`text-[11px] px-2.5 py-1.5 rounded-md transition-all ${
+                className={`text-[11px] px-2.5 py-1 rounded-lg transition-all ${
                   formData.origin === area
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-medium'
-                    : 'bg-slate-800/80 hover:bg-slate-750 text-slate-400 hover:text-slate-200 border border-slate-700/50'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-300 dark:border-blue-800 font-semibold'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700/60'
                 }`}
               >
                 {area}
@@ -178,11 +182,11 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           </div>
         </div>
 
-        {/* Destination */}
+        {/* Core Decision 2: Destination */}
         <div>
-          <label htmlFor="planner-destination" className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+          <label htmlFor="planner-destination" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
+              <GraduationCap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
               College Destination
             </span>
           </label>
@@ -199,14 +203,14 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
               clearError('destination');
             }}
             placeholder="e.g. IIT Bombay, VJTI, NMIMS..."
-            className={`w-full bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition-all ${
+            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all ${
               errors.destination
-                ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/50'
-                : 'border-slate-700/80 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500'
+                ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
+                : 'border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500'
             }`}
           />
           {errors.destination && (
-            <p id="planner-destination-error" className="mt-1.5 text-xs text-rose-400" role="alert">
+            <p id="planner-destination-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400" role="alert">
               {errors.destination}
             </p>
           )}
@@ -220,10 +224,10 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                   setFormData({ ...formData, destination: col.value });
                   clearError('destination');
                 }}
-                className={`text-[11px] px-2.5 py-1.5 rounded-md transition-all ${
+                className={`text-[11px] px-2.5 py-1 rounded-lg transition-all ${
                   formData.destination === col.value
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-medium'
-                    : 'bg-slate-800/80 hover:bg-slate-750 text-slate-400 hover:text-slate-200 border border-slate-700/50'
+                    ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800 font-semibold'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700/60'
                 }`}
               >
                 {col.label}
@@ -232,14 +236,14 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           </div>
         </div>
 
-        {/* Arrival Time and Preference Row */}
+        {/* Core Decision 3: Desired Arrival Time */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div>
             <label
               htmlFor="planner-arrival-time"
-              className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5"
             >
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <Clock className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
               Desired Arrival Time
             </label>
             <input
@@ -247,23 +251,23 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
               type="time"
               value={formData.desiredArrivalTime}
               onChange={(e) => setFormData({ ...formData, desiredArrivalTime: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="planner-preference"
-              className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5"
             >
-              <Sliders className="w-3.5 h-3.5 text-sky-400" />
+              <Sliders className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
               Route Priority
             </label>
             <select
               id="planner-preference"
               value={formData.preference}
               onChange={(e) => setFormData({ ...formData, preference: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <option value="balanced">Balanced (Optimal Tradeoff)</option>
               <option value="fastest">Fastest (Earliest Arrival)</option>
@@ -273,151 +277,174 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           </div>
         </div>
 
-        {/* Transportation Mode Toggles */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-2">
-            Allowed Modes
-          </label>
-          <div className="grid grid-cols-5 gap-1.5">
-            {[
-              { id: 'train', label: 'Local Train', icon: Train },
-              { id: 'metro', label: 'Metro', icon: Zap },
-              { id: 'bus', label: 'BEST Bus', icon: Bus },
-              { id: 'auto', label: 'Auto / Cab', icon: Car },
-              { id: 'walk', label: 'Walk', icon: Footprints }
-            ].map(({ id, label, icon: Icon }) => {
-              const active = formData.preferredModes.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => toggleMode(id)}
-                  aria-pressed={active}
-                  aria-label={`${label} — ${active ? 'enabled' : 'disabled'}`}
-                  className={`flex flex-col items-center justify-center p-2 rounded-xl text-center border transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-slate-950 ${
-                    active
-                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300 font-semibold shadow-sm'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 mb-1 ${active ? 'text-emerald-400' : 'text-slate-400'}`} aria-hidden="true" />
-                  <span className="text-[10px] leading-tight" aria-hidden="true">{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Progressive Disclosure: Filters & Preferences Accordion */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setIsFiltersOpen((prev) => !prev)}
+            aria-expanded={isFiltersOpen}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <Sliders className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Filters &amp; Preferences</span>
+            </span>
+            <span className="flex items-center gap-2 text-[11px] font-normal text-slate-500 dark:text-slate-400">
+              <span>₹{formData.maxBudgetRupees || 250} max · {formData.preferredModes?.length || 5} modes · {formData.walkingToleranceMinutes || 15}m walk</span>
+              {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </span>
+          </button>
 
-        {/* Walking Tolerance & Budget */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div>
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span className="flex items-center gap-1.5">
-                <Footprints className="w-3.5 h-3.5 text-teal-400" />
-                Max Walking
-              </span>
-              <span className="text-emerald-400 font-bold">{formData.walkingToleranceMinutes} mins</span>
-            </div>
-            <input
-              type="range"
-              min="5"
-              max="30"
-              step="5"
-              value={formData.walkingToleranceMinutes}
-              onChange={(e) => setFormData({ ...formData, walkingToleranceMinutes: parseInt(e.target.value) })}
-              aria-label={`Maximum walking tolerance: ${formData.walkingToleranceMinutes} minutes`}
-              aria-valuemin={5}
-              aria-valuemax={30}
-              aria-valuenow={formData.walkingToleranceMinutes}
-              className="w-full accent-emerald-500 bg-slate-950 rounded-lg cursor-pointer"
-            />
-          </div>
+          {isFiltersOpen && (
+            <div className="mt-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-4 animate-fade-in">
+              {/* Transportation Mode Toggles */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Allowed Transportation Modes
+                </label>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {[
+                    { id: 'train', label: 'Train', icon: Train },
+                    { id: 'metro', label: 'Metro', icon: Zap },
+                    { id: 'bus', label: 'BEST Bus', icon: Bus },
+                    { id: 'auto', label: 'Auto/Cab', icon: Car },
+                    { id: 'walk', label: 'Walk', icon: Footprints }
+                  ].map(({ id, label, icon: Icon }) => {
+                    const active = formData.preferredModes.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => toggleMode(id)}
+                        aria-pressed={active}
+                        aria-label={`${label} — ${active ? 'enabled' : 'disabled'}`}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl text-center border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                          active
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border-blue-300 dark:border-blue-800 font-semibold shadow-xs'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 mb-1 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} aria-hidden="true" />
+                        <span className="text-[10px] leading-tight" aria-hidden="true">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          <div>
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
-              <label htmlFor="planner-budget" className="flex items-center gap-1.5 cursor-pointer">
-                <IndianRupee className="w-3.5 h-3.5 text-amber-400" />
-                Max Budget
-              </label>
-              <div className="flex items-center gap-1">
-                <span className="text-amber-400 text-xs font-mono">₹</span>
-                <input
-                  id="planner-budget"
-                  type="number"
-                  min="5"
-                  max="1500"
-                  step="5"
-                  aria-invalid={errors.maxBudgetRupees ? 'true' : 'false'}
-                  aria-describedby={errors.maxBudgetRupees ? 'planner-budget-error' : undefined}
-                  value={formData.maxBudgetRupees}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setFormData({ ...formData, maxBudgetRupees: isNaN(val) ? 0 : val });
-                    clearError('maxBudgetRupees');
-                  }}
-                  className="w-16 bg-slate-950 border border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-400 text-xs focus:outline-none focus:border-amber-400"
-                />
+              {/* Walking Tolerance & Budget */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      Max Walking
+                    </span>
+                    <span className="text-teal-600 dark:text-teal-400 font-bold">{formData.walkingToleranceMinutes} mins</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="30"
+                    step="5"
+                    value={formData.walkingToleranceMinutes}
+                    onChange={(e) => setFormData({ ...formData, walkingToleranceMinutes: parseInt(e.target.value) })}
+                    aria-label={`Maximum walking tolerance: ${formData.walkingToleranceMinutes} minutes`}
+                    aria-valuemin={5}
+                    aria-valuemax={30}
+                    aria-valuenow={formData.walkingToleranceMinutes}
+                    className="w-full accent-teal-600 bg-slate-200 dark:bg-slate-800 rounded-lg cursor-pointer h-2"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label htmlFor="planner-budget" className="flex items-center gap-1.5 cursor-pointer">
+                      <IndianRupee className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      Max Budget
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-amber-600 dark:text-amber-400 text-xs font-mono font-bold">₹</span>
+                      <input
+                        id="planner-budget"
+                        type="number"
+                        min="5"
+                        max="1500"
+                        step="5"
+                        aria-invalid={errors.maxBudgetRupees ? 'true' : 'false'}
+                        aria-describedby={errors.maxBudgetRupees ? 'planner-budget-error' : undefined}
+                        value={formData.maxBudgetRupees}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setFormData({ ...formData, maxBudgetRupees: isNaN(val) ? 0 : val });
+                          clearError('maxBudgetRupees');
+                        }}
+                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-600 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="600"
+                    step="10"
+                    aria-label={`Maximum budget: ₹${formData.maxBudgetRupees}`}
+                    value={Math.min(600, formData.maxBudgetRupees || 10)}
+                    onChange={(e) => setFormData({ ...formData, maxBudgetRupees: parseInt(e.target.value, 10) })}
+                    className="w-full accent-amber-500 bg-slate-200 dark:bg-slate-800 rounded-lg cursor-pointer h-2"
+                  />
+                  {errors.maxBudgetRupees && (
+                    <p id="planner-budget-error" className="mt-1 text-xs text-rose-500 dark:text-rose-400" role="alert">
+                      {errors.maxBudgetRupees}
+                    </p>
+                  )}
+                  {/* Quick Budget Chips */}
+                  <div className="flex items-center gap-1 mt-1.5 overflow-x-auto pb-0.5">
+                    {[25, 50, 100, 200, 350, 500].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, maxBudgetRupees: preset })}
+                        className={`text-[10px] px-2 py-1 rounded border transition-colors ${
+                          formData.maxBudgetRupees === preset
+                            ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-600 text-amber-800 dark:text-amber-300 font-bold'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
+                        }`}
+                      >
+                        ₹{preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-            <input
-              type="range"
-              min="10"
-              max="600"
-              step="10"
-              aria-label={`Maximum budget: ₹${formData.maxBudgetRupees}`}
-              value={Math.min(600, formData.maxBudgetRupees || 10)}
-              onChange={(e) => setFormData({ ...formData, maxBudgetRupees: parseInt(e.target.value, 10) })}
-              className="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer"
-            />
-            {errors.maxBudgetRupees && (
-              <p id="planner-budget-error" className="mt-1 text-xs text-rose-400" role="alert">
-                {errors.maxBudgetRupees}
-              </p>
-            )}
-            {/* Quick Budget Chips */}
-            <div className="flex items-center gap-1 mt-1.5 overflow-x-auto pb-0.5">
-              {[25, 50, 100, 200, 350, 500].map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, maxBudgetRupees: preset })}
-                  className={`text-[10px] px-2 py-1.5 rounded border transition-colors ${
-                    formData.maxBudgetRupees === preset
-                      ? 'bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  ₹{preset}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Action */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-slate-950 shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2"
+          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2"
         >
           {isLoading ? (
             <>
-              <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span>Calculating Multi-Modal Commute...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950" />
+              <Sparkles className="w-4 h-4 text-white fill-white" />
               <span>Plan My Commute</span>
             </>
           )}
         </button>
 
         {/* Save this commute → "My Commutes" (persisted on this device) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800/80">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
           <p className="text-[11px] text-slate-500 leading-snug">
             Keep this setup for one-tap planning from{' '}
-            <strong className="text-slate-400">My Commutes</strong>.
+            <strong className="text-slate-700 dark:text-slate-300">My Commutes</strong>.
           </p>
           <button
             type="button"
@@ -429,19 +456,19 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                 ? 'This commute is already saved in My Commutes'
                 : 'Save this commute setup on this device'
             }
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
           >
             {isCommuteSaved ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
-                <span className="text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-2 py-0.5">
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                <span className="text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-lg px-2 py-0.5">
                   Saved
                 </span>
               </>
             ) : (
               <>
-                <Bookmark className="w-3.5 h-3.5 text-slate-300" aria-hidden="true" />
-                <span className="text-slate-200 bg-slate-800 hover:bg-slate-750 border border-slate-700 rounded-lg px-2 py-0.5 transition-colors">
+                <Bookmark className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                <span className="text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-0.5 transition-colors">
                   Save this commute
                 </span>
               </>

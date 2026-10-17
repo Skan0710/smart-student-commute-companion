@@ -1,39 +1,29 @@
 import React, { useEffect, useRef } from 'react';
-import { 
-  Sparkles, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
-  IndianRupee, 
-  Footprints, 
-  ArrowRight, 
-  ShieldAlert, 
-  ThumbsUp, 
-  Zap, 
-  Train, 
-  Bus, 
-  Car, 
-  Umbrella,
+import {
+  Sparkles,
+  AlertTriangle,
+  Clock,
+  IndianRupee,
+  Footprints,
+  Zap,
   CloudRain,
-  Navigation,
-  Shuffle,
+  ThumbsUp,
   Info
 } from 'lucide-react';
-import { 
-  ErrorState, 
-  ProgressBar, 
+import {
+  ErrorState,
+  ProgressBar,
   ComparisonBars,
   RouteBadge,
   ProvenanceTag,
-  TradeoffPill,
-  StatusIndicator
+  TradeoffPill
 } from './ui';
 import { staggerRouteCards } from '../utils/motion';
 
-export default function RouteResults({ 
-  planResult, 
-  selectedRouteId, 
-  setSelectedRouteId, 
+export default function RouteResults({
+  planResult,
+  selectedRouteId,
+  setSelectedRouteId,
   onOpenFeedback,
   maxBudgetRupees
 }) {
@@ -47,7 +37,7 @@ export default function RouteResults({
 
   if (!planResult) return null;
 
-  const { recommendation, alternatives = [], weather, scheduleContext, departureAdvice } = planResult;
+  const { recommendation, alternatives = [], weather, scheduleContext } = planResult;
   const recRoute = recommendation?.route;
   const aiReasoning = recommendation?.aiReasoning;
 
@@ -69,7 +59,7 @@ export default function RouteResults({
   const recTradeoffs = recRoute.tradeoffs || [
     { label: 'Fastest arrival', type: 'positive', category: 'fastest' },
     { label: `₹${recRoute.fareRupees} student fare`, type: 'positive', category: 'cheapest' },
-    recRoute.transfers === 0 
+    recRoute.transfers === 0
       ? { label: 'Direct (0 transfers)', type: 'positive', category: 'transfers' }
       : { label: `${recRoute.transfers} transfer`, type: 'neutral', category: 'transfers' }
   ];
@@ -78,15 +68,15 @@ export default function RouteResults({
     <div ref={containerRef} className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between backdrop-blur-sm shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <CloudRain className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white">Mumbai Weather: {weather.condition}</span>
-                <span className="text-[10px] text-slate-400 font-mono">({weather.temperatureC}°C)</span>
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">Mumbai Weather: {weather.condition}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">({weather.temperatureC}°C)</span>
               </div>
               <div className="min-w-[170px] max-w-[240px] flex-1">
                 <ProgressBar
@@ -100,7 +90,7 @@ export default function RouteResults({
               </div>
             </div>
           </div>
-          <span className="text-[10px] text-slate-400 px-2 py-0.5 rounded bg-slate-950 border border-slate-800 hidden sm:inline">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hidden sm:inline">
             Open-Meteo Verified
           </span>
         </div>
@@ -108,15 +98,15 @@ export default function RouteResults({
 
       {/* Schedule Context Banner (if derived from academic timetable) */}
       {scheduleContext?.hasScheduleContext && (
-        <div className="bg-gradient-to-r from-indigo-950/40 to-slate-900/80 border border-indigo-500/30 rounded-xl p-3 text-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-indigo-300">
-            <Info className="w-4 h-4 text-indigo-400 shrink-0" />
+        <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 rounded-xl p-3 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-blue-900 dark:text-blue-300">
+            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
             <span>
               Targeted for <strong>{scheduleContext.eventTitle || 'Class'}</strong> starting at {scheduleContext.eventStartTime || scheduleContext.targetArrivalTime}
             </span>
           </div>
           {scheduleContext.isExamDay && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0">
               Exam Buffer (20m)
             </span>
           )}
@@ -124,27 +114,27 @@ export default function RouteResults({
       )}
 
       {/* RECOMMENDED ROUTE CARD (FLAGSHIP EXPERIENCE) */}
-      <div 
+      <div
         onClick={() => setSelectedRouteId(recRoute.id)}
-        className={`route-card-animate bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-2xl p-5 sm:p-6 shadow-2xl transition-all cursor-pointer relative overflow-hidden ${
-          selectedRouteId === recRoute.id 
-            ? 'border-emerald-500 shadow-emerald-500/10 ring-1 ring-emerald-500/30' 
-            : 'border-emerald-500/50 hover:border-emerald-400/80'
+        className={`route-card-animate bg-white dark:bg-slate-900 border-2 rounded-2xl p-5 sm:p-6 shadow-sm transition-all cursor-pointer relative overflow-hidden ${
+          selectedRouteId === recRoute.id
+            ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+            : 'border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600'
         }`}
       >
         {/* Top Header: Badge, Provenance, Departure Window */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-xs flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 fill-white" />
               RECOMMENDED COMMUTE
             </span>
             <ProvenanceTag tier={recRoute.provenanceTier || (recRoute.sourceLabel?.includes('Verified') ? 'VERIFIED' : 'ESTIMATED')} />
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">Depart by</span>
-            <span className="text-sm font-extrabold text-emerald-300 font-mono bg-emerald-950/60 px-2.5 py-0.5 rounded-lg border border-emerald-500/30">
+            <span className="text-xs text-slate-500 dark:text-slate-400">Depart by</span>
+            <span className="text-sm font-extrabold text-blue-700 dark:text-blue-300 font-mono bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800">
               {recRoute.estimatedDeparture}
             </span>
           </div>
@@ -154,25 +144,25 @@ export default function RouteResults({
         <div className="mb-4">
           <div className="flex items-center gap-2.5 flex-wrap">
             <RouteBadge mode={recRoute.primaryMode} size="md" />
-            <h3 className="text-lg sm:text-xl font-extrabold text-white">
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
               {recRoute.title}
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-1">{recRoute.subtitle}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{recRoute.subtitle}</p>
         </div>
 
         {/* Why this route: Decision Rationale */}
-        <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-3.5 mb-4">
+        <div className="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-3.5 mb-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
-              {aiReasoning?.aiProvider || 'Deterministic Recommendation Engine'}
+            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+              {aiReasoning?.aiProvider || 'Optimal Route Intelligence'}
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ml-auto font-medium">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 ml-auto font-medium">
               Confidence: {aiReasoning?.confidence?.toUpperCase() || 'HIGH'}
             </span>
           </div>
-          <p className="text-xs text-slate-200 leading-relaxed">
+          <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
             {aiReasoning?.reason || aiReasoning?.summary || 'Calculated as the optimal route for travel time, transfers, and fare economy.'}
           </p>
         </div>
@@ -191,52 +181,52 @@ export default function RouteResults({
 
         {/* Multi-Criteria Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <Clock className="w-3 h-3 text-emerald-400" />
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+              <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               Duration
             </div>
-            <div className="text-base font-extrabold text-white mt-0.5">
-              {recRoute.durationMinutes} <span className="text-xs font-normal text-slate-400">mins</span>
+            <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
+              {recRoute.durationMinutes} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono mt-0.5">Arr: {recRoute.estimatedArrival}</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Arr: {recRoute.estimatedArrival}</div>
           </div>
 
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <IndianRupee className="w-3 h-3 text-amber-400" />
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+              <IndianRupee className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               Est. Fare
             </div>
-            <div className="text-base font-extrabold text-amber-300 mt-0.5">
+            <div className="text-base font-extrabold text-amber-700 dark:text-amber-300 mt-0.5">
               ₹{recRoute.fareRupees}
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               {recRoute.fareRupees <= 15 ? 'Student Saver' : 'Standard Fare'}
             </div>
           </div>
 
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <Footprints className="w-3 h-3 text-teal-400" />
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+              <Footprints className="w-3 h-3 text-teal-600 dark:text-teal-400" />
               Walking
             </div>
-            <div className="text-base font-extrabold text-teal-300 mt-0.5">
-              {recRoute.walkingDurationMinutes} <span className="text-xs font-normal text-slate-400">mins</span>
+            <div className="text-base font-extrabold text-teal-700 dark:text-teal-300 mt-0.5">
+              {recRoute.walkingDurationMinutes} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               {recRoute.totalWalkingDistanceKm} km
             </div>
           </div>
 
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <Zap className="w-3 h-3 text-indigo-400" />
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+              <Zap className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
               Reliability
             </div>
-            <div className="text-base font-extrabold text-indigo-300 mt-0.5">
+            <div className="text-base font-extrabold text-indigo-700 dark:text-indigo-300 mt-0.5">
               {recRoute.scores?.reliability || 88}%
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               {recRoute.transfers === 0 ? 'Direct Route' : `${recRoute.transfers} Transfer`}
             </div>
           </div>
@@ -244,7 +234,7 @@ export default function RouteResults({
 
         {/* Budget usage vs student limit */}
         {Number.isFinite(maxBudgetRupees) && maxBudgetRupees > 0 && (
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-4">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 mb-4">
             <ProgressBar
               label="Fare vs configured budget"
               value={recRoute.fareRupees}
@@ -262,13 +252,13 @@ export default function RouteResults({
 
         {/* Disruption Warnings */}
         {((aiReasoning?.warnings && aiReasoning.warnings.length > 0) || (recRoute.disruptionAlerts && recRoute.disruptionAlerts.length > 0)) && (
-          <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 mb-4 space-y-1.5">
-            <div className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-xl p-3 mb-4 space-y-1.5">
+            <div className="text-xs font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Route Advisory & Warnings</span>
+              <span>Route Advisory &amp; Warnings</span>
             </div>
             {aiReasoning?.warnings?.map((w, idx) => (
-              <div key={idx} className="text-xs text-amber-200/90 pl-5">
+              <div key={idx} className="text-xs text-amber-900/90 dark:text-amber-200/90 pl-5">
                 • {w}
               </div>
             ))}
@@ -276,28 +266,28 @@ export default function RouteResults({
         )}
 
         {/* Step-by-Step Leg Breakdown with Transit Visuals */}
-        <div className="space-y-2 pt-3 border-t border-slate-800/80">
-          <div className="text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+        <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
             <span>Route Stages &amp; Transfers ({recRoute.legs?.length || 0})</span>
             <span className="text-[11px] text-slate-500 font-normal">Sequential transit legs</span>
           </div>
           {recRoute.legs?.map((leg, idx) => (
-            <div key={idx} className="flex items-start gap-3 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60">
-              <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 shrink-0 mt-0.5">
+            <div key={idx} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800/60">
+              <div className="w-6 h-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0 mt-0.5">
                 {idx + 1}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs gap-2">
-                  <span className="font-semibold text-slate-200 truncate">{leg.description}</span>
-                  <span className="text-slate-400 font-mono text-[11px] shrink-0">{leg.durationMinutes} mins</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{leg.description}</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">{leg.durationMinutes} mins</span>
                 </div>
                 {leg.agency && (
-                  <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400 flex-wrap">
-                    <span className="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-medium">
+                  <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
+                    <span className="px-1.5 py-0.2 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                       {leg.agency}
                     </span>
                     {leg.fareRupees !== undefined && (
-                      <span className="text-emerald-400 font-medium">₹{leg.fareRupees}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">₹{leg.fareRupees}</span>
                     )}
                     {leg.departureTime && (
                       <span className="font-mono">Dep: {leg.departureTime}</span>
@@ -310,9 +300,9 @@ export default function RouteResults({
         </div>
 
         {/* Map selection trigger & feedback button */}
-        <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${selectedRouteId === recRoute.id ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`}></span>
+            <span className={`w-2 h-2 rounded-full ${selectedRouteId === recRoute.id ? 'bg-blue-600 animate-pulse' : 'bg-slate-400 dark:bg-slate-600'}`}></span>
             {selectedRouteId === recRoute.id ? 'Selected on map' : 'Click to inspect on map'}
           </span>
           <button
@@ -321,7 +311,7 @@ export default function RouteResults({
               e.stopPropagation();
               onOpenFeedback(recRoute.id);
             }}
-            className="flex items-center gap-1 text-slate-400 hover:text-emerald-400 transition-colors py-1 px-2 rounded-lg hover:bg-slate-800/50"
+            className="flex items-center gap-1 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors py-1 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50"
           >
             <ThumbsUp className="w-3.5 h-3.5" />
             <span>Rate Recommendation</span>
@@ -331,7 +321,7 @@ export default function RouteResults({
 
       {/* OPTION COMPARISON (Visual comparison of travel time and fares) */}
       {alternatives.length > 0 && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-4 shadow-xs">
           <ComparisonBars
             title="Travel time across your options"
             valueUnit="min"
@@ -374,9 +364,9 @@ export default function RouteResults({
 
       {/* PRACTICAL ALTERNATIVES LIST */}
       <div>
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
           <span>Practical Alternatives ({alternatives.length})</span>
-          <span className="text-[11px] normal-case text-slate-400">Click any card to render on map</span>
+          <span className="text-[11px] normal-case text-slate-500 dark:text-slate-400">Click any card to render on map</span>
         </h4>
 
         <div className="space-y-3">
@@ -386,52 +376,52 @@ export default function RouteResults({
               <div
                 key={alt.id}
                 onClick={() => setSelectedRouteId(alt.id)}
-                className={`route-card-animate bg-slate-900/90 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-600 ${
-                  isSelected 
-                    ? 'border-indigo-500 bg-slate-900/95 ring-1 ring-indigo-500/50 shadow-lg' 
-                    : 'border-slate-800'
+                className={`route-card-animate bg-white dark:bg-slate-900 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs ${
+                  isSelected
+                    ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+                    : 'border-slate-200 dark:border-slate-800'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
                     <RouteBadge mode={alt.primaryMode} size="sm" />
-                    <span className="text-sm font-bold text-white">{alt.title}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{alt.title}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
                     {alt.badgeLabel && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                         {alt.badgeLabel}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-400 mb-3">{alt.subtitle}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{alt.subtitle}</p>
 
                 {/* Quick stats row */}
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
-                  <span className="flex items-center gap-1 font-semibold text-white">
-                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300">
+                  <span className="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     {alt.durationMinutes} mins
                   </span>
-                  <span className="flex items-center gap-1 text-amber-300 font-semibold">
+                  <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
                     <IndianRupee className="w-3.5 h-3.5" />
                     ₹{alt.fareRupees}
                   </span>
-                  <span className="flex items-center gap-1 text-slate-400">
-                    <Footprints className="w-3.5 h-3.5 text-teal-400" />
+                  <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                    <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                     {alt.walkingDurationMinutes}m walk
                   </span>
-                  <span className="font-mono text-slate-400 ml-auto text-[11px]">
+                  <span className="font-mono text-slate-500 dark:text-slate-400 ml-auto text-[11px]">
                     Dep: {alt.estimatedDeparture} → Arr: {alt.estimatedArrival}
                   </span>
                 </div>
 
                 {/* Disruption indicator on alternative */}
                 {alt.disruptionAlerts && alt.disruptionAlerts.length > 0 && (
-                  <div className="mt-2.5 pt-2 border-t border-slate-800/80 text-[11px] text-amber-300/90 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
                     <span className="truncate">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
                   </div>
                 )}
