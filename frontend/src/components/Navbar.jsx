@@ -17,7 +17,9 @@ import {
   X,
   BarChart3,
   UploadCloud,
-  UserRound
+  UserRound,
+  MoreHorizontal,
+  ChevronDown
 } from 'lucide-react';
 import { ENABLE_DEMO_RESET } from '../config/index.js';
 import { ConfirmDialog, UnreadCountBadge } from './ui';
@@ -109,6 +111,8 @@ export const NAV_ITEMS = [
   }
 ];
 
+export const PRIMARY_NAV_IDS = ['planner', 'mycommutes', 'feed', 'together'];
+
 export default function Navbar({ 
   isConnected, 
   onResetDemo, 
@@ -123,9 +127,27 @@ export default function Navbar({
   onToggleTheme
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
   const menuButtonRef = useRef(null);
   const mobileNavRef = useRef(null);
+  const moreDropdownRef = useRef(null);
+
+  const isSecondaryActive = !PRIMARY_NAV_IDS.includes(activeTab);
+  const activeItem = NAV_ITEMS.find((item) => item.id === activeTab);
+
+  // Close desktop more dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (moreDropdownRef.current && !moreDropdownRef.current.contains(e.target)) {
+        setMoreDropdownOpen(false);
+      }
+    };
+    if (moreDropdownOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [moreDropdownOpen]);
 
   const handleRequestReset = () => {
     setIsConfirmingReset(true);
@@ -209,10 +231,10 @@ export default function Navbar({
           {/* Desktop/Tablet Primary Navigation */}
           <nav
             className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0 transition-colors"
-            role="navigation" 
+            role="navigation"
             aria-label="Main application navigation"
           >
-            {NAV_ITEMS.map((item) => {
+            {NAV_ITEMS.filter((item) => PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
@@ -220,63 +242,114 @@ export default function Navbar({
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
                   aria-current={isActive ? 'page' : undefined}
-                  aria-label={
-                    item.id === 'notifications' && unreadNotificationsCount > 0
-                      ? `${item.label}, ${unreadNotificationsCount} unread notifications`
-                      : item.label
-                  }
+                  aria-label={item.label}
                   title={item.label}
-                  className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 ${
                     isActive
-                      ? 'bg-emerald-500 text-slate-950 font-semibold shadow-md shadow-emerald-500/20'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${item.id === 'feed' && !isActive ? 'text-amber-400' : ''}`} aria-hidden="true" />
-                  {/*
-                    Labels scale with available width so eleven tabs never
-                    overflow the header (measured in Chrome with the install
-                    control present): icon-only below 1840px (phones,
-                    tablets, laptops, smaller desktops), short labels from
-                    1840px up to 2599px, full labels only at >=2600px where
-                    the eleven full labels plus the right-hand controls fit
-                    the viewport without horizontal scrolling (Day-14
-                    re-measured for the eleventh Account tab: short labels
-                    from 2xl/1536px overflowed by up to 89px, full labels at
-                    2200px by up to 113px — both thresholds moved up; the
-                    brand also keeps a min-w so its logo can no longer
-                    overlap the first nav item when the row gets tight).
-                    aria-label/title keep the target named when only the
-                    icon shows.
-                  */}
+                  <Icon className={`w-3.5 h-3.5 ${item.id === 'feed' && !isActive ? 'text-amber-500' : ''}`} aria-hidden="true" />
                   <span className="hidden min-[2600px]:inline">{item.label}</span>
                   <span className="hidden min-[1840px]:inline min-[2600px]:hidden">{item.shortLabel}</span>
+                  <span className="inline min-[1840px]:hidden">{item.label}</span>
                   {item.hasBadge && reportsCount > 0 && (
-                    <span 
+                    <span
                       className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ml-0.5 ${
-                        isActive 
-                          ? 'bg-slate-950 text-emerald-400' 
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
                       }`}
                       aria-label={`${reportsCount} active alerts`}
                     >
                       {reportsCount}
                     </span>
                   )}
-                  {item.id === 'notifications' && unreadNotificationsCount > 0 && (
-                    <UnreadCountBadge
-                      count={unreadNotificationsCount}
-                      variant={isActive ? 'dark' : 'emerald'}
-                      srLabel="unread notifications"
-                      className="ml-0.5"
-                    />
-                  )}
                 </button>
               );
             })}
+
+            {/* Desktop More Menu Dropdown */}
+            <div className="relative" ref={moreDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
+                aria-expanded={moreDropdownOpen}
+                aria-label={
+                  unreadNotificationsCount > 0
+                    ? `More options, ${unreadNotificationsCount} unread notifications`
+                    : 'More navigation options'
+                }
+                title="More navigation options"
+                className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 ${
+                  isSecondaryActive
+                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <MoreHorizontal className="w-3.5 h-3.5" aria-hidden="true" />
+                <span className="font-medium">
+                  {isSecondaryActive ? activeItem?.shortLabel || 'More' : 'More'}
+                </span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${moreDropdownOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                {unreadNotificationsCount > 0 && (
+                  <UnreadCountBadge
+                    count={unreadNotificationsCount}
+                    variant="emerald"
+                    srLabel="unread notifications"
+                    className="ml-0.5"
+                  />
+                )}
+              </button>
+
+              {moreDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                    Secondary Views
+                  </div>
+                  {NAV_ITEMS.filter((item) => !PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          handleSelectTab(item.id);
+                          setMoreDropdownOpen(false);
+                        }}
+                        aria-current={isActive ? 'page' : undefined}
+                        aria-label={
+                          item.id === 'notifications' && unreadNotificationsCount > 0
+                            ? `${item.label}, ${unreadNotificationsCount} unread notifications`
+                            : item.label
+                        }
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left transition-colors ${
+                          isActive
+                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} aria-hidden="true" />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+                        {item.id === 'notifications' && unreadNotificationsCount > 0 && (
+                          <UnreadCountBadge
+                            count={unreadNotificationsCount}
+                            variant="emerald"
+                            srLabel="unread notifications"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </nav>
 
-          {/* Right Controls: Connectivity, Demo Reset & Mobile Toggle */}
+          {/* Right Controls: Connectivity, Theme & Preferences */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Live Socket Status Badge */}
             <div
@@ -307,20 +380,6 @@ export default function Navbar({
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             )}
 
-            {/* PWA Install action (only when the browser offers it) */}
-            {canInstall && onInstallApp && (
-              <button
-                type="button"
-                onClick={onInstallApp}
-                title="Install this app on your device"
-                aria-label="Install app"
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 border border-emerald-400 text-slate-950 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
-              >
-                <Download className="w-3.5 h-3.5" aria-hidden="true" />
-                <span className="hidden lg:inline">Install App</span>
-              </button>
-            )}
-
             {/* Preferences (client-side personalization controls) */}
             {onOpenPreferences && (
               <button
@@ -328,24 +387,10 @@ export default function Navbar({
                 onClick={onOpenPreferences}
                 title="Personalize your interface"
                 aria-label="Open preferences"
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
+                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                 <span className="hidden lg:inline">Preferences</span>
-              </button>
-            )}
-
-            {/* Reset Demo State Button */}
-            {ENABLE_DEMO_RESET && (
-              <button
-                onClick={handleRequestReset}
-                disabled={isResetting}
-                title="Reset demo data to baseline state"
-                aria-label="Reset demo environment"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
-              >
-                <RotateCcw className={`w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
-                <span className="hidden lg:inline">Reset Demo</span>
               </button>
             )}
 
@@ -357,10 +402,10 @@ export default function Navbar({
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 transition-colors"
+              className="md:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 transition-colors"
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
+                <X className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               ) : (
                 <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
               )}
@@ -440,43 +485,16 @@ export default function Navbar({
             {/* Mobile Preferences Control */}
             {onOpenPreferences && (
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
-                {canInstall && onInstallApp && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onInstallApp();
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-500 border border-emerald-400 text-slate-950 text-xs font-bold hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <Download className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>Install App</span>
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     onOpenPreferences();
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
-                  <span>Preferences</span>
-                </button>
-              </div>
-            )}
-
-            {/* Mobile Reset Demo Control */}
-            {ENABLE_DEMO_RESET && (
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80">
-                <button
-                  onClick={handleRequestReset}
-                  disabled={isResetting}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium disabled:opacity-50"
-                >
-                  <RotateCcw className={`w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
-                  <span>{isResetting ? 'Resetting Demo...' : 'Reset Demo Environment'}</span>
+                  <SlidersHorizontal className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                  <span>Preferences &amp; Settings</span>
                 </button>
               </div>
             )}
@@ -484,13 +502,13 @@ export default function Navbar({
         )}
       </header>
 
-      {/* Mobile Bottom Fixed Navigation Bar (Sticky Thumb Navigation) */}
+      {/* Mobile Bottom Fixed Navigation Bar (Simplified 5-Item Touch Layout) */}
       <nav 
         className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800/90 px-0.5 py-2 pb-safe flex items-center justify-around shadow-2xl transition-colors"
         role="navigation"
         aria-label="Mobile quick navigation"
       >
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
@@ -498,36 +516,62 @@ export default function Navbar({
               key={item.id}
               onClick={() => handleSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`min-w-0 flex flex-col items-center justify-center py-1 px-0 min-h-[44px] rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 px-0 min-h-[48px] rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 isActive
-                  ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                  ? 'text-blue-600 dark:text-blue-400 font-bold'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-600 dark:text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`} aria-hidden="true" />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600 dark:text-blue-400 scale-110' : 'text-slate-400'} transition-transform`} aria-hidden="true" />
                 {item.hasBadge && reportsCount > 0 && (
                   <span className="absolute -top-1 -right-2 w-4 h-4 bg-amber-500 text-slate-950 text-[10px] font-extrabold rounded-full flex items-center justify-center border border-white dark:border-slate-950">
                     {reportsCount > 9 ? '9+' : reportsCount}
                   </span>
-                )}
-                {item.id === 'notifications' && unreadNotificationsCount > 0 && (
-                  <UnreadCountBadge
-                    count={unreadNotificationsCount}
-                    srLabel="unread"
-                    className="absolute -top-1 -right-2 border-white dark:border-slate-950"
-                  />
                 )}
               </div>
               <span className="text-[10px] mt-1 tracking-tight max-w-full truncate">
                 {item.shortLabel}
               </span>
               {isActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mt-0.5" aria-hidden="true" />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 mt-0.5" aria-hidden="true" />
               )}
             </button>
           );
         })}
+        {/* 5th Mobile Bottom Item: More Menu */}
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          aria-expanded={mobileMenuOpen}
+          aria-label={
+            unreadNotificationsCount > 0
+              ? `More features and settings, ${unreadNotificationsCount} unread notifications`
+              : 'More features and settings'
+          }
+          className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 px-0 min-h-[48px] rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isSecondaryActive
+              ? 'text-blue-600 dark:text-blue-400 font-bold'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <div className="relative">
+            <MoreHorizontal className={`w-5 h-5 ${isSecondaryActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} aria-hidden="true" />
+            {unreadNotificationsCount > 0 && (
+              <UnreadCountBadge
+                count={unreadNotificationsCount}
+                srLabel="unread"
+                className="absolute -top-1 -right-2 border-white dark:border-slate-950"
+              />
+            )}
+          </div>
+          <span className="text-[10px] mt-1 tracking-tight max-w-full truncate">
+            {isSecondaryActive ? activeItem?.shortLabel || 'More' : 'More'}
+          </span>
+          {isSecondaryActive && (
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 mt-0.5" aria-hidden="true" />
+          )}
+        </button>
       </nav>
 
       {/* Destructive-action confirmation (UI only; action fires on confirm) */}

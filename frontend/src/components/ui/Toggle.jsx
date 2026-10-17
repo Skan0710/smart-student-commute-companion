@@ -35,13 +35,13 @@ export default function Toggle({
         <label
           htmlFor={id}
           className={`block text-sm font-semibold cursor-pointer ${
-            disabled ? 'text-slate-500' : 'text-slate-200'
+            disabled ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'
           }`}
         >
           {label}
         </label>
         {description && (
-          <p id={`${id}-desc`} className="text-xs text-slate-500 leading-relaxed pt-0.5">
+          <p id={`${id}-desc`} className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pt-0.5">
             {description}
           </p>
         )}
@@ -59,19 +59,17 @@ export default function Toggle({
         />
         <span
           aria-hidden="true"
-          className={`block w-11 h-6 rounded-full border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-slate-950 ${
-            checked ? 'bg-emerald-500 border-emerald-400' : 'bg-slate-800 border-slate-700'
+          className={`block w-11 h-6 rounded-full border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white dark:peer-focus-visible:ring-offset-slate-950 ${
+            checked
+              ? 'bg-blue-600 border-blue-600'
+              : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700'
           } ${disabled ? 'opacity-60' : ''}`}
         >
           <span
-            className={`block w-4 h-4 rounded-full bg-white shadow mt-1 ml-1 transition-transform ${
+            className={`block w-4 h-4 rounded-full bg-white shadow mt-0.5 ml-0.5 transition-transform ${
               checked ? 'translate-x-5' : 'translate-x-0'
             }`}
           />
-        </span>
-        {/* Text state so status is never conveyed by color alone */}
-        <span className="absolute -top-0.5 right-0 translate-y-full text-[10px] font-bold text-slate-500">
-          {checked ? 'ON' : 'OFF'}
         </span>
       </div>
     </div>

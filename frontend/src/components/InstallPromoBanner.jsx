@@ -49,7 +49,9 @@ export default function InstallPromoBanner({
   // when hidden, so a hide transition is watched instead of unmount. Focus
   // events are deliberately not used as signals — only the visible→hidden
   // transition plus a "focus landed on <body>" check after the DOM update.
-  const isVisible = isPromoEligible({ canInstall, isInstalled }) && !dismissed && isRevealed;
+  // Intrusive in-app promotional install banner removed per design requirements.
+  // Component remains mounted and functional without rendering visible promotion.
+  const isVisible = false;
   const wasVisibleRef = useRef(false);
 
   useEffect(() => {
