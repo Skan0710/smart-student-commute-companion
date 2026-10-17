@@ -42,6 +42,9 @@ import {
   readNotificationReadIds,
   writeNotificationReadIds,
   isQuietHoursActive,
+  readThemePreference,
+  writeThemePreference,
+  applyTheme,
 } from './utils/uiPreferences';
 import { resetDemoState } from './services/api';
 import {
@@ -88,6 +91,21 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 export default function App() {
   // Desktop smooth scrolling via Lenis + GSAP ticker (no-ops on mobile/touch & reduced motion)
   useSmoothScroll();
+
+  // Premium Light / Dark Theme state (persisted, system-aware fallback, premium light default)
+  const [theme, setTheme] = useState(() => readThemePreference());
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    writeThemePreference(nextTheme);
+    setTheme(nextTheme);
+    applyTheme(nextTheme);
+    showToast(`Switched to ${nextTheme} theme.`, 'info');
+  };
 
   // Deep links (PWA app shortcuts & shared links) open a specific screen once
   // on load via /?tab=<screenId>; unknown or missing values fall back to the
@@ -1217,7 +1235,9 @@ export default function App() {
     unreadNotificationsCount,
     onOpenPreferences: () => setIsPreferencesOpen(true),
     canInstall: canInstall && !isInstalled,
-    onInstallApp: handleInstallApp
+    onInstallApp: handleInstallApp,
+    theme,
+    onToggleTheme: handleToggleTheme
   };
 
   return (
@@ -1257,6 +1277,8 @@ export default function App() {
         preferences={appPreferences}
         onChange={handlePreferenceChange}
         onReset={handlePreferenceReset}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Modals */}

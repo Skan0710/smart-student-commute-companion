@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { ENABLE_DEMO_RESET } from '../config/index.js';
 import { ConfirmDialog, UnreadCountBadge } from './ui';
+import ThemeToggle from './ThemeToggle';
 
 /**
  * Valid application routes
@@ -117,7 +118,9 @@ export default function Navbar({
   unreadNotificationsCount = 0,
   onOpenPreferences,
   canInstall = false,
-  onInstallApp
+  onInstallApp,
+  theme = 'light',
+  onToggleTheme
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
@@ -160,18 +163,18 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-slate-800">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-150">
         {/* Top Privacy & Security Notice Banner */}
-        <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-indigo-950/60 border-b border-slate-800/80 px-4 py-1.5 text-xs text-slate-300 flex items-center justify-between gap-3 min-w-0">
+        <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800/80 px-4 py-1.5 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between gap-3 min-w-0 transition-colors">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
             <span className="truncate min-w-0">
-              <strong className="text-emerald-400 font-semibold">Privacy Protected:</strong> Area-level commute routing without continuous GPS tracking.
+              <strong className="text-blue-700 dark:text-emerald-400 font-semibold">Privacy Protected:</strong> Area-level commute routing without continuous GPS tracking.
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-4 text-slate-400 shrink-0 text-[11px]">
+          <div className="hidden md:flex items-center gap-4 text-slate-500 dark:text-slate-400 shrink-0 text-[11px]">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-emerald-500 animate-pulse" aria-hidden="true"></span>
               Mumbai GTFS Verified
             </span>
             <span>OSRM Multimodal</span>
@@ -183,29 +186,29 @@ export default function Navbar({
           
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3 min-w-10">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-600 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
-              <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <Compass className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-emerald-500 dark:to-indigo-600 p-0.5 shadow-md shadow-blue-500/10 dark:shadow-emerald-500/20 shrink-0">
+              <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[10px] flex items-center justify-center">
+                <Compass className="w-5 h-5 text-blue-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
+                <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Commute
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-blue-500/10 text-blue-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-blue-500/20 dark:border-emerald-500/20 shrink-0">
                   MUMBAI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden lg:block truncate">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden lg:block truncate">
                 Multimodal Transit • Community Disruptions • Weather Intelligence
               </p>
             </div>
           </div>
 
           {/* Desktop/Tablet Primary Navigation */}
-          <nav 
-            className="hidden md:flex items-center bg-slate-900/90 border border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0" 
+          <nav
+            className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0 transition-colors"
             role="navigation" 
             aria-label="Main application navigation"
           >
@@ -279,8 +282,8 @@ export default function Navbar({
             <div
               className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border ${
                 isConnected
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                  : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
               }`}
               role="status"
               aria-live="polite"
@@ -288,16 +291,21 @@ export default function Navbar({
             >
               {isConnected ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" aria-hidden="true"></span>
                   <span className="font-medium text-[11px] hidden sm:inline">Live Sync</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-3 h-3 text-rose-400" aria-hidden="true" />
+                  <WifiOff className="w-3 h-3 text-rose-500 dark:text-rose-400" aria-hidden="true" />
                   <span className="font-medium text-[11px] hidden sm:inline">Offline</span>
                 </>
               )}
             </div>
+
+            {/* Accessible Theme Switcher */}
+            {onToggleTheme && (
+              <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            )}
 
             {/* PWA Install action (only when the browser offers it) */}
             {canInstall && onInstallApp && (
@@ -306,7 +314,7 @@ export default function Navbar({
                 onClick={onInstallApp}
                 title="Install this app on your device"
                 aria-label="Install app"
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 border border-emerald-400 text-slate-950 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 border border-emerald-400 text-slate-950 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
               >
                 <Download className="w-3.5 h-3.5" aria-hidden="true" />
                 <span className="hidden lg:inline">Install App</span>
@@ -320,9 +328,9 @@ export default function Navbar({
                 onClick={onOpenPreferences}
                 title="Personalize your interface"
                 aria-label="Open preferences"
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all hover:border-slate-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
                 <span className="hidden lg:inline">Preferences</span>
               </button>
             )}
@@ -334,9 +342,9 @@ export default function Navbar({
                 disabled={isResetting}
                 title="Reset demo data to baseline state"
                 aria-label="Reset demo environment"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all hover:border-slate-500 active:scale-95 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
               >
-                <RotateCcw className={`w-3.5 h-3.5 text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
+                <RotateCcw className={`w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span className="hidden lg:inline">Reset Demo</span>
               </button>
             )}
@@ -349,12 +357,12 @@ export default function Navbar({
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition-colors"
+              className="md:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 transition-colors"
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+                <X className="w-5 h-5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
               ) : (
-                <Menu className="w-5 h-5 text-slate-300" aria-hidden="true" />
+                <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -421,9 +429,17 @@ export default function Navbar({
               })}
             </div>
 
+            {/* Mobile Theme Switcher */}
+            {onToggleTheme && (
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between px-1">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Theme</span>
+                <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+              </div>
+            )}
+
             {/* Mobile Preferences Control */}
             {onOpenPreferences && (
-              <div className="pt-2 border-t border-slate-800/80 space-y-2">
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
                 {canInstall && onInstallApp && (
                   <button
                     type="button"
@@ -443,9 +459,9 @@ export default function Navbar({
                     setMobileMenuOpen(false);
                     onOpenPreferences();
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
                   <span>Preferences</span>
                 </button>
               </div>
@@ -453,13 +469,13 @@ export default function Navbar({
 
             {/* Mobile Reset Demo Control */}
             {ENABLE_DEMO_RESET && (
-              <div className="pt-2 border-t border-slate-800/80">
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80">
                 <button
                   onClick={handleRequestReset}
                   disabled={isResetting}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium disabled:opacity-50"
                 >
-                  <RotateCcw className={`w-3.5 h-3.5 text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
+                  <RotateCcw className={`w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 ${isResetting ? 'animate-spin' : ''}`} aria-hidden="true" />
                   <span>{isResetting ? 'Resetting Demo...' : 'Reset Demo Environment'}</span>
                 </button>
               </div>
@@ -470,7 +486,7 @@ export default function Navbar({
 
       {/* Mobile Bottom Fixed Navigation Bar (Sticky Thumb Navigation) */}
       <nav 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/90 px-0.5 py-2 pb-safe flex items-center justify-around shadow-2xl"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800/90 px-0.5 py-2 pb-safe flex items-center justify-around shadow-2xl transition-colors"
         role="navigation"
         aria-label="Mobile quick navigation"
       >
@@ -484,14 +500,14 @@ export default function Navbar({
               aria-current={isActive ? 'page' : undefined}
               className={`min-w-0 flex flex-col items-center justify-center py-1 px-0 min-h-[44px] rounded-xl transition-all relative focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                 isActive
-                  ? 'text-emerald-400 font-bold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`} aria-hidden="true" />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-600 dark:text-emerald-400 scale-110' : 'text-slate-400'} transition-transform`} aria-hidden="true" />
                 {item.hasBadge && reportsCount > 0 && (
-                  <span className="absolute -top-1 -right-2 w-4 h-4 bg-amber-500 text-slate-950 text-[10px] font-extrabold rounded-full flex items-center justify-center border border-slate-950">
+                  <span className="absolute -top-1 -right-2 w-4 h-4 bg-amber-500 text-slate-950 text-[10px] font-extrabold rounded-full flex items-center justify-center border border-white dark:border-slate-950">
                     {reportsCount > 9 ? '9+' : reportsCount}
                   </span>
                 )}
@@ -499,7 +515,7 @@ export default function Navbar({
                   <UnreadCountBadge
                     count={unreadNotificationsCount}
                     srLabel="unread"
-                    className="absolute -top-1 -right-2 border-slate-950"
+                    className="absolute -top-1 -right-2 border-white dark:border-slate-950"
                   />
                 )}
               </div>
@@ -507,7 +523,7 @@ export default function Navbar({
                 {item.shortLabel}
               </span>
               {isActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-0.5" aria-hidden="true" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mt-0.5" aria-hidden="true" />
               )}
             </button>
           );

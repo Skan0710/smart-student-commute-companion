@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { Modal, Button, Toggle, TimeRangeInput } from './ui';
+import ThemeToggle from './ThemeToggle';
 import {
   DEFAULT_APP_PREFERENCES,
   isQuietHoursActive,
@@ -35,6 +36,8 @@ import {
  * @param {Object} props.preferences - Current preference values
  * @param {Function} props.onChange - Apply a preference: onChange(partial)
  * @param {Function} props.onReset - Restore default preferences
+ * @param {string} [props.theme='light'] - Current theme
+ * @param {Function} [props.onToggleTheme] - Theme toggle handler
  */
 export default function PreferencesDialog({
   isOpen,
@@ -42,6 +45,8 @@ export default function PreferencesDialog({
   preferences,
   onChange,
   onReset,
+  theme = 'light',
+  onToggleTheme,
 }) {
   const prefs = { ...DEFAULT_APP_PREFERENCES, ...(preferences || {}) };
 
@@ -119,24 +124,37 @@ export default function PreferencesDialog({
           stored in your browser and never leave it — no account sync.
         </p>
 
-        <div className="bg-slate-950/60 border border-slate-800 rounded-xl px-4">
-          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-800">
+        <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl px-4">
+          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-800">
             Display
           </h4>
+          {onToggleTheme && (
+            <div className="py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div>
+                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 block">
+                  Interface Theme
+                </span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">
+                  Switch between light and dark themes
+                </span>
+              </div>
+              <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            </div>
+          )}
           <Toggle
             id="pref-dashboard-overview"
-            className="py-3 border-b border-slate-800"
+            className="py-3 border-b border-slate-200 dark:border-slate-800"
             checked={prefs.showDashboardOverview}
             onChange={(value) => onChange({ showDashboardOverview: value })}
             label="Show dashboard overview"
             description="Display the “at a glance” summary, quick actions, and recent searches at the top of the planner."
           />
-          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-800">
+          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-800">
             Notifications
           </h4>
           <Toggle
             id="pref-live-report-toasts"
-            className="py-3 border-b border-slate-800"
+            className="py-3 border-b border-slate-200 dark:border-slate-800"
             checked={prefs.liveReportToasts}
             onChange={(value) => onChange({ liveReportToasts: value })}
             label="Live report notifications"
@@ -144,7 +162,7 @@ export default function PreferencesDialog({
           />
           <Toggle
             id="pref-quiet-hours"
-            className="py-3 border-b border-slate-800"
+            className="py-3 border-b border-slate-200 dark:border-slate-800"
             checked={prefs.quietHoursEnabled}
             onChange={(value) => {
               // Switching quiet hours off also clears any in-progress time

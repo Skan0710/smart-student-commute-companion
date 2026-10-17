@@ -36,11 +36,11 @@ export default function AppShell({
   const isSplit = hasSidebar && layoutMode === 'split';
 
   return (
-    <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200 ${className}`}>
+    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-500/20 selection:text-blue-900 dark:selection:bg-blue-400/30 dark:selection:text-blue-200 transition-colors duration-150 ${className}`}>
       {/* Accessibility: Skip to Content Anchor */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-emerald-500 focus:text-slate-950 focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-emerald-400 focus:outline-none transition-all"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-blue-600 focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
       >
         Skip to main content
       </a>
@@ -70,7 +70,7 @@ export default function AppShell({
             {/* Sidebar / Auxiliary Content (5 columns on desktop) */}
             <aside
               aria-label="Interactive map and context panel"
-              className={`lg:col-span-5 lg:sticky lg:top-24 h-[480px] sm:h-[550px] lg:h-[calc(100vh-140px)] w-full min-w-0 rounded-2xl overflow-hidden border border-slate-800/80 shadow-2xl bg-slate-900/60 backdrop-blur-sm ${sidebarClassName}`}
+              className={`lg:col-span-5 lg:sticky lg:top-24 h-[480px] sm:h-[550px] lg:h-[calc(100vh-140px)] w-full min-w-0 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 shadow-md dark:shadow-2xl bg-white dark:bg-slate-900/60 backdrop-blur-sm ${sidebarClassName}`}
             >
               {sidebar}
             </aside>
@@ -86,15 +86,15 @@ export default function AppShell({
       {footer !== undefined ? (
         footer
       ) : (
-        <footer className="border-t border-slate-900 bg-slate-950/90 px-4 sm:px-6 py-4 text-xs text-slate-400 mt-auto backdrop-blur-md">
+        <footer className="border-t border-slate-200 dark:border-slate-900 bg-white/90 dark:bg-slate-950/90 px-4 sm:px-6 py-4 text-xs text-slate-500 dark:text-slate-400 mt-auto backdrop-blur-md">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="font-medium text-slate-300">Smart Student Commute Companion</span>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <span className="text-slate-500 hidden sm:inline">Mumbai Student Transit AI</span>
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+              <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Commute Companion</span>
+              <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
+              <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Mumbai Student Transit AI</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500">
+            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-400 dark:text-slate-500">
               <span>OpenStreetMap &amp; Leaflet</span>
               <span>•</span>
               <span>OSRM Multi-modal</span>

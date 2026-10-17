@@ -447,3 +447,58 @@ export function writeNotificationReadIds(ids) {
   safeWrite(NOTIFICATION_READ_KEY, kept);
   return new Set(kept);
 }
+
+// ─── Theme Preferences (Commit 2: Light & Dark Themes) ────────────────────────
+
+export const THEME_PREFERENCE_KEY = 'smart_commute_theme_preference';
+
+/**
+ * Read the user's stored theme preference ('light' | 'dark' | 'system').
+ * Defaults to 'light' per design requirements (premium white UI foundation).
+ * @returns {'light'|'dark'|'system'}
+ */
+export function readThemePreference() {
+  const stored = safeRead(THEME_PREFERENCE_KEY, 'light');
+  if (['light', 'dark', 'system'].includes(stored)) {
+    return stored;
+  }
+  return 'light';
+}
+
+/**
+ * Persist the user's theme preference.
+ * @param {'light'|'dark'|'system'} theme
+ * @returns {'light'|'dark'|'system'}
+ */
+export function writeThemePreference(theme) {
+  if (['light', 'dark', 'system'].includes(theme)) {
+    safeWrite(THEME_PREFERENCE_KEY, theme);
+    return theme;
+  }
+  return 'light';
+}
+
+/**
+ * Apply the theme to the document element (toggles 'dark' class and color-scheme).
+ * @param {'light'|'dark'|'system'} theme
+ * @returns {'dark'|'light'} The active resolved theme
+ */
+export function applyTheme(theme = 'light') {
+  if (typeof document === 'undefined') return 'light';
+  const root = document.documentElement;
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' &&
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  if (isDark) {
+    root.classList.add('dark');
+    root.style.colorScheme = 'dark';
+  } else {
+    root.classList.remove('dark');
+    root.style.colorScheme = 'light';
+  }
+  return isDark ? 'dark' : 'light';
+}
