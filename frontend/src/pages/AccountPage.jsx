@@ -101,12 +101,12 @@ export default function AccountPage({
         <div className="min-w-0">
           <h1
             id="account-title"
-            className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2"
+            className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"
           >
-            <UserRound className="h-5 w-5 text-emerald-400 shrink-0" aria-hidden="true" />
+            <UserRound className="h-5 w-5 text-emerald-500 dark:text-emerald-400 shrink-0" aria-hidden="true" />
             Student Account
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Optional sign-in for your student profile. Every commute feature — planning,
             live alerts, transit search — works without an account.
           </p>
@@ -116,7 +116,7 @@ export default function AccountPage({
             id="account-status"
             role="status"
             aria-live="polite"
-            className="min-h-[1rem] text-xs text-slate-400"
+            className="min-h-[1rem] text-xs text-slate-500 dark:text-slate-400 font-medium"
           >
             {statusLine}
           </p>
@@ -162,8 +162,20 @@ export default function AccountPage({
       {!isHydrating && !user && !hydrateError && (
         <section
           aria-labelledby="account-auth-heading"
-          className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 sm:p-6"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm"
         >
+          <div className="mb-4 p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 flex items-start gap-3">
+            <UserRound className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-blue-950 dark:text-blue-200">
+                Personalize Your Student Commute
+              </p>
+              <p className="text-xs text-blue-800/80 dark:text-blue-300/70 mt-0.5">
+                Customize your campus commute preferences, transit corridors, and notifications with a student account.
+              </p>
+            </div>
+          </div>
+
           <AuthForm
             onSubmitSignIn={onSubmitSignIn}
             onSubmitRegister={onSubmitRegister}
