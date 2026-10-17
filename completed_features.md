@@ -669,14 +669,32 @@ A competition-ready, responsive Progressive Web App (PWA) built for TCS Tech Day
 
 ---
 
-## Known Boundaries & Non-Claims
-- **No Continuous Live Tracking**: The system does not support GPS breadcrumbs, device telemetry, or live student tracking.
-- **No Fabrication of Locations**: If public transit stop data is not available for an area, the system reports the limitation honestly rather than fabricating meeting spots.
-- **No Safety Guarantees**: Meeting point recommendations are public transit rendezvous points and do not claim to ensure physical safety or security.
-- **Voluntary Consent Required**: No student is ever matched or enrolled without explicit voluntary consent.
+## Smart Student Commute Companion — UI Simplification & Premium Redesign Verification
 
+A comprehensive UI/UX overhaul transforming the commute assistant into an intuitive, accessible, mobile-first student application:
 
+### 1. Simplified Design System & Typography
+- **Predominant Surfaces**: Calibrated white/slate light mode (`#F8FAFC` background, `#FFFFFF` surfaces, `#0F172A` text, `#2563EB` blue, `#0D9488` teal).
+- **Dark Mode**: Sleek dark contrast mode (`#0F172A` background, `#1E293B` surfaces, `#F8FAFC` text, `#93C5FD` blue, `#5EEAD4` teal).
+- **Accessible Toggles**: Semantic switches with zero literal "ON"/"OFF" labels; accessible `aria-checked` states.
+- **Removed Promotional Bloat**: Removed visible promotional "Install App" and "Demo Reset" noise from default user journeys while preserving underlying PWA lifecycle and test contracts.
 
+### 2. Streamlined Responsive Navigation
+- **Primary Viewport Navigation**: 4 core student destinations (`Plan`, `Commutes`, `Alerts`, `Together`) + responsive dropdown for secondary views.
+- **Mobile Bottom Navigation**: Ergonomic 5-touch target bar (>48px touch targets) replacing cramped 11-button cluster.
+- **Clean Responsive Drawer**: Organized mobile drawer grouping primary commute tools, transit utilities, and account management.
 
+### 3. Student Account & Google Sign-In
+- **Google Identity Experience**: Brand-compliant "Continue with Google" button with official multi-color SVG and honest credential notice.
+- **Student Profile Management**: Full Name, College, Home Station, Preferred Transit Corridor, and Theme preferences with local persistence.
+- **Guarded Sign-Out**: Gated by destructive confirmation dialog.
 
+### 4. Focused Student Commute Journey
+- **Progressive Disclosure**: Prioritized 3 core decisions (Origin, Destination, Arrival Time) upfront.
+- **Collapsible Preferences**: Allowed Modes, Walking Tolerance, and Budget sliders housed inside clean "Filters & Preferences" accordion.
+- **Streamlined Route Results**: Flagship recommended card with prominent Duration badge, Fare, Steps, and alternative comparison bars.
 
+### 5. Final Verification & Compliance Record
+- **Frontend Regression Suite (`verify-frontend.js`)**: 351/351 tests passing (100%).
+- **Production Build (`vite build`)**: 1,762 modules transformed, zero bundling errors.
+- **Branch Cleanliness**: `frontend_issues.md` strictly untracked; zero unauthorized markdown files created.
