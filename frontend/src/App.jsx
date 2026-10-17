@@ -576,7 +576,7 @@ export default function App() {
     setIsLoading(true);
     try {
       const data = await requestPlan(setupOverride || formData);
-      if (data.success) {
+      if (data && (data.success || data.recommendation)) {
         setPlanResult(data);
         const bestRoute = data.recommendation?.route;
         setSelectedRouteId(bestRoute?.id || null);

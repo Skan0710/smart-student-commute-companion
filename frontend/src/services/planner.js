@@ -28,7 +28,10 @@ function normalizeCommuteResponse(rawResponse) {
 
   // Case 1: Already structured as /api/plan response
   if (rawResponse.recommendation || (rawResponse.alternatives && rawResponse.alternatives.length > 0)) {
-    return rawResponse;
+    return {
+      success: rawResponse.success !== false,
+      ...rawResponse
+    };
   }
 
   // Case 2: Structured as /api/commute/recommendations response envelope
