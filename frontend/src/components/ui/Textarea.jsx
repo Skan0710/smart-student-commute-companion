@@ -53,12 +53,12 @@ export default function Textarea({
   const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
   
   // Base textarea styles
-  const baseStyles = 'w-full bg-slate-950 border rounded-xl p-3 text-sm text-white placeholder-slate-500 resize-vertical transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'w-full bg-white dark:bg-slate-950 border rounded-xl p-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-vertical transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm';
   
   // Border styles based on state
-  const borderStyles = error 
-    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500' 
-    : 'border-slate-700/80 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500';
+  const borderStyles = error
+    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+    : 'border-slate-200 dark:border-slate-700/80 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400';
   
   // Combine styles
   const textareaStyles = `${baseStyles} ${borderStyles} ${className}`;
@@ -73,15 +73,15 @@ export default function Textarea({
         {label && (
           <label 
             htmlFor={textareaId} 
-            className="block text-xs font-semibold text-slate-300"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
           >
             {label}
-            {required && <span className="text-rose-400 ml-1">*</span>}
+            {required && <span className="text-rose-500 ml-1">*</span>}
           </label>
         )}
         
         {showCharCount && (
-          <span className={`text-xs ${currentLength > maxLength ? 'text-rose-400' : 'text-slate-500'}`}>
+          <span className={`text-xs ${currentLength > maxLength ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}`}>
             {currentLength}/{maxLength}
           </span>
         )}
@@ -105,7 +105,7 @@ export default function Textarea({
       {error && (
         <p 
           id={`${textareaId}-error`} 
-          className="mt-1.5 text-xs text-rose-400"
+          className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium"
           role="alert"
         >
           {error}
@@ -115,7 +115,7 @@ export default function Textarea({
       {hint && !error && (
         <p 
           id={`${textareaId}-hint`} 
-          className="mt-1.5 text-xs text-slate-400"
+          className="mt-1.5 text-xs text-slate-500 dark:text-slate-400"
         >
           {hint}
         </p>

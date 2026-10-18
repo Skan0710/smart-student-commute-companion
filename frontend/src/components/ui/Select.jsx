@@ -50,13 +50,13 @@ export default function Select({
   // Generate unique ID if not provided
   const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
   
-  // Base select styles
-  const baseStyles = 'w-full bg-slate-950 border rounded-xl px-3.5 py-2.5 pr-10 text-sm text-white transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none';
+  // Base select styles with 44px touch target
+  const baseStyles = 'w-full min-h-[44px] bg-white dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-white transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none shadow-sm';
   
   // Border styles based on state
-  const borderStyles = error 
-    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500' 
-    : 'border-slate-700/80 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500';
+  const borderStyles = error
+    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+    : 'border-slate-200 dark:border-slate-700/80 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400';
   
   // Combine styles
   const selectStyles = `${baseStyles} ${borderStyles} ${className}`;
@@ -66,10 +66,10 @@ export default function Select({
       {label && (
         <label 
           htmlFor={selectId} 
-          className="block text-xs font-semibold text-slate-300 mb-1.5"
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
         >
           {label}
-          {required && <span className="text-rose-400 ml-1">*</span>}
+          {required && <span className="text-rose-500 ml-1">*</span>}
         </label>
       )}
       
@@ -106,7 +106,7 @@ export default function Select({
       {error && (
         <p 
           id={`${selectId}-error`} 
-          className="mt-1.5 text-xs text-rose-400"
+          className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium"
           role="alert"
         >
           {error}
@@ -116,7 +116,7 @@ export default function Select({
       {hint && !error && (
         <p 
           id={`${selectId}-hint`} 
-          className="mt-1.5 text-xs text-slate-400"
+          className="mt-1.5 text-xs text-slate-500 dark:text-slate-400"
         >
           {hint}
         </p>
