@@ -8,7 +8,9 @@ import {
   Zap,
   CloudRain,
   ThumbsUp,
-  Info
+  Info,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import {
   ErrorState,
@@ -28,6 +30,18 @@ export default function RouteResults({
   maxBudgetRupees
 }) {
   const containerRef = useRef(null);
+  const alternativesScrollRef = useRef(null);
+
+  const scrollAlternatives = (direction) => {
+    if (alternativesScrollRef.current) {
+      const container = alternativesScrollRef.current;
+      const scrollAmount = container.clientWidth * 0.68;
+      container.scrollBy({
+        left: direction === 'next' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   useEffect(() => {
     if (containerRef.current) {
@@ -362,69 +376,104 @@ export default function RouteResults({
         </div>
       )}
 
-      {/* PRACTICAL ALTERNATIVES LIST */}
-      <div>
-        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
-          <span>Practical Alternatives ({alternatives.length})</span>
-          <span className="text-[11px] normal-case text-slate-500 dark:text-slate-400">Click any card to render on map</span>
-        </h4>
+      {/* PRACTICAL ALTERNATIVES (Law 1: Closure and 32% next-card preview carousel) */}
+      <div role="region" aria-label="Alternative routes">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <span>Practical Alternatives ({alternatives.length})</span>
+            <span className="text-[11px] normal-case font-normal text-slate-500 dark:text-slate-400 hidden sm:inline">
+              · Swipe or use controls to compare
+            </span>
+          </h4>
 
-        <div className="space-y-3">
+          {alternatives.length > 1 && (
+            <div className="flex items-center gap-1.5" aria-label="Alternative routes navigation">
+              <button
+                type="button"
+                onClick={() => scrollAlternatives('prev')}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Previous alternative route"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollAlternatives('next')}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Next alternative route"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div
+          ref={alternativesScrollRef}
+          tabIndex={0}
+          aria-label="Alternative commute options carousel"
+          className="flex gap-3.5 overflow-x-auto pb-3 pt-1 -mx-1 px-1 snap-x snap-mandatory focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-xl"
+          style={{ scrollbarWidth: 'thin' }}
+        >
           {alternatives.map((alt) => {
             const isSelected = selectedRouteId === alt.id;
             return (
               <div
                 key={alt.id}
                 onClick={() => setSelectedRouteId(alt.id)}
-                className={`route-card-animate bg-white dark:bg-slate-900 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs ${
+                className={`route-card-animate flex-shrink-0 w-[calc(68%-0.5rem)] sm:w-[calc(48%-0.5rem)] md:w-[320px] snap-start bg-white dark:bg-slate-900 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs flex flex-col justify-between ${
                   isSelected
                     ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
                     : 'border-slate-200 dark:border-slate-800'
                 }`}
               >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <RouteBadge mode={alt.primaryMode} size="sm" />
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{alt.title}</span>
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <RouteBadge mode={alt.primaryMode} size="sm" />
+                      <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{alt.title}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
+                      {alt.badgeLabel && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                          {alt.badgeLabel}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
-                    {alt.badgeLabel && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                        {alt.badgeLabel}
-                      </span>
-                    )}
-                  </div>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">{alt.subtitle}</p>
                 </div>
 
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{alt.subtitle}</p>
-
-                {/* Quick stats row */}
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300">
-                  <span className="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
-                    <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    {alt.durationMinutes} mins
-                  </span>
-                  <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
-                    <IndianRupee className="w-3.5 h-3.5" />
-                    ₹{alt.fareRupees}
-                  </span>
-                  <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                    <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                    {alt.walkingDurationMinutes}m walk
-                  </span>
-                  <span className="font-mono text-slate-500 dark:text-slate-400 ml-auto text-[11px]">
-                    Dep: {alt.estimatedDeparture} → Arr: {alt.estimatedArrival}
-                  </span>
-                </div>
-
-                {/* Disruption indicator on alternative */}
-                {alt.disruptionAlerts && alt.disruptionAlerts.length > 0 && (
-                  <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
-                    <span className="truncate">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
+                <div>
+                  {/* Quick stats row */}
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
+                      <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      {alt.durationMinutes}m
+                    </span>
+                    <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
+                      <IndianRupee className="w-3.5 h-3.5" />
+                      ₹{alt.fareRupees}
+                    </span>
+                    <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                      <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      {alt.walkingDurationMinutes}m
+                    </span>
+                    <span className="font-mono text-slate-400 ml-auto text-[10px]">
+                      {alt.estimatedDeparture} → {alt.estimatedArrival}
+                    </span>
                   </div>
-                )}
+
+                  {/* Disruption indicator on alternative */}
+                  {alt.disruptionAlerts && alt.disruptionAlerts.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
+                      <span className="truncate">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
