@@ -73,14 +73,14 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
     >
         {submitted ? (
           <div className="p-8 text-center space-y-2">
-            <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto animate-bounce" />
-            <h4 className="text-base font-bold text-white">Thank you for your feedback!</h4>
-            <p className="text-xs text-slate-400">Your student ratings help refine route recommendations.</p>
+            <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mx-auto animate-bounce" />
+            <h4 className="text-base font-bold text-slate-900 dark:text-white">Thank you for your feedback!</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Your student ratings help refine route recommendations.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
             <div className="text-center">
-              <label className="block text-xs font-semibold text-slate-300 mb-2.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2.5">
                 Was this recommendation useful?
               </label>
               <div className="flex items-center justify-center gap-4">
@@ -90,8 +90,8 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
                   aria-pressed={isUseful}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border font-bold text-sm transition-all ${
                     isUseful
-                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-md shadow-emerald-500/10'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-md shadow-emerald-500/10'
+                      : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
                   <ThumbsUp className="w-4 h-4" />
@@ -104,8 +104,8 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
                   aria-pressed={!isUseful}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border font-bold text-sm transition-all ${
                     !isUseful
-                      ? 'bg-rose-500/20 border-rose-500 text-rose-400 shadow-md shadow-rose-500/10'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-rose-500/20 border-rose-500 text-rose-600 dark:text-rose-400 shadow-md shadow-rose-500/10'
+                      : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
                   <ThumbsDown className="w-4 h-4" />
@@ -116,7 +116,7 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
 
             {/* Optional feedback tags */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 What influenced your rating? (Optional)
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -130,8 +130,8 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
                       aria-pressed={isSelected}
                       className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
                         isSelected
-                          ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-medium'
-                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                          ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-700 dark:text-emerald-300 font-medium'
+                          : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                     >
                       {tag}
@@ -169,11 +169,11 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
               </Alert>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
               >
                 Skip
               </button>

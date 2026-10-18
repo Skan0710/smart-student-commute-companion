@@ -117,19 +117,20 @@ export default function PreferencesDialog({
       icon={<SlidersHorizontal className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
       size="lg"
     >
-      <div className="space-y-4">
-        <p className="text-xs text-slate-400 leading-relaxed">
+      <div className="p-5 space-y-4">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
           These settings personalize how this app looks and behaves on{' '}
-          <strong className="text-slate-300">this device only</strong>. They are
+          <strong className="text-slate-800 dark:text-slate-200 font-semibold">this device only</strong>. They are
           stored in your browser and never leave it — no account sync.
         </p>
 
-        <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl px-4">
-          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-800">
+        {/* Display Preferences Group */}
+        <div className="bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl px-4">
+          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800">
             Display
           </h4>
           {onToggleTheme && (
-            <div className="py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div className="py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
               <div>
                 <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 block">
                   Interface Theme
@@ -143,18 +144,22 @@ export default function PreferencesDialog({
           )}
           <Toggle
             id="pref-dashboard-overview"
-            className="py-3 border-b border-slate-200 dark:border-slate-800"
+            className="py-3"
             checked={prefs.showDashboardOverview}
             onChange={(value) => onChange({ showDashboardOverview: value })}
             label="Show dashboard overview"
             description="Display the “at a glance” summary, quick actions, and recent searches at the top of the planner."
           />
-          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-800">
+        </div>
+
+        {/* Notification Preferences Group */}
+        <div className="bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl px-4">
+          <h4 className="pt-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800">
             Notifications
           </h4>
           <Toggle
             id="pref-live-report-toasts"
-            className="py-3 border-b border-slate-200 dark:border-slate-800"
+            className="py-3 border-b border-slate-200/80 dark:border-slate-800"
             checked={prefs.liveReportToasts}
             onChange={(value) => onChange({ liveReportToasts: value })}
             label="Live report notifications"
@@ -162,7 +167,7 @@ export default function PreferencesDialog({
           />
           <Toggle
             id="pref-quiet-hours"
-            className="py-3 border-b border-slate-200 dark:border-slate-800"
+            className="py-3 border-b border-slate-200/80 dark:border-slate-800"
             checked={prefs.quietHoursEnabled}
             onChange={(value) => {
               // Switching quiet hours off also clears any in-progress time
@@ -192,13 +197,13 @@ export default function PreferencesDialog({
           <p
             role="status"
             aria-live="polite"
-            className="pt-1 pb-3 text-xs text-slate-500 leading-relaxed break-words"
+            className="pt-1 pb-3 text-xs text-slate-500 dark:text-slate-400 leading-relaxed break-words"
           >
             {quietStatus}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
           <Button
             type="button"
             variant="ghost"
