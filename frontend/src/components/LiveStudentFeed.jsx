@@ -51,19 +51,19 @@ export default function LiveStudentFeed({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="relative">
-            <Radio className="w-5 h-5 text-amber-400 animate-pulse" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400"></span>
+            <Radio className="w-5 h-5 text-amber-500 dark:text-amber-400 animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white tracking-tight">
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
               LIVE FROM STUDENTS
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Crowdsourced ground realities across Mumbai campuses
             </p>
           </div>
@@ -79,11 +79,11 @@ export default function LiveStudentFeed({
       </div>
 
       {/* Connection Indicator Bar */}
-      <div className="flex items-center justify-between text-[11px] px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800">
-        <span className="text-slate-400">
-          Sync Status: <strong className={isConnected ? 'text-emerald-400' : 'text-rose-400'}>{isConnected ? 'Live Socket Stream Active' : 'Connecting to Stream...'}</strong>
+      <div className="flex items-center justify-between text-[11px] px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
+        <span className="text-slate-500 dark:text-slate-400">
+          Sync Status: <strong className={isConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isConnected ? 'Live Socket Stream Active' : 'Connecting to Stream...'}</strong>
         </span>
-        <span className="text-slate-400">
+        <span className="text-slate-500 dark:text-slate-400">
           Decay window: <strong>120 min max</strong>
         </span>
       </div>
@@ -159,10 +159,10 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'confirm')}
                       disabled={isConfirming}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-900 hover:bg-emerald-950/40 border border-slate-750 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-250 dark:border-slate-750 hover:border-emerald-500/50 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                       title="Vote: Disruption is still active"
                     >
-                      <Check className="w-3 h-3 text-emerald-400" />
+                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       <span>Still happening</span>
                     </button>
 
@@ -170,10 +170,10 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'contradict')}
                       disabled={isContradicting}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-900 hover:bg-rose-950/40 border border-slate-750 hover:border-rose-500/50 text-slate-300 hover:text-rose-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-250 dark:border-slate-750 hover:border-rose-500/50 text-slate-700 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                       title="Vote: Cleared up / No longer happening"
                     >
-                      <X className="w-3 h-3 text-rose-400" />
+                      <X className="w-3 h-3 text-rose-500 dark:text-rose-400" />
                       <span>No longer happening</span>
                     </button>
                     </div>
@@ -181,9 +181,9 @@ export default function LiveStudentFeed({
                 }
               >
                 {rep.route_name && (
-                  <div className="text-[11px] text-slate-400 font-medium mb-1.5">{rep.route_name}</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mb-1.5">{rep.route_name}</div>
                 )}
-                <p className="text-xs text-slate-200 leading-relaxed bg-slate-900/40 p-2 rounded-lg border border-slate-850">
+                <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-900/40 p-2 rounded-lg border border-slate-100 dark:border-slate-850">
                   "{rep.message}"
                 </p>
               </DataCard>
