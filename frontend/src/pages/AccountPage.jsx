@@ -103,7 +103,7 @@ export default function AccountPage({
             id="account-title"
             className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"
           >
-            <UserRound className="h-5 w-5 text-emerald-500 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+            <UserRound className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
             Student Account
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
