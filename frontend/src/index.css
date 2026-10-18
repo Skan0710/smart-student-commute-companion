@@ -32,28 +32,28 @@
   --radius-full: 9999px;
   
   /* Surface Colors - Light Theme Default */
-  --color-surface-base: #f8fafc;      /* slate-50 - Page background */
-  --color-surface-elevated: #ffffff;  /* white - Cards & panels */
+  --color-surface-base: #f8fafc;      /* Page background: #F8FAFC */
+  --color-surface-elevated: #ffffff;  /* Content surfaces: #FFFFFF */
   --color-surface-raised: #f1f5f9;    /* slate-100 - Nested items */
   --color-surface-overlay: #e2e8f0;   /* slate-200 - Hover / active */
   
   /* Border Colors */
   --color-border-subtle: #f1f5f9;     /* slate-100 */
-  --color-border-default: #e2e8f0;    /* slate-200 */
+  --color-border-default: #e2e8f0;    /* Borders: #E2E8F0 */
   --color-border-emphasis: #cbd5e1;   /* slate-300 */
   
   /* Text Colors */
-  --color-text-primary: #0f172a;      /* slate-900 - Headings */
-  --color-text-secondary: #475569;    /* slate-600 - Body */
+  --color-text-primary: #0f172a;      /* Primary text: #0F172A */
+  --color-text-secondary: #475569;    /* Secondary text: #475569 */
   --color-text-tertiary: #64748b;     /* slate-500 - Secondary */
   --color-text-muted: #94a3b8;        /* slate-400 - Muted */
   --color-text-subtle: #cbd5e1;       /* slate-300 - Subtle */
   
   /* Brand & Accent Colors */
-  --color-brand-primary: #2563eb;     /* blue-600 - Primary mobility */
+  --color-brand-primary: #2563eb;     /* Primary accent: #2563EB */
   --color-brand-hover: #1d4ed8;       /* blue-700 */
   --color-brand-light: #dbeafe;       /* blue-100 */
-  --color-brand-secondary: #0d9488;   /* teal-600 */
+  --color-brand-secondary: #0d9488;   /* Secondary accent: #0D9488 */
   
   /* Semantic Colors */
   --color-success: #10b981;           /* emerald-500 */
@@ -76,28 +76,28 @@
   color-scheme: dark;
 
   /* Surface Colors - Dark Theme */
-  --color-surface-base: #0f172a;      /* slate-900 - Dark page background */
-  --color-surface-elevated: #1e293b;  /* slate-800 - Cards & panels */
+  --color-surface-base: #0f172a;      /* Page background: #0F172A */
+  --color-surface-elevated: #1e293b;  /* Content surfaces: #1E293B */
   --color-surface-raised: #334155;    /* slate-700 - Nested items */
   --color-surface-overlay: #475569;   /* slate-600 - Hover / active */
   
   /* Border Colors */
   --color-border-subtle: #1e293b;     /* slate-800 */
-  --color-border-default: #334155;    /* slate-700 */
+  --color-border-default: #334155;    /* Borders: #334155 */
   --color-border-emphasis: #475569;   /* slate-600 */
   
   /* Text Colors */
-  --color-text-primary: #f8fafc;      /* slate-50 - Headings */
-  --color-text-secondary: #cbd5e1;    /* slate-300 - Body */
+  --color-text-primary: #f8fafc;      /* Primary text: #F8FAFC */
+  --color-text-secondary: #cbd5e1;    /* Secondary text: #CBD5E1 */
   --color-text-tertiary: #94a3b8;     /* slate-400 - Secondary */
   --color-text-muted: #64748b;        /* slate-500 - Muted */
   --color-text-subtle: #475569;       /* slate-600 - Subtle */
   
   /* Brand & Accent Colors */
-  --color-brand-primary: #93c5fd;     /* blue-300 - Light blue */
+  --color-brand-primary: #93c5fd;     /* Primary accent: #93C5FD */
   --color-brand-hover: #60a5fa;       /* blue-400 */
   --color-brand-light: #1e3a8a;       /* blue-900 */
-  --color-brand-secondary: #5eead4;   /* teal-300 */
+  --color-brand-secondary: #5eead4;   /* Secondary accent: #5EEAD4 */
   
   /* Semantic Colors */
   --color-success: #34d399;           /* emerald-400 */
@@ -456,18 +456,64 @@ input[type="range"]:focus-visible {
 @layer utilities {
   /* Enhanced focus ring */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900;
   }
   
   /* Focus visible only (keyboard navigation) */
   .focus-visible-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900;
   }
 
-  /* Mobile touch target minimum 44px (WCAG 2.5.5 / 2.5.8) */
+  /* Mobile touch target minimum 44px - 48px (Fitts's Law / WCAG 2.5.5 / 2.5.8) */
   .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .touch-target-sm {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Law 1: Closure and 32% Next-Card Preview Carousel */
+  .carousel-preview-32 {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .carousel-preview-32::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel-preview-32 > * {
+    flex: 0 0 calc(68% - 0.5rem);
+    scroll-snap-align: start;
+  }
+  @media (min-width: 640px) {
+    .carousel-preview-32 > * {
+      flex: 0 0 calc(44% - 0.5rem);
+    }
+  }
+  @media (min-width: 1024px) {
+    .carousel-preview-32 > * {
+      flex: 0 0 calc(31% - 0.5rem);
+    }
+  }
+
+  /* Law 2: Figure-Ground Modal & Overlay Separation (2.5:1 Target) */
+  .figure-ground-backdrop {
+    background-color: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* Law 5: Uniform Connectedness */
+  .connected-group {
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface-elevated);
   }
 
   /* Safe area insets for mobile notches / home indicators */
@@ -501,8 +547,8 @@ input[type="range"]:focus-visible {
 
 .skip-link {
   @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
-  @apply px-4 py-2 bg-emerald-500 text-slate-950 rounded-lg font-semibold;
-  @apply focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2;
+  @apply px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2;
 }
 
 /* ============================================================
