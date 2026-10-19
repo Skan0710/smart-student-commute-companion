@@ -4,6 +4,7 @@ const axios = require('axios');
 const { createApp } = require('../app');
 const { server, startServer, closeServer, app } = require('../server');
 const config = require('../config');
+const { reminderScheduler } = require('../services/reminderScheduler');
 
 console.log('====================================================');
 console.log(' Running Backend Bootstrap & Lifecycle Test Suite');
@@ -45,6 +46,11 @@ async function runAllTests() {
   await runAsyncTest('startServer() binds listener to configured host/port and serves /health and /api/health', async () => {
     await startServer(testPort, testHost);
     assert.strictEqual(server.listening, true, 'Server must be listening after startServer()');
+    assert.strictEqual(
+      reminderScheduler.isSchedulerRunning(),
+      !config.isTest,
+      'Reminder/alert scheduler must run in a live server (and stay off under NODE_ENV=test)'
+    );
 
     // Test /api/health
     const apiRes = await axios.get(`http://${testHost}:${testPort}/api/health`);
@@ -78,6 +84,7 @@ async function runAllTests() {
   await runAsyncTest('closeServer() cleanly terminates listener and releases port', async () => {
     await closeServer();
     assert.strictEqual(server.listening, false, 'Server must not be listening after closeServer()');
+    assert.strictEqual(reminderScheduler.isSchedulerRunning(), false, 'Scheduler must stop with the server');
   });
 
   // TEST 6: Port re-binding after closeServer()

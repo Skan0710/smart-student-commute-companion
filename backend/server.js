@@ -3,24 +3,37 @@ const { Server } = require('socket.io');
 const config = require('./config');
 const { db, closeConnection } = require('./db/database');
 const { createApp } = require('./app');
+const { reminderScheduler } = require('./services/reminderScheduler');
+const { resolveChannel } = require('./utils/socketChannels');
 
 // 1. Initialize HTTP Server
 const server = http.createServer();
 
-// 2. Initialize Socket.IO attached to HTTP server
+// 2. Initialize Socket.IO attached to HTTP server. Clients only ever send a
+// tiny join payload, so the buffer is capped well below the 1 MB default.
 const io = new Server(server, {
   cors: {
     origin: config.allowedOrigins,
     methods: ['GET', 'POST']
-  }
+  },
+  maxHttpBufferSize: 10 * 1024
 });
+
+
 
 // 3. Attach Socket.IO real-time channels
 io.on('connection', (socket) => {
   console.log(`[Socket.IO] Student client connected: ${socket.id}`);
 
   socket.on('join_commute_channel', (data) => {
-    const channel = data?.area || 'mumbai_general';
+    // Channel names come straight from the client: constrain shape and count.
+    const result = resolveChannel(data, socket.rooms.size);
+    if (!result.ok) {
+      socket.emit('channel_error', { message: result.reason });
+      return;
+    }
+    const channel = result.channel;
+
     socket.join(channel);
     console.log(`[Socket.IO] Socket ${socket.id} joined channel: ${channel}`);
     socket.emit('channel_joined', { channel, status: 'connected' });
@@ -106,6 +119,13 @@ async function startServer(port = config.port, host = config.host) {
       console.log(` Gemini AI: ${config.geminiApiKey ? 'Configured (Active)' : 'Not configured (Deterministic fallback active)'}`);
       console.log(` Database: SQLite (${config.database.path})`);
       console.log(`=======================================================`);
+
+      // Due reminders and commute disruption alerts are only ever delivered by
+      // this loop (the process endpoints are manual triggers), so a running
+      // server must start it. Tests that import the app never reach here.
+      if (!config.isTest) {
+        reminderScheduler.startScheduler();
+      }
       resolve(server);
     });
   });
@@ -119,6 +139,10 @@ async function startServer(port = config.port, host = config.host) {
 async function closeServer() {
   return new Promise((resolve) => {
     const finalize = () => {
+      try {
+        reminderScheduler.stopScheduler();
+      } catch (e) {}
+
       try {
         if (io) io.close();
       } catch (e) {}

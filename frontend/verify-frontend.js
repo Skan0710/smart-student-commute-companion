@@ -2368,6 +2368,78 @@ if (sinkOffenders.length === 0) {
 }
 
 // ============================================================
+// SECURITY POLICY (CSP / headers) & SIGNUP HONEYPOT
+// ============================================================
+
+section('SECURITY POLICY');
+
+const viteConfigSource = readFile('vite.config.js') || '';
+if (viteConfigSource.includes('securityHeaders') && fileExists('vite-plugins/securityHeaders.js')) {
+  pass('Build wires the security-headers plugin (CSP meta + _headers)');
+} else {
+  fail('Build does not generate the security policy');
+}
+
+const { buildContentSecurityPolicy, buildHeadersFile } = await import(
+  new URL('./vite-plugins/securityHeaders.js', import.meta.url).href
+);
+const baseCsp = buildContentSecurityPolicy({ VITE_API_BASE_URL: '/api', VITE_SOCKET_URL: '/' });
+const scriptSrc = (baseCsp.header.match(/script-src ([^;]*)/) || [])[1] || '';
+if (scriptSrc.trim() === "'self'" && !/unsafe-eval|unsafe-inline|\*/.test(scriptSrc)) {
+  pass("Default CSP allows scripts from 'self' only (no unsafe-eval/inline, no wildcards)");
+} else {
+  fail('CSP script-src is looser than self-only: ' + scriptSrc);
+}
+
+if (
+  baseCsp.header.includes("frame-ancestors 'none'") &&
+  !baseCsp.meta.includes('frame-ancestors') &&
+  baseCsp.header.includes("object-src 'none'") &&
+  baseCsp.header.includes("base-uri 'self'")
+) {
+  pass('CSP forbids framing/plugins; frame-ancestors travels in the header (not the ignored meta)');
+} else {
+  fail('CSP framing/plugin directives are missing');
+}
+
+const gaCsp = buildContentSecurityPolicy({ VITE_GA_MEASUREMENT_ID: 'G-TEST1234', VITE_GOOGLE_CLIENT_ID: 'x.apps.googleusercontent.com' });
+if (
+  !baseCsp.header.includes('googletagmanager') &&
+  !baseCsp.header.includes('accounts.google.com') &&
+  gaCsp.header.includes('https://www.googletagmanager.com') &&
+  gaCsp.header.includes('https://accounts.google.com/gsi/client')
+) {
+  pass('Third-party origins are only allowed when the feature is configured');
+} else {
+  fail('CSP allows third parties unconditionally (or not when configured)');
+}
+
+const headersFile = buildHeadersFile(baseCsp.header);
+if (
+  headersFile.includes('X-Content-Type-Options: nosniff') &&
+  headersFile.includes('Referrer-Policy:') &&
+  headersFile.includes('Permissions-Policy:') &&
+  headersFile.includes('/sw.js') &&
+  !/^\s+Strict-Transport-Security:/m.test(headersFile)
+) {
+  pass('_headers carries nosniff, referrer/permissions policy, SW cache rule; HSTS left to the owner');
+} else {
+  fail('_headers file is missing required headers');
+}
+
+const authFormHoneypot = readFile('src/components/AuthForm.jsx') || '';
+if (
+  authFormHoneypot.includes('id="account-website"') &&
+  authFormHoneypot.includes('tabIndex={-1}') &&
+  authFormHoneypot.includes('aria-hidden="true"') &&
+  authFormHoneypot.includes('...(website ? { website } : {})')
+) {
+  pass('Registration includes an accessible-safe honeypot that is only sent when filled');
+} else {
+  fail('Registration honeypot is missing or visible to assistive tech');
+}
+
+// ============================================================
 // SUMMARY
 // ============================================================
 

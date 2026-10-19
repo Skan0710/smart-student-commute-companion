@@ -83,8 +83,44 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z
     .string()
     .optional()
-    .default('')
+    .default(''),
+
+  // Reverse-proxy trust: 'false' (default), 'true', a hop count (e.g. '1'), or
+  // an Express trust-proxy subnet list. Needed for correct client IPs
+  // (rate limiting) and for HTTPS detection behind a TLS-terminating proxy.
+  TRUST_PROXY: z
+    .string()
+    .optional()
+    .default('false'),
+
+  // Redirect plain HTTP to HTTPS (requires TRUST_PROXY, see validateEnv)
+  FORCE_HTTPS: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform(val => (typeof val === 'boolean' ? val : String(val || '').trim().toLowerCase() === 'true')),
+
+  // Strict-Transport-Security is opt-in: only enable once the domain is
+  // committed to HTTPS (browsers cache it for max-age).
+  ENABLE_HSTS: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform(val => (typeof val === 'boolean' ? val : String(val || '').trim().toLowerCase() === 'true')),
+
+  HSTS_MAX_AGE_SECONDS: z.coerce.number().int().min(0).max(63072000).optional().default(15552000)
 });
+
+/**
+ * Express "trust proxy" setting from the TRUST_PROXY string.
+ * @param {string} raw
+ * @returns {boolean|number|string}
+ */
+function parseTrustProxy(raw) {
+  const value = String(raw || 'false').trim().toLowerCase();
+  if (value === 'false' || value === '') return false;
+  if (value === 'true') return true;
+  if (/^\d+$/.test(value)) return Number(value);
+  return String(raw).trim();
+}
 
 /**
  * Validates raw environment configuration with strict sanitization.
@@ -117,6 +153,13 @@ function validateEnv(rawEnv = process.env) {
     if (isLocalhost) {
       throw new Error('[Backend Configuration Error] In production, CLIENT_URL must not point to localhost.');
     }
+  }
+
+  // Rule: FORCE_HTTPS relies on req.secure, which is only accurate when the
+  // proxy in front of the app is trusted. Without it every request looks
+  // insecure and the redirect would loop forever.
+  if (data.FORCE_HTTPS && parseTrustProxy(data.TRUST_PROXY) === false) {
+    throw new Error('[Backend Configuration Error] FORCE_HTTPS requires TRUST_PROXY (e.g. TRUST_PROXY=1) so HTTPS can be detected behind your TLS-terminating proxy.');
   }
 
   // Rule: production must supply its own signing secret. There is deliberately
@@ -171,11 +214,11 @@ const resolvedDbPath = validatedConfig.DATABASE_PATH
   : defaultDbPath;
 
 // Build allowed CORS origins array from CLIENT_URL
-const allowedOrigins = [
-  validatedConfig.CLIENT_URL,
-  'http://localhost:5173',
-  'http://127.0.0.1:5173'
-];
+const allowedOrigins = [validatedConfig.CLIENT_URL];
+if (validatedConfig.NODE_ENV !== 'production') {
+  // Local dev servers are only trusted origins outside production
+  allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+}
 // Deduplicate origins
 const uniqueAllowedOrigins = Array.from(new Set(allowedOrigins));
 
@@ -195,6 +238,10 @@ const config = {
   requireGeminiKey: validatedConfig.REQUIRE_GEMINI_KEY,
   jwtSecret: resolveJwtSecret(validatedConfig),
   googleClientId: validatedConfig.GOOGLE_CLIENT_ID.trim(),
+  trustProxy: parseTrustProxy(validatedConfig.TRUST_PROXY),
+  forceHttps: Boolean(validatedConfig.FORCE_HTTPS),
+  enableHsts: Boolean(validatedConfig.ENABLE_HSTS),
+  hstsMaxAgeSeconds: validatedConfig.HSTS_MAX_AGE_SECONDS,
   // Admin-only destructive demo reset: opt-in in production, on elsewhere
   allowDemoReset:
     validatedConfig.ALLOW_DEMO_RESET !== undefined
@@ -221,6 +268,9 @@ const config = {
         ? '[REDACTED - configured]'
         : '(not configured - deterministic fallback active)',
       googleClientId: this.googleClientId ? '[configured]' : '(not configured)',
+      trustProxy: this.trustProxy,
+      forceHttps: this.forceHttps,
+      enableHsts: this.enableHsts,
       requireGeminiKey: this.requireGeminiKey,
       jwtSecret: '[REDACTED]'
     };

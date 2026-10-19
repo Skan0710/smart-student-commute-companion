@@ -112,6 +112,8 @@ export default function AuthForm({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [collegeName, setCollegeName] = useState('');
+  // Honeypot: invisible to people, tempting to form-filling bots. Only sent when filled.
+  const [website, setWebsite] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   // A field validates on blur once the student has engaged with it, or after
   // the first submit attempt — tabbing past an untouched empty field never
@@ -159,7 +161,13 @@ export default function AuthForm({
 
   const currentValues = () =>
     isRegisterMode
-      ? { email, password, full_name: fullName, college_name: collegeName }
+      ? {
+          email,
+          password,
+          full_name: fullName,
+          college_name: collegeName,
+          ...(website ? { website } : {}),
+        }
       : { email, password };
 
   const validateSingle = (name, value) => {
@@ -350,6 +358,21 @@ export default function AuthForm({
                 required
                 disabled={isSubmitting}
               />
+              <div
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}
+              >
+                <label htmlFor="account-website">Leave this field empty</label>
+                <input
+                  id="account-website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                />
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Password must be at least 8 characters and include an uppercase letter,
                 a lowercase letter, and a number.
