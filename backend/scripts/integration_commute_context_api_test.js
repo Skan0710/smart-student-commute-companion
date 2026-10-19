@@ -358,7 +358,7 @@ async function runCommuteContextApiTests() {
       });
 
       assert.strictEqual(res.status, 200);
-      const autoCand = res.body.candidates.find(c => c.primaryMode === 'auto' || c.modesIncluded.includes('auto'));
+      const autoCand = res.body.allCandidates.find(c => c.primaryMode === 'auto' || c.modesIncluded.includes('auto'));
       assert.ok(autoCand, 'Must find auto candidate');
 
       // 5a. Feasibility clearly falsified
@@ -454,13 +454,13 @@ async function runCommuteContextApiTests() {
 
       assert.strictEqual(res.status, 200);
       assert.strictEqual(res.body.success, true);
-      assert.ok(res.body.candidateCount > 0, 'Candidates should be generated from transport graph');
+      assert.ok(res.body.totalEvaluatedCount > 0, 'Candidates should be generated from transport graph');
       assert.strictEqual(res.body.feasibleCandidateCount, 0, 'No candidate should be feasible');
       assert.strictEqual(res.body.infeasibleCandidateCount, res.body.candidateCount);
       assert.strictEqual(res.body.contextSummary.hasInfeasibleCandidates, true);
 
       // Verify every candidate is marked infeasible
-      for (const cand of res.body.candidates) {
+      for (const cand of res.body.allCandidates) {
         assert.strictEqual(cand.isFeasible, false);
         assert.strictEqual(cand.contextualImpact.isFeasible, false);
         assert.ok(

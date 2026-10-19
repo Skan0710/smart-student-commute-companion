@@ -284,7 +284,7 @@ async function runCommuteContextMasterIntegrationTests() {
       });
 
       assert.strictEqual(res.status, 200);
-      const busCand = res.body.candidates.find(c => c.primaryMode === 'bus' || c.modesIncluded.includes('bus'));
+      const busCand = res.body.allCandidates.find(c => c.primaryMode === 'bus' || c.modesIncluded.includes('bus'));
       assert.ok(busCand, 'Must find bus candidate for Andheri West corridor');
 
       // 3a. Feasibility falsified
@@ -681,13 +681,13 @@ async function runCommuteContextMasterIntegrationTests() {
       // 10a. Graceful non-crashing HTTP 200 response
       assert.strictEqual(res.status, 200);
       assert.strictEqual(res.body.success, true);
-      assert.ok(res.body.candidateCount > 0, 'Candidate routes generated from static graph');
+      assert.ok(res.body.totalEvaluatedCount > 0, 'Candidate routes generated from static graph');
       assert.strictEqual(res.body.feasibleCandidateCount, 0, 'Zero candidates should be feasible');
       assert.strictEqual(res.body.infeasibleCandidateCount, res.body.candidateCount);
       assert.strictEqual(res.body.contextSummary.hasInfeasibleCandidates, true);
 
       // 10b. Every candidate explicitly marked infeasible with informative reasons
-      for (const cand of res.body.candidates) {
+      for (const cand of res.body.allCandidates) {
         assert.strictEqual(cand.isFeasible, false);
         assert.strictEqual(cand.isViable, false);
         assert.strictEqual(cand.contextualImpact.isFeasible, false);

@@ -235,7 +235,7 @@ async function run() {
     title: 'Review Distributed Systems Slides',
     message: 'Check slides before the review exam lecture',
     scheduled_time: timestamp + 86400000,
-    reminder_type: 'study',
+    reminder_type: 'study_session',
     status: 'scheduled',
     created_at: timestamp,
     updated_at: timestamp

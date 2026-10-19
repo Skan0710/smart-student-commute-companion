@@ -7,6 +7,7 @@ const { reminderScheduler } = require('../services/reminderScheduler');
 const { reminderRepository } = require('../repositories/ReminderRepository');
 const { notificationRepository } = require('../repositories/NotificationRepository');
 const { userRepository } = require('../repositories/UserRepository');
+const { getConnection } = require('../db/connection');
 const {
   getMumbaiNow,
   getMumbaiDayOfWeek,
@@ -48,6 +49,11 @@ async function run() {
     });
   }
   const studentId = user.id;
+
+  // The fixture student persists across runs. Reminders left over from an
+  // earlier run (e.g. the 10-minute-ahead one) become due later and would be
+  // triggered inside this run, skewing the notification counts below.
+  getConnection().prepare('DELETE FROM reminders WHERE user_id = ?').run(studentId);
 
   // 1. Timezone Calculation Tests
   test('Timezone: verifies Mumbai IST (+05:30) conversion and day-of-week', () => {

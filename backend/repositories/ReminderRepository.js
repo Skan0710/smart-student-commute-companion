@@ -104,7 +104,18 @@ class ReminderRepository {
       LIMIT ?
     `);
     const rows = stmt.all(asOfTime, limit);
-    return rows.map(r => Reminder.fromRow(r));
+    // A single corrupt row (e.g. an enum value from an older schema) must not
+    // abort the whole scheduler batch and silence every other student's
+    // reminders: skip it and say so.
+    const reminders = [];
+    for (const row of rows) {
+      try {
+        reminders.push(Reminder.fromRow(row));
+      } catch (err) {
+        console.warn(`[ReminderRepository] Skipping unparsable reminder ${row.id}: ${err.name}`);
+      }
+    }
+    return reminders;
   }
 
   create(data) {

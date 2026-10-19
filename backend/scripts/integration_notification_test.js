@@ -16,7 +16,7 @@ const testDbPath = path.resolve(__dirname, '../data/test_notification_integratio
 if (fs.existsSync(testDbPath)) {
   fs.unlinkSync(testDbPath);
 }
-process.env.DB_PATH = testDbPath;
+process.env.DATABASE_PATH = testDbPath;
 process.env.NODE_ENV = 'test';
 
 const { initDb } = require('../db/database');
@@ -69,7 +69,7 @@ async function runNotificationIntegrationSuite() {
   console.log(' Running Notification & Scheduling Integration Test Suite');
   console.log('====================================================\n');
 
-  initDb(testDbPath);
+  initDb();
 
   const app = createApp();
   const server = http.createServer(app);

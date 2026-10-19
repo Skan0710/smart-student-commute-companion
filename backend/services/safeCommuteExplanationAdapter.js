@@ -128,7 +128,7 @@ CRITICAL INTEGRITY INSTRUCTIONS:
     }
 
     // Direct REST fallback
-    const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
+    const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
     const restRes = await axios.post(restUrl, {
       contents: [
         { parts: [{ text: `${systemInstruction}\n\nContext Facts:\n${JSON.stringify(payload, null, 2)}` }] }
@@ -136,7 +136,7 @@ CRITICAL INTEGRITY INSTRUCTIONS:
       generationConfig: {
         responseMimeType: 'application/json'
       }
-    }, { timeout });
+    }, { timeout, headers: { 'x-goog-api-key': this.apiKey } }); // header, not URL, so it never reaches logs
 
     const text = restRes.data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {

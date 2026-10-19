@@ -169,7 +169,7 @@ CRITICAL INSTRUCTIONS:
       }
     } else {
       // Direct REST fallback to generativelanguage API
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
       const restRes = await axios.post(restUrl, {
         contents: [
           { parts: [{ text: `${systemInstruction}\n\nContext:\n${JSON.stringify(promptPayload, null, 2)}` }] }
@@ -177,7 +177,7 @@ CRITICAL INSTRUCTIONS:
         generationConfig: {
           responseMimeType: 'application/json'
         }
-      }, { timeout: 7000 });
+      }, { timeout: 7000, headers: { 'x-goog-api-key': apiKey } }); // header, not URL, so it never reaches logs
 
       const text = restRes.data.candidates[0].content.parts[0].text;
       const parsed = JSON.parse(text);

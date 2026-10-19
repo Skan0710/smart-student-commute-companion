@@ -278,6 +278,15 @@ async function run() {
     }
   });
 
+  await test('Gemini API key is sent in a header, never in a request URL', async () => {
+    const fs = require('fs');
+    for (const file of ['aiPlannerService.js', 'safeCommuteExplanationAdapter.js']) {
+      const src = fs.readFileSync(path.join(__dirname, '..', 'services', file), 'utf8');
+      assert.ok(!/generateContent?key=/.test(src), file + ' puts the API key in the URL');
+      assert.ok(src.includes("'x-goog-api-key'"), file + ' must send x-goog-api-key');
+    }
+  });
+
   console.log('\n----------------------------------------------------');
   console.log(` SECRETS/AUTH HARDENING SUMMARY: ${passed} passed, ${failed} failed`);
   console.log('----------------------------------------------------');
