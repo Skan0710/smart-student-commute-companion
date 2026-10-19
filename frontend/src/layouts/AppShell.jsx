@@ -1,5 +1,6 @@
 import React from 'react';
 import { FOOTER_LINKS } from '../content/siteContent.js';
+import { AnalyticsSettingsButton } from '../components/ConsentBanner.jsx';
 
 /**
  * AppShell - Master application shell layout
@@ -116,6 +117,9 @@ export default function AppShell({
                     </a>
                   </li>
                 ))}
+                <li>
+                  <AnalyticsSettingsButton className="font-medium text-slate-600 dark:text-slate-300" />
+                </li>
               </ul>
             </nav>
           </div>

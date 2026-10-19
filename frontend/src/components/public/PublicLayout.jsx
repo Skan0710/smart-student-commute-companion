@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route as RouteIcon } from 'lucide-react';
 import { FOOTER_LINKS, SITE_NAME } from '../../content/siteContent.js';
+import { AnalyticsSettingsButton } from '../ConsentBanner.jsx';
 
 /**
  * PublicLayout - shell for pages that are not the app itself (About, 404, ...)
@@ -12,8 +13,9 @@ import { FOOTER_LINKS, SITE_NAME } from '../../content/siteContent.js';
  * @param {Object} props
  * @param {React.ReactNode} props.children - page content
  * @param {React.ReactNode} [props.breadcrumbs] - breadcrumb trail rendered above the content
+ * @param {React.ReactNode} [props.stickyCta] - mobile bottom call to action (reserves bottom padding)
  */
-export default function PublicLayout({ children, breadcrumbs = null }) {
+export default function PublicLayout({ children, breadcrumbs = null, stickyCta = null }) {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <a
@@ -45,7 +47,7 @@ export default function PublicLayout({ children, breadcrumbs = null }) {
         </div>
       </header>
 
-      <main id="main-content" tabIndex={-1} className="flex-1 w-full outline-none">
+      <main id="main-content" tabIndex={-1} className={`flex-1 w-full outline-none ${stickyCta ? 'pb-24 md:pb-0' : ''}`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
           {breadcrumbs && <div className="mb-6">{breadcrumbs}</div>}
           {children}
@@ -69,10 +71,14 @@ export default function PublicLayout({ children, breadcrumbs = null }) {
                   </a>
                 </li>
               ))}
+              <li>
+                <AnalyticsSettingsButton />
+              </li>
             </ul>
           </nav>
         </div>
       </footer>
+      {stickyCta}
     </div>
   );
 }

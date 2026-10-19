@@ -27,6 +27,7 @@ import {
   joinGroup 
 } from './services/rideGroups';
 import { searchTransit } from './services/transit';
+import { trackPageView, CONSENT_CHANGE_EVENT } from './services/analytics.js';
 import {
   readRecentSearches,
   rememberSearch,
@@ -127,6 +128,13 @@ export default function App() {
     }
     return 'planner';
   });
+  // Page views for in-app screens (no-op unless analytics is configured and accepted)
+  useEffect(() => {
+    trackPageView('/', `?tab=${activeTab}`, { title: 'Smart Commute app' });
+    const onConsent = () => trackPageView('/', `?tab=${activeTab}`, { title: 'Smart Commute app' });
+    window.addEventListener(CONSENT_CHANGE_EVENT, onConsent);
+    return () => window.removeEventListener(CONSENT_CHANGE_EVENT, onConsent);
+  }, [activeTab]);
   const [isConnected, setIsConnected] = useState(false);
   // True only AFTER a live-stream disconnect/connect failure (never on first paint)
   const [isConnectionLost, setIsConnectionLost] = useState(false);

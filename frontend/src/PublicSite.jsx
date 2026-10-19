@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import StickyCta from './components/public/StickyCta.jsx';
+import { trackPageView, CONSENT_CHANGE_EVENT } from './services/analytics.js';
 import PublicLayout from './components/public/PublicLayout.jsx';
 import Breadcrumbs from './components/public/Breadcrumbs.jsx';
 import AboutPage from './pages/public/AboutPage.jsx';
@@ -40,8 +42,23 @@ export default function PublicSite({ route, siteUrl = '', analyticsEnabled = fal
     applyTheme(readThemePreference());
   }, []);
 
+  // Client-only: the sticky CTA observes the page's own CTA, so it mounts after hydration
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Page view for this public page (no-op unless analytics is configured and accepted)
+  useEffect(() => {
+    const report = () => trackPageView(window.location.pathname, '', { title: route.page.title });
+    report();
+    window.addEventListener(CONSENT_CHANGE_EVENT, report);
+    return () => window.removeEventListener(CONSENT_CHANGE_EVENT, report);
+  }, [route]);
+
   return (
-    <PublicLayout breadcrumbs={trail.length > 1 ? <Breadcrumbs trail={trail} /> : null}>
+    <PublicLayout
+      breadcrumbs={trail.length > 1 ? <Breadcrumbs trail={trail} /> : null}
+      stickyCta={route.id === 'about' && mounted ? <StickyCta href="/" label="Plan my commute" /> : null}
+    >
       <Page analyticsEnabled={analyticsEnabled} contactEmail={contactEmail} />
     </PublicLayout>
   );

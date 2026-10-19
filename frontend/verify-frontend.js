@@ -2752,6 +2752,118 @@ if (imgWithoutAlt.length === 0 && (mapSource.match(/title=\{`/g) || []).length >
 }
 
 // ============================================================
+// ANALYTICS CONSENT, MOBILE CTA
+// ============================================================
+
+section('ANALYTICS AND MOBILE CTA');
+
+const an = await import(new URL('./src/services/analytics.js', import.meta.url).href);
+
+function fakeEnv(consent) {
+  const store = {};
+  if (consent) store[an.CONSENT_KEY] = consent;
+  const scripts = [];
+  const events = [];
+  const win = {
+    dataLayer: undefined,
+    dispatchEvent: (e) => events.push(e),
+    localStorage: { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = v; } },
+  };
+  const doc = {
+    head: { appendChild: (s) => scripts.push(s) },
+    createElement: () => ({}),
+    querySelector: (sel) => scripts.find((s) => sel.includes(s.src.split('?')[0])) || null,
+  };
+  return { win, doc, scripts, store };
+}
+const GA = 'G-TEST123456';
+
+an.resetAnalyticsStateForTests();
+let env = fakeEnv(null);
+const noConsent = an.initAnalytics({ win: env.win, doc: env.doc, measurementId: GA });
+an.resetAnalyticsStateForTests();
+env = fakeEnv('denied');
+const denied = an.initAnalytics({ win: env.win, doc: env.doc, measurementId: GA });
+an.resetAnalyticsStateForTests();
+env = fakeEnv('granted');
+const noId = an.initAnalytics({ win: env.win, doc: env.doc, measurementId: '' });
+const badId = an.initAnalytics({ win: env.win, doc: env.doc, measurementId: 'UA-1"><script>' });
+if (!noConsent && !denied && !noId && !badId && env.scripts.length === 0 && !an.isAnalyticsConfigured('nope') && an.isAnalyticsConfigured(GA)) {
+  pass('Analytics stays off without consent, with a declined choice, or without a valid measurement ID');
+} else {
+  fail('Analytics initialised without consent or a valid ID');
+}
+
+an.resetAnalyticsStateForTests();
+env = fakeEnv(null);
+an.setConsent('granted', { win: env.win, doc: env.doc, measurementId: GA });
+an.initAnalytics({ win: env.win, doc: env.doc, measurementId: GA });
+const first = an.trackPageView('/about/', '?utm_source=x&email=a@b.c', { win: env.win, title: 'About' });
+const dup = an.trackPageView('/about', '', { win: env.win, title: 'About' });
+const tabView = an.trackPageView('/', '?tab=feed&route=secret', { win: env.win });
+const unknownTab = an.trackPageView('/', '?tab=../../etc', { win: env.win });
+const sent = Array.from(env.win.dataLayer).map((a) => Array.from(a)).filter((a) => a[0] === 'event');
+const paths = sent.map((a) => a[2].page_path);
+const cfg = Array.from(env.win.dataLayer).map((a) => Array.from(a)).find((a) => a[0] === 'config');
+if (
+  env.scripts.length === 1 && env.scripts[0].src.startsWith('https://www.googletagmanager.com/gtag/js') &&
+  env.store[an.CONSENT_KEY] === 'granted' &&
+  first && !dup && tabView && unknownTab &&
+  paths.join(',') === '/about,/?tab=feed,/' &&
+  !JSON.stringify(sent).match(/utm_|email|secret|etc/) &&
+  cfg && cfg[2].send_page_view === false && cfg[2].allow_google_signals === false
+) {
+  pass('Granting consent loads GA once and sends only sanitized, de-duplicated page paths (no query strings or PII)');
+} else {
+  fail('Analytics page-view handling is wrong: ' + paths.join(','));
+}
+
+an.setConsent('denied', { win: env.win, measurementId: GA });
+const afterOptOut = an.trackPageView('/privacy', '', { win: env.win });
+if (env.win['ga-disable-' + GA] === true && !afterOptOut && env.store[an.CONSENT_KEY] === 'denied') {
+  pass('Declining (or withdrawing) consent disables GA and stops page views');
+} else {
+  fail('Opting out does not stop analytics');
+}
+
+const bannerSrc = readFile('src/components/ConsentBanner.jsx') || '';
+const stickySrc = readFile('src/components/public/StickyCta.jsx') || '';
+const mainSrc = readFile('src/main.jsx') || '';
+const layoutSrc = readFile('src/components/public/PublicLayout.jsx') || '';
+if (
+  bannerSrc.includes('Accept analytics') && bannerSrc.includes('Decline') &&
+  bannerSrc.includes('/privacy#analytics') && bannerSrc.includes('isAnalyticsConfigured') &&
+  bannerSrc.includes('AnalyticsSettingsButton') &&
+  readFile('src/layouts/AppShell.jsx').includes('AnalyticsSettingsButton') && layoutSrc.includes('AnalyticsSettingsButton') &&
+  mainSrc.includes('<ConsentBanner') && mainSrc.includes('initAnalytics()')
+) {
+  pass('Consent banner offers equal Accept/Decline, links the policy, is reopenable from both footers and is mounted');
+} else {
+  fail('Consent banner is missing a choice, policy link, footer control or mount');
+}
+
+if (
+  stickySrc.includes('md:hidden') && stickySrc.includes('safe-area-inset-bottom') &&
+  stickySrc.includes('visualViewport') && stickySrc.includes('data-consent-open') &&
+  stickySrc.includes('IntersectionObserver') && stickySrc.includes('min-h-[48px]') &&
+  layoutSrc.includes('pb-24 md:pb-0') &&
+  (readFile('src/PublicSite.jsx') || '').includes('<StickyCta')
+) {
+  pass('Mobile sticky CTA is mobile-only, respects safe area, hides for keyboard/consent banner and reserves page padding');
+} else {
+  fail('Sticky CTA is missing a mobile-safety behaviour');
+}
+
+if (
+  mainSrc.includes("lazy(() => import('./App.jsx'))") &&
+  !/^import App from/m.test(mainSrc)
+) {
+  pass('The planner app is code-split so public pages do not download it');
+} else {
+  fail('App is still eagerly imported by main.jsx');
+}
+
+// ============================================================
 // SUMMARY
 // ============================================================
 

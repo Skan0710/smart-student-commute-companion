@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
+import ConsentBanner from './components/ConsentBanner.jsx';
+import { initAnalytics } from './services/analytics.js';
 import PublicSite from './PublicSite.jsx';
 import { resolveRoute } from './utils/publicRoutes.js';
 import './index.css';
@@ -39,10 +40,18 @@ try {
 // page or a 404. Unknown URLs must never fall through to the app.
 const route = resolveRoute(window.location.pathname);
 
+// The app bundle (maps, planner, sockets) is only fetched on "/"; public pages stay light.
+const App = lazy(() => import('./App.jsx'));
+
+// Loads Google Analytics only if it is configured AND the visitor already accepted
+initAnalytics();
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {route.id === 'app' ? (
-      <App />
+      <Suspense fallback={<div role="status" aria-live="polite" className="min-h-screen flex items-center justify-center text-slate-600 dark:text-slate-300">Loading Smart Commute…</div>}>
+        <App />
+      </Suspense>
     ) : (
       <PublicSite
         route={route}
@@ -51,6 +60,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         contactEmail={import.meta.env.VITE_PRIVACY_CONTACT_EMAIL || ''}
       />
     )}
+    <ConsentBanner />
   </React.StrictMode>,
 );
 
