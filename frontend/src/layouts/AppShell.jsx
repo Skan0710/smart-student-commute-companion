@@ -1,4 +1,5 @@
 import React from 'react';
+import { FOOTER_LINKS } from '../content/siteContent.js';
 
 /**
  * AppShell - Master application shell layout
@@ -103,6 +104,20 @@ export default function AppShell({
               <span>•</span>
               <span>Open-Meteo</span>
             </div>
+            <nav aria-label="Footer" className="text-[11px]">
+              <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+                {FOOTER_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      className="font-medium text-slate-600 dark:text-slate-300 underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </footer>
       )}

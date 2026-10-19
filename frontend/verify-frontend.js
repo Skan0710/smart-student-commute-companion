@@ -2440,6 +2440,169 @@ if (
 }
 
 // ============================================================
+// PUBLIC PAGES: ROUTING, METADATA, 404, LINKS, CRAWLABILITY
+// ============================================================
+
+section('PUBLIC PAGES & SEO');
+
+const { resolveRoute, listPrerenderedPages } = await import(new URL('./src/utils/publicRoutes.js', import.meta.url).href);
+const seoModule = await import(new URL('./src/content/seo.js', import.meta.url).href);
+const contentModule = await import(new URL('./src/content/siteContent.js', import.meta.url).href);
+const { buildSeoTags, buildPageJsonLd, normalizeSiteUrl } = seoModule;
+const { PAGES, ABOUT, NOT_FOUND, FOOTER_LINKS } = contentModule;
+
+// -- Routing: unknown URLs are never "successful" app pages
+const routingCases = [
+  ['/', 'app'], ['/index.html', 'app'],
+  ['/about', 'about'], ['/about/', 'about'], ['/ABOUT', 'about'],
+  ['/nope', 'notfound'], ['/about/extra', 'notfound'], ['/api/anything', 'notfound'], ['//', 'app'],
+];
+const routingFailures = routingCases.filter(([p, expected]) => resolveRoute(p).id !== expected);
+if (routingFailures.length === 0) {
+  pass('Router sends unknown paths to the 404 page (never to the app) and normalizes /about/ and case');
+} else {
+  fail('Router mismatches: ' + JSON.stringify(routingFailures));
+}
+
+// -- Metadata: unique titles, bounded descriptions, noindex on error pages
+const indexable = Object.values(PAGES).filter((p) => !p.noindex);
+const titles = indexable.map((p) => p.title);
+const descriptions = indexable.map((p) => p.description);
+if (
+  new Set(titles).size === titles.length &&
+  new Set(descriptions).size === descriptions.length &&
+  indexable.every((p) => p.title.length >= 15 && p.title.length <= 65) &&
+  indexable.every((p) => p.description.length >= 70 && p.description.length <= 165)
+) {
+  pass('Every indexable page has a unique title (≤65 chars) and a unique description (≤165 chars)');
+} else {
+  fail('Page titles/descriptions are duplicated or out of range');
+}
+
+const robotsOf = (tags) => (tags.find((t) => t.attrs?.name === 'robots') || {}).attrs?.content;
+if (robotsOf(buildSeoTags(PAGES.notFound)) === 'noindex, nofollow' && robotsOf(buildSeoTags(PAGES.about)) === 'index, follow') {
+  pass('404 is noindex; content pages are indexable');
+} else {
+  fail('Robots meta is wrong for 404/content pages');
+}
+
+// -- Canonical / social URLs only with a real origin
+const noOrigin = buildSeoTags(PAGES.about, { siteUrl: '' });
+const withOrigin = buildSeoTags(PAGES.about, { siteUrl: 'https://example.org/some/path?x=1' });
+const has = (tags, key, val) => tags.some((t) => (t.attrs?.rel === key || t.attrs?.property === key || t.attrs?.name === key) && (val === undefined || t.attrs.href === val || t.attrs.content === val));
+if (
+  !has(noOrigin, 'canonical') && !has(noOrigin, 'og:url') && !has(noOrigin, 'og:image') && !has(noOrigin, 'twitter:image') &&
+  has(withOrigin, 'canonical', 'https://example.org/about') &&
+  has(withOrigin, 'og:image', 'https://example.org/icons/icon-maskable-512x512.png') &&
+  !has(buildSeoTags(PAGES.notFound, { siteUrl: 'https://example.org' }), 'canonical') &&
+  normalizeSiteUrl('javascript:alert(1)') === ''
+) {
+  pass('Canonical, og:url and og:image appear only when a real https origin is configured (never guessed)');
+} else {
+  fail('Canonical/social URL handling is wrong');
+}
+
+if (
+  buildPageJsonLd('about', '').length === 0 &&
+  buildPageJsonLd('about', 'https://example.org').some((d) => d['@type'] === 'BreadcrumbList' && d.itemListElement.length === 2 && d.itemListElement[1].item === 'https://example.org/about') &&
+  !JSON.stringify(buildPageJsonLd('about', 'https://example.org')).match(/aggregateRating|review|LocalBusiness|telephone|streetAddress|priceRange/i)
+) {
+  pass('Structured data: breadcrumbs match the visible trail; no invented ratings, reviews, address or business data');
+} else {
+  fail('Structured data is missing, mismatched or contains unverifiable business claims');
+}
+
+// -- Internal links resolve to real destinations
+const navSource = readFile('src/components/Navbar.jsx') || '';
+const navTabIds = new Set([...navSource.matchAll(/id:\s*'([a-z]+)'/g)].map((m) => m[1]));
+const hrefs = [
+  ABOUT.primaryCta.href, ABOUT.closing.cta.href, NOT_FOUND.primaryCta.href,
+  ...ABOUT.features.map((f) => f.link.href), ...NOT_FOUND.links.map((l) => l.href), ...FOOTER_LINKS.map((l) => l.href),
+];
+const brokenLinks = hrefs.filter((href) => {
+  if (href.startsWith('#')) return false;
+  const url = new URL(href, 'https://x.test');
+  const tab = url.searchParams.get('tab');
+  if (tab && !navTabIds.has(tab)) return true;
+  return resolveRoute(url.pathname).id === 'notfound';
+});
+if (brokenLinks.length === 0 && hrefs.length >= 8) {
+  pass('All internal links on public pages point to real routes and real in-app screens');
+} else {
+  fail('Broken internal links: ' + brokenLinks.join(', '));
+}
+
+// -- About page: one obvious primary action; descriptive, non-empty link text
+const aboutSource = readFile('src/pages/public/AboutPage.jsx') || '';
+const primaryCtas = (aboutSource.match(/data-primary-cta(?!-group)/g) || []).length;
+const vagueLinks = [ABOUT.primaryCta, ABOUT.secondaryCta, ...ABOUT.features.map((f) => f.link), ...NOT_FOUND.links]
+  .filter((l) => !l.label || /^(click here|here|more|read more|link)$/i.test(l.label.trim()));
+if (primaryCtas === 1 && vagueLinks.length === 0 && ABOUT.primaryCta.href === '/') {
+  pass('About page has one primary CTA above the fold (to the planner) and descriptive link text');
+} else {
+  fail('About page CTA/link text problem (primary CTAs: ' + primaryCtas + ')');
+}
+
+// -- Breadcrumbs: semantic, current page marked, real ancestors
+const breadcrumbSource = readFile('src/components/public/Breadcrumbs.jsx') || '';
+if (
+  breadcrumbSource.includes('aria-label="Breadcrumb"') &&
+  breadcrumbSource.includes('<ol') &&
+  breadcrumbSource.includes('aria-current="page"') &&
+  readFile('src/components/Navbar.jsx') && !(readFile('src/App.jsx') || '').includes('Breadcrumbs')
+) {
+  pass('Breadcrumbs are semantic (nav/ol/aria-current) and not used on app screens');
+} else {
+  fail('Breadcrumb markup is not accessible or leaks into the app');
+}
+
+// -- App footer exposes the public pages as plain links
+const shellSource = readFile('src/layouts/AppShell.jsx') || '';
+if (shellSource.includes('FOOTER_LINKS') && FOOTER_LINKS.some((l) => l.href === '/about')) {
+  pass('App footer links to the public pages');
+} else {
+  fail('App footer does not link to public pages');
+}
+
+// -- Crawl rules
+const robotsSource = readFile('public/robots.txt') || '';
+const disallows = robotsSource.split(/\r?\n/).filter((l) => /^Disallow:/i.test(l)).map((l) => l.replace(/^Disallow:\s*/i, '').trim());
+if (
+  /User-agent:\s*\*/i.test(robotsSource) &&
+  /^Allow:\s*\/\s*$/im.test(robotsSource) &&
+  !disallows.includes('/') && !disallows.some((d) => /^\/(assets|icons|about)/.test(d)) &&
+  !/^Sitemap:/im.test(robotsSource)
+) {
+  pass('robots.txt allows the site and its assets, blocks only API/share-target paths, and invents no sitemap URL');
+} else {
+  fail('robots.txt blocks important content or hard-codes a sitemap');
+}
+
+// -- Built output (when `npm run build` has run)
+if (fileExists('dist/about/index.html') && fileExists('dist/404.html')) {
+  const distAbout = readFile('dist/about/index.html');
+  const dist404 = readFile('dist/404.html');
+  const distHome = readFile('dist/index.html');
+  const titleOf = (html) => (html.match(/<title[^>]*>([^<]*)<\/title>/) || [])[1];
+  const distTitles = [titleOf(distHome), titleOf(distAbout), titleOf(dist404)];
+  if (
+    new Set(distTitles).size === 3 &&
+    distAbout.includes('<h1') && distAbout.includes('href="/"') &&
+    /name="robots" content="noindex, nofollow"/.test(dist404) &&
+    !/name="robots" content="noindex/.test(distAbout) &&
+    (distAbout.match(/<title/g) || []).length === 1 &&
+    (distAbout.match(/name="description"/g) || []).length === 1 &&
+    !/rel="canonical"/.test(dist404)
+  ) {
+    pass('Built pages: unique <title>, single description, real HTML content, 404.html is noindex');
+  } else {
+    fail('Prerendered pages have duplicate/missing head tags or content');
+  }
+} else {
+  warn('dist/ not built; skipped prerendered-output checks (run npm run build)');
+}
+
+// ============================================================
 // SUMMARY
 // ============================================================
 

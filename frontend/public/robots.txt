@@ -1,0 +1,19 @@
+# Crawling rules for the Smart Student Commute Companion web app.
+# robots.txt only asks well-behaved crawlers to stay away; it is NOT access
+# control. Private data is protected by authentication on the API.
+#
+# A "Sitemap:" line is appended at build time only when VITE_SITE_URL is set
+# to the real production origin (see scripts/prerender-public-pages.js).
+
+User-agent: *
+Allow: /
+
+# (In-app screens such as /?tab=feed are the same document as "/" and carry a
+# canonical link to it, so they are deliberately not blocked here.)
+# PWA share-target hand-off (not a content page)
+Disallow: /*?share-target=
+Disallow: /share-target
+Disallow: /__share-target-payload
+# API and live-socket endpoints (served by the backend)
+Disallow: /api/
+Disallow: /socket.io/

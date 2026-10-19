@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-public-pages.js",
     "preview": "vite preview",
     "verify": "node verify-frontend.js",
     "test": "node verify-frontend.js",
-    "icons": "node scripts/generate-icons.js"
+    "icons": "node scripts/generate-icons.js",
+    "icons:png": "node scripts/rasterize-icons.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",

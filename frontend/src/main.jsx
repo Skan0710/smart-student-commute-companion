@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import PublicSite from './PublicSite.jsx';
+import { resolveRoute } from './utils/publicRoutes.js';
 import './index.css';
 import { validateConfig } from './config/index.js';
 import { registerServiceWorker } from './utils/registerSW.js';
@@ -33,9 +35,17 @@ try {
   }
 }
 
+// The commute assistant lives at "/"; every other address is a known public
+// page or a 404. Unknown URLs must never fall through to the app.
+const route = resolveRoute(window.location.pathname);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    {route.id === 'app' ? (
+      <App />
+    ) : (
+      <PublicSite route={route} siteUrl={import.meta.env.VITE_SITE_URL || ''} />
+    )}
   </React.StrictMode>,
 );
 

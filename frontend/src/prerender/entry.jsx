@@ -1,0 +1,16 @@
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import PublicSite from '../PublicSite.jsx';
+
+/**
+ * Build-time entry: renders a public page to static HTML with the very same
+ * component the browser mounts, so crawlers, no-JS visitors and users all see
+ * the same content. Bundled and executed by scripts/prerender-public-pages.js.
+ *
+ * @param {{ id: string, page: object }} route
+ * @param {string} siteUrl
+ * @returns {string}
+ */
+export function renderPublicPage(route, siteUrl) {
+  return renderToStaticMarkup(<PublicSite route={route} siteUrl={siteUrl} />);
+}
