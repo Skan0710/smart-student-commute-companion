@@ -9,7 +9,6 @@ const crypto = require('crypto');
 const config = require('../config');
 const { UnauthorizedError } = require('../errors');
 
-const DEFAULT_SECRET = 'smart-commute-companion-dev-jwt-secret-key-32bytes-secure!';
 const DEFAULT_EXPIRES_IN_SECONDS = 86400; // 24 hours
 
 /**
@@ -22,7 +21,7 @@ const DEFAULT_EXPIRES_IN_SECONDS = 86400; // 24 hours
  * @returns {string} Signed JWT string
  */
 function signToken(payload = {}, options = {}) {
-  const secret = options.secret || config.jwtSecret || process.env.JWT_SECRET || DEFAULT_SECRET;
+  const secret = options.secret || config.jwtSecret;
   const expiresIn = typeof options.expiresIn === 'number' ? options.expiresIn : DEFAULT_EXPIRES_IN_SECONDS;
 
   const header = {
@@ -69,7 +68,7 @@ function verifyToken(token, options = {}) {
   }
 
   const [headerB64, payloadB64, signature] = parts;
-  const secret = options.secret || config.jwtSecret || process.env.JWT_SECRET || DEFAULT_SECRET;
+  const secret = options.secret || config.jwtSecret;
 
   // Recompute expected HMAC-SHA256 signature
   const unsignedToken = `${headerB64}.${payloadB64}`;
@@ -85,7 +84,18 @@ function verifyToken(token, options = {}) {
     throw new UnauthorizedError('Invalid authentication token signature');
   }
 
-  // Parse header and payload
+  // Only HS256 is ever issued; reject anything else (e.g. alg "none")
+  let header;
+  try {
+    header = JSON.parse(Buffer.from(headerB64, 'base64url').toString('utf8'));
+  } catch {
+    throw new UnauthorizedError('Malformed token header');
+  }
+  if (!header || header.alg !== 'HS256') {
+    throw new UnauthorizedError('Unsupported token algorithm');
+  }
+
+  // Parse payload
   let payload;
   try {
     const payloadJson = Buffer.from(payloadB64, 'base64url').toString('utf8');
@@ -94,9 +104,17 @@ function verifyToken(token, options = {}) {
     throw new UnauthorizedError('Malformed token payload');
   }
 
-  // Verify expiration
+  if (!payload || typeof payload !== 'object' || typeof payload.sub !== 'string' || !payload.sub) {
+    throw new UnauthorizedError('Malformed token payload');
+  }
+
+  // Every issued token carries an expiry; a token without one never expires
+  // and is therefore not one of ours.
   const nowSeconds = Math.floor(Date.now() / 1000);
-  if (payload.exp && typeof payload.exp === 'number' && nowSeconds > payload.exp) {
+  if (typeof payload.exp !== 'number') {
+    throw new UnauthorizedError('Authentication token has no expiry');
+  }
+  if (nowSeconds > payload.exp) {
     throw new UnauthorizedError('Authentication token has expired');
   }
 

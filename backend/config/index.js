@@ -17,6 +17,8 @@ if (fs.existsSync(backendEnvPath)) {
   dotenv.config();
 }
 
+const MIN_JWT_SECRET_LENGTH = 32;
+
 // 2. Define strict Zod schema for environment configuration
 const envSchema = z.object({
   PORT: z.coerce
@@ -76,7 +78,12 @@ const envSchema = z.object({
   JWT_SECRET: z
     .string()
     .optional()
-    .default('smart-commute-companion-dev-jwt-secret-key-32bytes-secure!')
+    .default(''),
+
+  GOOGLE_CLIENT_ID: z
+    .string()
+    .optional()
+    .default('')
 });
 
 /**
@@ -112,6 +119,14 @@ function validateEnv(rawEnv = process.env) {
     }
   }
 
+  // Rule: production must supply its own signing secret. There is deliberately
+  // no built-in default: a published default would let anyone forge tokens.
+  if (data.NODE_ENV === 'production' && data.JWT_SECRET.trim().length < MIN_JWT_SECRET_LENGTH) {
+    throw new Error(
+      `[Backend Configuration Error] JWT_SECRET is required in production and must be at least ${MIN_JWT_SECRET_LENGTH} characters.`
+    );
+  }
+
   // Rule: If REQUIRE_GEMINI_KEY is explicitly enabled, GEMINI_API_KEY must not be empty
   if (data.REQUIRE_GEMINI_KEY && (!data.GEMINI_API_KEY || data.GEMINI_API_KEY.trim() === '')) {
     throw new Error('[Backend Configuration Error] GEMINI_API_KEY is required because REQUIRE_GEMINI_KEY is enabled.');
@@ -131,6 +146,22 @@ try {
   console.error(err.message);
   console.error('='.repeat(60) + '\n');
   throw err;
+}
+
+/**
+ * Signing secret for session tokens. Production requires JWT_SECRET (enforced
+ * in validateEnv). Elsewhere a missing secret yields a random per-process one,
+ * so a forgotten variable can never become a well-known, forgeable default;
+ * the cost is that dev sessions end when the process restarts.
+ */
+function resolveJwtSecret(data) {
+  if (data.JWT_SECRET.trim().length >= MIN_JWT_SECRET_LENGTH) {
+    return data.JWT_SECRET.trim();
+  }
+  if (data.JWT_SECRET.trim().length > 0 && data.NODE_ENV !== 'test') {
+    console.warn(`[Config] JWT_SECRET is shorter than ${MIN_JWT_SECRET_LENGTH} characters; using a random per-process secret instead.`);
+  }
+  return require('crypto').randomBytes(48).toString('hex');
 }
 
 // Default database path preservation (backend/db/commute.db)
@@ -162,7 +193,8 @@ const config = {
   allowedOrigins: uniqueAllowedOrigins,
   geminiApiKey: validatedConfig.GEMINI_API_KEY,
   requireGeminiKey: validatedConfig.REQUIRE_GEMINI_KEY,
-  jwtSecret: validatedConfig.JWT_SECRET || 'smart-commute-companion-dev-jwt-secret-key-32bytes-secure!',
+  jwtSecret: resolveJwtSecret(validatedConfig),
+  googleClientId: validatedConfig.GOOGLE_CLIENT_ID.trim(),
   // Admin-only destructive demo reset: opt-in in production, on elsewhere
   allowDemoReset:
     validatedConfig.ALLOW_DEMO_RESET !== undefined
@@ -186,8 +218,9 @@ const config = {
       allowedOrigins: this.allowedOrigins,
       databasePath: this.database.path,
       geminiApiKey: this.geminiApiKey
-        ? `***${this.geminiApiKey.slice(-4)}`
+        ? '[REDACTED - configured]'
         : '(not configured - deterministic fallback active)',
+      googleClientId: this.googleClientId ? '[configured]' : '(not configured)',
       requireGeminiKey: this.requireGeminiKey,
       jwtSecret: '[REDACTED]'
     };

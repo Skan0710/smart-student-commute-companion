@@ -5,6 +5,7 @@
  */
 
 const { authService } = require('../services');
+const { verifyGoogleIdToken } = require('../services/googleIdentityService');
 const { created, success } = require('../utils/apiResponse');
 
 /**
@@ -36,6 +37,23 @@ function register(req, res, next) {
 function login(req, res, next) {
   try {
     const { user, token } = authService.login(req.body);
+    return success(res, {
+      message: 'Login successful',
+      token,
+      user
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Signs in with a Google ID token that is verified server-side.
+ */
+async function googleLogin(req, res, next) {
+  try {
+    const profile = await verifyGoogleIdToken(req.body.credential);
+    const { user, token } = authService.loginWithGoogle(profile);
     return success(res, {
       message: 'Login successful',
       token,
@@ -104,6 +122,7 @@ function listUsers(req, res, next) {
 module.exports = {
   register,
   login,
+  googleLogin,
   getMe,
   getUserById,
   updateUserProfile,

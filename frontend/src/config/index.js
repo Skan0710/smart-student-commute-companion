@@ -37,6 +37,10 @@ export const API_BASE_URL = getEnv('VITE_API_BASE_URL', '/api');
 // WebSocket Configuration
 export const SOCKET_URL = getEnv('VITE_SOCKET_URL', '/');
 
+// Google Sign-In (public OAuth client id — safe to expose; the backend
+// verifies every credential server-side). Empty = Google sign-in is hidden.
+export const GOOGLE_CLIENT_ID = getEnv('VITE_GOOGLE_CLIENT_ID', '');
+
 // App Metadata
 export const APP_TITLE = getEnv('VITE_APP_TITLE', 'Smart Student Commute Companion');
 export const APP_DESCRIPTION = getEnv(
@@ -125,6 +129,7 @@ export default {
   APP_TITLE,
   APP_DESCRIPTION,
   ENABLE_DEMO_RESET,
+  GOOGLE_CLIENT_ID,
   LOG_LEVEL,
   IS_DEVELOPMENT,
   IS_PRODUCTION,

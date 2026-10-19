@@ -21,7 +21,7 @@ const {
 } = require('./feedbackValidators');
 const { planCommuteSchema } = require('./planValidators');
 const { transitSearchQuerySchema } = require('./transitValidators');
-const { registerSchema, loginSchema, updateProfileSchema } = require('./authValidators');
+const { registerSchema, loginSchema, updateProfileSchema, googleLoginSchema } = require('./authValidators');
 const {
   studentProfileUpdateSchema,
   createScheduleSchema,
@@ -160,6 +160,7 @@ module.exports = {
   paginationQuerySchema,
   // Auth
   registerSchema,
+  googleLoginSchema,
   updateProfileSchema,
   loginSchema,
   // Student Context & Workflows

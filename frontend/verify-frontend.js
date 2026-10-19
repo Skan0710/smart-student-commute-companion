@@ -2311,6 +2311,40 @@ if (
 }
 
 // ============================================================
+// GOOGLE SIGN-IN IS SERVER-VERIFIED (regression)
+// ============================================================
+
+section('GOOGLE SIGN-IN');
+
+const authFormGoogle = readFile('src/components/AuthForm.jsx') || '';
+const authServiceGoogle = readFile('src/services/auth.js') || '';
+if (
+  !authFormGoogle.includes('response_type=token') &&
+  !authFormGoogle.includes('oauth2/v2/auth') &&
+  !authFormGoogle.includes('window.location.href')
+) {
+  pass('Auth form no longer uses the client-only OAuth implicit-flow redirect');
+} else {
+  fail('Auth form still redirects to Google with an implicit-flow token');
+}
+
+if (
+  authServiceGoogle.includes("request('/auth/google'") &&
+  authFormGoogle.includes('onSubmitGoogleCredential') &&
+  authFormGoogle.includes('googleEnabled &&')
+) {
+  pass('Google sign-in posts the ID token to the backend and only renders when configured');
+} else {
+  fail('Google sign-in is not wired to the backend verification endpoint');
+}
+
+if (!authFormGoogle.includes('VITE_GOOGLE_CLIENT_ID in .env')) {
+  pass('Auth form does not leak developer configuration hints to end users');
+} else {
+  fail('Auth form shows a developer .env hint to end users');
+}
+
+// ============================================================
 // SUMMARY
 // ============================================================
 

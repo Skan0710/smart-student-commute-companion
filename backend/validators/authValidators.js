@@ -73,7 +73,16 @@ const updateProfileSchema = z
     message: 'At least one field must be provided for update'
   });
 
+/** Google Sign-In ID token ("credential") as issued to the browser. */
+const googleLoginSchema = z.object({
+  credential: z
+    .string({ required_error: 'Google credential is required' })
+    .min(20, 'Google credential is invalid')
+    .max(4096, 'Google credential is invalid')
+});
+
 module.exports = {
+  googleLoginSchema,
   registerSchema,
   loginSchema,
   updateProfileSchema

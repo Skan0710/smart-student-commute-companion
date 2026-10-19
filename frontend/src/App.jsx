@@ -63,6 +63,7 @@ import {
 import { getSocket } from './services/socket';
 import {
   signIn,
+  signInWithGoogle,
   registerAccount,
   fetchCurrentUser,
   signOut,
@@ -815,6 +816,22 @@ export default function App() {
     }
   };
 
+  const handleGoogleSignIn = async (credential) => {
+    if (isSubmittingAuth) return;
+    setIsSubmittingAuth(true);
+    setAuthSubmitError(null);
+    try {
+      const session = await signInWithGoogle(credential);
+      sessionResource.setData(session);
+      setLastVerifiedAt(new Date().toISOString());
+      showToast('Signed in with Google — your student profile is verified.', 'success');
+    } catch (err) {
+      setAuthSubmitError(err?.message || 'Unable to sign in with Google right now. Please try again.');
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  };
+
   const handleRegisterAccount = async (payload) => {
     if (isSubmittingAuth) return;
     setIsSubmittingAuth(true);
@@ -1207,6 +1224,7 @@ export default function App() {
             lastVerifiedAt={lastVerifiedAt}
             onSubmitSignIn={handleSignIn}
             onSubmitRegister={handleRegisterAccount}
+            onSubmitGoogleCredential={handleGoogleSignIn}
             isSubmitting={isSubmittingAuth}
             submitError={authSubmitError}
             onDismissSubmitError={() => setAuthSubmitError(null)}

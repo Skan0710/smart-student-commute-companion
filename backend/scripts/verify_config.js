@@ -99,7 +99,8 @@ runTest('Enforces non-localhost CLIENT_URL in production', () => {
   try {
     validateEnv({
       NODE_ENV: 'production',
-      CLIENT_URL: 'http://localhost:5173'
+      CLIENT_URL: 'http://localhost:5173',
+      JWT_SECRET: 'j'.repeat(40)
     });
   } catch (err) {
     threw = true;
@@ -108,9 +109,15 @@ runTest('Enforces non-localhost CLIENT_URL in production', () => {
   assert(threw, 'Production must reject localhost URL');
 
   // Valid production URL should succeed
+  assert.throws(
+    () => validateEnv({ NODE_ENV: 'production', CLIENT_URL: 'https://commute.studentapp.org' }),
+    /JWT_SECRET is required in production/,
+    'Production must require a strong JWT_SECRET'
+  );
   const prodValid = validateEnv({
     NODE_ENV: 'production',
-    CLIENT_URL: 'https://commute.studentapp.org'
+    CLIENT_URL: 'https://commute.studentapp.org',
+    JWT_SECRET: 'j'.repeat(40)
   });
   assert(prodValid.NODE_ENV === 'production', 'Production valid config accepted');
   assert(prodValid.CLIENT_URL === 'https://commute.studentapp.org', 'Production URL preserved');

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { LogIn, UserPlus, Mail } from 'lucide-react';
 import { Alert, Button, Input, Tabs, TabPanel } from './ui';
 import PasswordField from './ui/PasswordField';
+import { GOOGLE_CLIENT_ID } from '../config/index.js';
 import {
   focusFirstInvalid,
   validateEmail,
@@ -54,6 +55,29 @@ function buildAuthSchema(isRegisterMode) {
   return schema;
 }
 
+const GOOGLE_IDENTITY_SRC = 'https://accounts.google.com/gsi/client';
+
+/**
+ * Load Google Identity Services once. Rejects when the script is blocked or
+ * offline so the form can quietly fall back to email sign-in.
+ */
+function loadGoogleIdentity() {
+  if (typeof window === 'undefined') return Promise.reject(new Error('No window'));
+  if (window.google?.accounts?.id) return Promise.resolve(window.google);
+  return new Promise((resolve, reject) => {
+    let script = document.querySelector(`script[src="${GOOGLE_IDENTITY_SRC}"]`);
+    if (!script) {
+      script = document.createElement('script');
+      script.src = GOOGLE_IDENTITY_SRC;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    script.addEventListener('load', () => resolve(window.google), { once: true });
+    script.addEventListener('error', () => reject(new Error('Google Identity failed to load')), { once: true });
+  });
+}
+
 /**
  * AuthForm - Sign-in / create-account form for the Student Account screen
  *
@@ -69,36 +93,16 @@ function buildAuthSchema(isRegisterMode) {
  * @param {Object} props
  * @param {Function} props.onSubmitSignIn - ({ email, password }) => Promise|void
  * @param {Function} props.onSubmitRegister - ({ email, password, full_name, college_name }) => Promise|void
+ * @param {Function} [props.onSubmitGoogleCredential] - (googleIdToken) => Promise|void; Google
+ *   sign-in only appears when this and VITE_GOOGLE_CLIENT_ID are set
  * @param {boolean} [props.isSubmitting] - A request is in flight (disables the form)
  * @param {string|null} [props.submitError] - Server-side error for the current attempt
  * @param {Function} [props.onDismissSubmitError] - Clear the visible submit error
  */
-function GoogleIcon({ className = 'w-5 h-5' }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.94 0 12s.45 3.84 1.25 5.42l4.03-3.15z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-      />
-    </svg>
-  );
-}
-
 export default function AuthForm({
   onSubmitSignIn,
   onSubmitRegister,
+  onSubmitGoogleCredential,
   isSubmitting = false,
   submitError = null,
   onDismissSubmitError,
@@ -114,26 +118,44 @@ export default function AuthForm({
   // shouts "required" at them.
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
-  const [googleNotice, setGoogleNotice] = useState(null);
+  const [googleFailed, setGoogleFailed] = useState(false);
+  const googleButtonRef = useRef(null);
+  const googleCallbackRef = useRef(onSubmitGoogleCredential);
+  googleCallbackRef.current = onSubmitGoogleCredential;
+  const googleEnabled = Boolean(GOOGLE_CLIENT_ID && onSubmitGoogleCredential) && !googleFailed;
 
   const isRegisterMode = mode === 'register';
 
-  const handleGoogleSignIn = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      setGoogleNotice(
-        'Google Sign-In requires VITE_GOOGLE_CLIENT_ID in .env. Configure this client credential to enable Google OAuth authentication.'
-      );
-      return;
-    }
-    const redirectUri = window.location.origin;
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-      clientId
-    )}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&response_type=token&scope=email%20profile`;
-    window.location.href = authUrl;
-  };
+  // Google's own button (rendered by Google Identity Services) returns an ID
+  // token; the backend verifies it. No implicit-flow redirect, no token in the URL.
+  useEffect(() => {
+    if (!googleEnabled) return undefined;
+    let cancelled = false;
+    loadGoogleIdentity()
+      .then((google) => {
+        if (cancelled || !googleButtonRef.current) return;
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response) => {
+            if (response?.credential) googleCallbackRef.current?.(response.credential);
+          },
+        });
+        googleButtonRef.current.innerHTML = '';
+        google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          shape: 'rectangular',
+          text: isRegisterMode ? 'signup_with' : 'continue_with',
+          width: 320,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setGoogleFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [googleEnabled, isRegisterMode]);
 
   const currentValues = () =>
     isRegisterMode
@@ -207,41 +229,26 @@ export default function AuthForm({
         </p>
       </div>
 
-      {/* Google Sign-In conforming to branding guidelines */}
-      <div className="space-y-3 pt-1">
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-750 font-medium text-sm shadow-sm hover:shadow transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          aria-label={isRegisterMode ? 'Sign up with Google' : 'Continue with Google'}
-        >
-          <GoogleIcon className="w-5 h-5 shrink-0" />
-          <span>{isRegisterMode ? 'Sign up with Google' : 'Continue with Google'}</span>
-        </button>
+      {googleEnabled && (
+        <div className="space-y-3 pt-1">
+          <div
+            ref={googleButtonRef}
+            className={`flex justify-center min-h-[44px] ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+            aria-busy={isSubmitting}
+          />
 
-        {googleNotice && (
-          <Alert
-            variant="info"
-            title="Google Sign-In Notice"
-            dismissible
-            onDismiss={() => setGoogleNotice(null)}
-          >
-            {googleNotice}
-          </Alert>
-        )}
-
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium tracking-wider">
-              Or continue with email
-            </span>
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium tracking-wider">
+                Or continue with email
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <Tabs
         idPrefix="account-auth"

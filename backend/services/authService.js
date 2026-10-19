@@ -8,11 +8,18 @@
 const { userRepository } = require('../repositories/UserRepository');
 const { ConflictError, UnauthorizedError, NotFoundError } = require('../errors');
 const { signToken } = require('../utils/token');
-const { verifyPassword } = require('../utils/password');
+const crypto = require('crypto');
+const { hashPassword, verifyPassword, needsRehash } = require('../utils/password');
 
 const EDITABLE_PROFILE_FIELDS = ['full_name', 'college_name'];
 
-const DUMMY_SALT_HASH = '00000000000000000000000000000000:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+// Verified against when an account does not exist, so unknown and known
+// emails cost the same. Built lazily with the *current* scrypt parameters.
+let dummyHash = null;
+function getDummyHash() {
+  if (!dummyHash) dummyHash = hashPassword(crypto.randomBytes(16).toString('hex'));
+  return dummyHash;
+}
 
 class AuthService {
   constructor(userRepo = userRepository) {
@@ -55,7 +62,7 @@ class AuthService {
 
     if (!user) {
       // Execute dummy password verification to maintain uniform timing
-      verifyPassword(credentials.password, DUMMY_SALT_HASH);
+      verifyPassword(credentials.password, getDummyHash());
       throw new UnauthorizedError('Invalid email or password');
     }
 
@@ -64,6 +71,22 @@ class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
+    // Transparently upgrade hashes created with older scrypt parameters now
+    // that the plaintext is available.
+    if (needsRehash(user.password_hash)) {
+      this.userRepo.update(user.id, { password_hash: hashPassword(credentials.password) });
+    }
+
+    return this._issueSession(user);
+  }
+
+  /**
+   * Signs a session token for a verified user.
+   *
+   * @param {object} user - User model instance
+   * @returns {{ user: object, token: string }}
+   */
+  _issueSession(user) {
     const token = signToken({
       sub: user.id,
       email: user.email,
@@ -76,6 +99,35 @@ class AuthService {
       user: user.toSafeObject(),
       token
     };
+  }
+
+  /**
+   * Signs in (or first-time provisions) a student from an identity that
+   * Google has already verified server-side.
+   *
+   * Accounts are matched by verified email. A new account is a student with
+   * an unguessable random password, so it can only be entered through Google
+   * until the student chooses to set one.
+   *
+   * @param {{ email: string, name?: string }} profile - verified Google profile
+   * @returns {{ user: object, token: string }}
+   */
+  loginWithGoogle(profile) {
+    const email = String(profile.email || '').trim().toLowerCase();
+    let user = this.userRepo.findByEmail(email);
+
+    if (!user) {
+      const displayName = (profile.name || email.split('@')[0] || 'Student').trim();
+      user = this.userRepo.create({
+        email,
+        password: `${crypto.randomBytes(32).toString('base64url')}Aa1`,
+        full_name: displayName.length >= 2 ? displayName.slice(0, 100) : 'Student',
+        college_name: 'Not specified',
+        role: 'student'
+      });
+    }
+
+    return this._issueSession(user);
   }
 
   /**

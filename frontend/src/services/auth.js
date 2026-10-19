@@ -13,6 +13,7 @@ import {
  *
  * - `POST /api/auth/register` — public; creates the account (201)
  * - `POST /api/auth/login`    — public; returns `{ token, user }`
+ * - `POST /api/auth/google`   — public; verifies a Google ID token server-side
  * - `GET  /api/auth/me`       — Bearer-authenticated profile verification
  *
  * Successful sign-in persists the session through `utils/authSession.js`
@@ -31,6 +32,34 @@ export async function signIn({ email, password }) {
   const data = await request('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
+  });
+
+  if (!data?.token || !data?.user) {
+    throw new FrontendApiError(
+      'The server returned an unexpected sign-in response. Please try again.',
+      null,
+      false
+    );
+  }
+
+  writeAuthSession({ token: data.token, user: data.user });
+  return readAuthSession();
+}
+
+/**
+ * Sign in with a Google ID token (the `credential` from Google Identity
+ * Services). The backend verifies it with Google; the browser's claim about
+ * who the user is is never trusted.
+ *
+ * @param {string} credential - Google ID token
+ * @returns {Promise<{token: string, user: Object, savedAt: string}>} stored session
+ * @throws {FrontendApiError} 401 when Google verification fails, 503 when Google
+ *   sign-in is not configured/available, network errors, malformed responses
+ */
+export async function signInWithGoogle(credential) {
+  const data = await request('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ credential }),
   });
 
   if (!data?.token || !data?.user) {

@@ -33,6 +33,7 @@ import AccountProfileCard from '../components/AccountProfileCard';
  * @param {string|null} [props.lastVerifiedAt] - ISO time of last successful verification
  * @param {Function} [props.onSubmitSignIn] - ({ email, password }) sign-in attempt
  * @param {Function} [props.onSubmitRegister] - ({ email, password, full_name, college_name })
+ * @param {Function} [props.onSubmitGoogleCredential] - (googleIdToken) Google sign-in attempt
  * @param {boolean} [props.isSubmitting] - A sign-in/register request is in flight
  * @param {string|null} [props.submitError] - Server-side error for the current attempt
  * @param {Function} [props.onDismissSubmitError] - Clear the visible submit error
@@ -47,6 +48,7 @@ export default function AccountPage({
   lastVerifiedAt = null,
   onSubmitSignIn,
   onSubmitRegister,
+  onSubmitGoogleCredential,
   isSubmitting = false,
   submitError = null,
   onDismissSubmitError,
@@ -179,6 +181,7 @@ export default function AccountPage({
           <AuthForm
             onSubmitSignIn={onSubmitSignIn}
             onSubmitRegister={onSubmitRegister}
+            onSubmitGoogleCredential={onSubmitGoogleCredential}
             isSubmitting={isSubmitting}
             submitError={submitError}
             onDismissSubmitError={onDismissSubmitError}
