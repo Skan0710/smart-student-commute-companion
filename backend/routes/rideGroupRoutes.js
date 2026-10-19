@@ -14,7 +14,7 @@ const {
   rideGroupFilterQuerySchema,
   idParamSchema
 } = require('../validators');
-const { optionalAuthenticate, enforceRideGroupOwnership } = require('../middleware/authMiddleware');
+const { authenticate, optionalAuthenticate, enforceRideGroupOwnership } = require('../middleware/authMiddleware');
 
 function createRideGroupRoutes() {
   const router = express.Router();
@@ -24,14 +24,14 @@ function createRideGroupRoutes() {
   router.post('/ride-groups', optionalAuthenticate, validate({ body: createRideGroupSchema }), createRideGroup);
   router.patch(
     '/ride-groups/:id',
-    optionalAuthenticate,
+    authenticate,
     validate({ params: idParamSchema, body: updateRideGroupSchema }),
     enforceRideGroupOwnership,
     updateRideGroup
   );
   router.delete(
     '/ride-groups/:id',
-    optionalAuthenticate,
+    authenticate,
     validate({ params: idParamSchema }),
     enforceRideGroupOwnership,
     deleteRideGroup

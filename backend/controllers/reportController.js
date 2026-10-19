@@ -45,7 +45,7 @@ function createReport(io) {
         return next(new ValidationError('Validation failed', parsed.error.format()));
       }
 
-      const createdReport = reportService.createReport(parsed.data);
+      const createdReport = reportService.createReport(parsed.data, req.user || undefined);
 
       if (io) {
         io.emit('live_report_created', createdReport);

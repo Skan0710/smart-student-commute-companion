@@ -148,6 +148,8 @@ async function runServiceIntegrationTests() {
 
   test('RideGroupService: allows creator to update group', () => {
     const creatorUser = { id: 'usr-creator', full_name: 'Service_Test_Creator', role: 'student' };
+    // Ownership is the server-assigned account id, not the display name.
+    require('../repositories/RideGroupRepository').rideGroupRepository.setCreatorUserId(testGroup.id, creatorUser.id);
     const updated = rideGroupService.updateRideGroup(testGroup.id, { notes: 'Safe update' }, creatorUser);
     assert.strictEqual(updated.notes, 'Safe update');
   });

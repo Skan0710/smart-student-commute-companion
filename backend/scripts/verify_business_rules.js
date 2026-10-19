@@ -94,6 +94,8 @@ async function runBusinessRuleTests() {
 
   test('RideGroupService: Creator is permitted to update own group', () => {
     const creatorUser = { id: 'usr-1', full_name: 'Rohan_Tester', role: 'student' };
+    // Ownership is the server-assigned account id, not the display name.
+    require('../repositories/RideGroupRepository').rideGroupRepository.setCreatorUserId(createdGroup.id, creatorUser.id);
     const updated = rideGroupService.updateRideGroup(createdGroup.id, { notes: 'Updated by owner' }, creatorUser);
     assert.strictEqual(updated.notes, 'Updated by owner');
   });

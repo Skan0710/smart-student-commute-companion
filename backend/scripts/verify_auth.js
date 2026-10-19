@@ -373,6 +373,9 @@ async function runHttpTests() {
         max_members: 4
       });
 
+      // Ownership is the server-assigned account id (display names are not trusted)
+      rideGroupRepository.setCreatorUserId(group.id, otherStudentId);
+
       // Student 1 attempts to modify Vikram's group
       const unauthorizedPatch = await request(`/api/ride-groups/${group.id}`, {
         method: 'PATCH',

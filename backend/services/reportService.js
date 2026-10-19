@@ -8,6 +8,7 @@
 const { reportRepository } = require('../repositories/ReportRepository');
 const { getActiveReports, calculateFreshnessWeight } = require('./disruptionService');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors');
+const { canModifyOwnedRecord } = require('../utils/ownership');
 
 class ReportService {
   constructor(repo = reportRepository) {
@@ -84,9 +85,10 @@ class ReportService {
    * Ingests and persists a new community disruption report.
    *
    * @param {object} input
+   * @param {object} [currentUser] - Signed-in author; recorded as the owner
    * @returns {object} Created report with initial freshness metadata
    */
-  createReport(input) {
+  createReport(input, currentUser) {
     const {
       pseudonym,
       area,
@@ -118,6 +120,10 @@ class ReportService {
       confirmation_count: 1,
       contradiction_count: 0
     });
+
+    if (currentUser && currentUser.id) {
+      this.repo.setCreatorUserId(reportId, currentUser.id);
+    }
 
     const reportRow = created ? (created.toRow ? created.toRow() : created) : {
       id: reportId,
@@ -218,11 +224,8 @@ class ReportService {
       throw new BadRequestError('Resolved disruption report cannot be modified without reactivating', 'REPORT_RESOLVED');
     }
 
-    if (currentUser && currentUser.role !== 'admin') {
-      const creator = existing.pseudonym;
-      if (creator && creator !== currentUser.full_name && creator !== currentUser.email && creator !== currentUser.id) {
-        throw new ForbiddenError('You can only modify disruption reports that you created');
-      }
+    if (!canModifyOwnedRecord(this.repo.getCreatorUserId(id), currentUser)) {
+      throw new ForbiddenError('You can only modify disruption reports that you created');
     }
 
     const updated = this.repo.update(id, updates);
@@ -242,11 +245,8 @@ class ReportService {
       throw new NotFoundError(`Disruption report with id '${id}' not found`);
     }
 
-    if (currentUser && currentUser.role !== 'admin') {
-      const creator = existing.pseudonym;
-      if (creator && creator !== currentUser.full_name && creator !== currentUser.email && creator !== currentUser.id) {
-        throw new ForbiddenError('You can only delete disruption reports that you created');
-      }
+    if (!canModifyOwnedRecord(this.repo.getCreatorUserId(id), currentUser)) {
+      throw new ForbiddenError('You can only delete disruption reports that you created');
     }
 
     return this.repo.delete(id);

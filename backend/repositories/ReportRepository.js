@@ -231,6 +231,30 @@ class ReportRepository {
   }
 
   /**
+   * Records the authenticated account that created a report.
+   * Ownership lives outside the public report model so it is never serialized.
+   *
+   * @param {string} id
+   * @param {string|null} userId
+   */
+  setCreatorUserId(id, userId) {
+    this.database
+      .prepare('UPDATE live_commute_reports SET creator_user_id = ? WHERE id = ?')
+      .run(userId || null, id);
+  }
+
+  /**
+   * @param {string} id
+   * @returns {string|null} Owning account id, or null for anonymous/legacy rows
+   */
+  getCreatorUserId(id) {
+    const row = this.database
+      .prepare('SELECT creator_user_id FROM live_commute_reports WHERE id = ?')
+      .get(id);
+    return row ? row.creator_user_id || null : null;
+  }
+
+  /**
    * Deletes a live report and associated confirmations.
    *
    * @param {string} id

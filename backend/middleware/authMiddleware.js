@@ -12,6 +12,7 @@
 const { verifyToken } = require('../utils/token');
 const { UnauthorizedError, ForbiddenError, NotFoundError } = require('../errors');
 const { rideGroupRepository } = require('../repositories/RideGroupRepository');
+const { canModifyOwnedRecord } = require('../utils/ownership');
 
 /**
  * Mandatory authentication guard middleware.
@@ -145,9 +146,9 @@ function requireUserOwnership(req, res, next) {
 /**
  * Ride Group Resource Ownership Guard.
  * Protects student ride groups from unauthorized update or deletion.
- * - If request has authenticated user: checks creator match or admin role.
- * - Returns 403 Forbidden if another user attempts to mutate the group.
- * - Allows unauthenticated requests to preserve legacy compatibility.
+ * - Requires an authenticated user (401 otherwise).
+ * - Only the account that created the group, or an admin, may mutate it (403).
+ * - Anonymous/legacy groups have no owner and are admin-only.
  *
  * @param {import('express').Request} req
  * @param {import('express').Response} res
@@ -162,16 +163,12 @@ function enforceRideGroupOwnership(req, res, next) {
       throw new NotFoundError('Ride group not found');
     }
 
-    if (req.user) {
-      const isOwner =
-        req.user.id === group.creator_id ||
-        req.user.full_name.toLowerCase() === group.creator_pseudonym.toLowerCase() ||
-        req.user.email.toLowerCase() === group.creator_pseudonym.toLowerCase() ||
-        req.user.role === 'admin';
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
 
-      if (!isOwner) {
-        throw new ForbiddenError('You can only modify or delete ride groups that you created');
-      }
+    if (!canModifyOwnedRecord(rideGroupRepository.getCreatorUserId(id), req.user)) {
+      throw new ForbiddenError('You can only modify or delete ride groups that you created');
     }
 
     req.resource = group;

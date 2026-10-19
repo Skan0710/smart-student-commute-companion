@@ -404,6 +404,9 @@ function initDb(overrideDb) {
   ensureColumnExists(activeDb, 'study_resources', 'study_session_id', 'TEXT REFERENCES study_sessions(id) ON DELETE SET NULL');
   ensureColumnExists(activeDb, 'study_resources', 'course_id', 'TEXT REFERENCES courses(id) ON DELETE SET NULL');
   ensureColumnExists(activeDb, 'study_resources', 'assignment_id', 'TEXT REFERENCES assignments(id) ON DELETE SET NULL');
+  // Server-assigned owner of community records (migration 017)
+  ensureColumnExists(activeDb, 'live_commute_reports', 'creator_user_id', 'TEXT');
+  ensureColumnExists(activeDb, 'ride_groups', 'creator_user_id', 'TEXT');
 
   // Create indexes on migration-added columns now that columns are guaranteed to exist
   activeDb.exec(`

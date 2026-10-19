@@ -8,6 +8,7 @@
 const { rideGroupRepository } = require('../repositories/RideGroupRepository');
 const { rideGroupMemberRepository } = require('../repositories/RideGroupMemberRepository');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors');
+const { canModifyOwnedRecord } = require('../utils/ownership');
 
 class RideGroupService {
   constructor(repo = rideGroupRepository, memberRepo = rideGroupMemberRepository) {
@@ -63,6 +64,7 @@ class RideGroupService {
     const row = created.toRow ? created.toRow() : created;
 
     if (currentUser && currentUser.id) {
+      this.repo.setCreatorUserId(row.id, currentUser.id);
       this.memberRepo.addMember(row.id, currentUser.id, 'creator');
     }
 
@@ -181,13 +183,7 @@ class RideGroupService {
    * @returns {boolean}
    */
   assertOwnership(group, user) {
-    if (!user) return true;
-    if (user.role === 'admin') return true;
-    const creator = group.creator_pseudonym || group.creator_id;
-    if (creator && (creator === user.full_name || creator === user.id || creator === user.email)) {
-      return true;
-    }
-    return false;
+    return canModifyOwnedRecord(this.repo.getCreatorUserId(group.id), user);
   }
 
   /**
@@ -204,7 +200,7 @@ class RideGroupService {
       throw new NotFoundError(`Ride group with id '${id}' not found`);
     }
 
-    if (currentUser && !this.assertOwnership(group, currentUser)) {
+    if (!this.assertOwnership(group, currentUser)) {
       throw new ForbiddenError('You can only modify or delete ride groups that you created');
     }
 
@@ -232,7 +228,7 @@ class RideGroupService {
       throw new NotFoundError(`Ride group with id '${id}' not found`);
     }
 
-    if (currentUser && !this.assertOwnership(group, currentUser)) {
+    if (!this.assertOwnership(group, currentUser)) {
       throw new ForbiddenError('You can only modify or delete ride groups that you created');
     }
 

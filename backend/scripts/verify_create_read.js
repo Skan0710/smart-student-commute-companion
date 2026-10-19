@@ -14,6 +14,7 @@ const assert = require('node:assert/strict');
 const http = require('node:http');
 const axios = require('axios');
 const { createApp } = require('../app');
+const { adminAuthHeader } = require('./helpers/adminAuth');
 
 console.log('====================================================');
 console.log(' Running Create and Read API Endpoint Tests');
@@ -165,7 +166,7 @@ async function main() {
     });
 
     await runAsyncTest('GET /api/feedback reads submitted feedback and rating summary', async () => {
-      const res = await axios.get(`${baseUrl}/feedback?recommendation_id=${testRecId}`);
+      const res = await axios.get(`${baseUrl}/feedback?recommendation_id=${testRecId}`, { headers: adminAuthHeader() });
       assert.equal(res.status, 200);
       assert.equal(res.data.success, true);
       assert.equal(res.data.summary.total, 1);

@@ -1,12 +1,14 @@
 const assert = require('assert');
 const http = require('http');
 const { createApp } = require('../app');
+const { adminAuthHeader } = require('./helpers/adminAuth');
 
 function request(server, { method, path, headers = {}, body = null }) {
   return new Promise((resolve, reject) => {
     const address = server.address();
     const payload = body ? JSON.stringify(body) : null;
-    const reqHeaders = { ...headers };
+    // CRUD suite: act as an administrator (owner/admin-gated endpoints).
+    const reqHeaders = { ...adminAuthHeader(), ...headers };
     if (payload) {
       reqHeaders['Content-Type'] = 'application/json';
       reqHeaders['Content-Length'] = Buffer.byteLength(payload);

@@ -64,6 +64,15 @@ const envSchema = z.object({
     .string()
     .optional(),
 
+  ALLOW_DEMO_RESET: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform(val => {
+      if (val === undefined || val === '') return undefined;
+      if (typeof val === 'boolean') return val;
+      return val.trim().toLowerCase() === 'true';
+    }),
+
   JWT_SECRET: z
     .string()
     .optional()
@@ -154,6 +163,11 @@ const config = {
   geminiApiKey: validatedConfig.GEMINI_API_KEY,
   requireGeminiKey: validatedConfig.REQUIRE_GEMINI_KEY,
   jwtSecret: validatedConfig.JWT_SECRET || 'smart-commute-companion-dev-jwt-secret-key-32bytes-secure!',
+  // Admin-only destructive demo reset: opt-in in production, on elsewhere
+  allowDemoReset:
+    validatedConfig.ALLOW_DEMO_RESET !== undefined
+      ? validatedConfig.ALLOW_DEMO_RESET
+      : validatedConfig.NODE_ENV !== 'production',
   jwtExpiresIn: 86400, // 24 hours in seconds
   database: {
     path: resolvedDbPath

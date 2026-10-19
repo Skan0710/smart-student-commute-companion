@@ -10,6 +10,8 @@ const { ConflictError, UnauthorizedError, NotFoundError } = require('../errors')
 const { signToken } = require('../utils/token');
 const { verifyPassword } = require('../utils/password');
 
+const EDITABLE_PROFILE_FIELDS = ['full_name', 'college_name'];
+
 const DUMMY_SALT_HASH = '00000000000000000000000000000000:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
 
 class AuthService {
@@ -102,7 +104,13 @@ class AuthService {
     if (!existing) {
       throw new NotFoundError('User profile not found');
     }
-    const updated = this.userRepo.update(userId, updates);
+    // Defense in depth: only display fields are ever writable here, even if
+    // a caller forgets to validate. role / password_hash must never flow in.
+    const safeUpdates = {};
+    for (const field of EDITABLE_PROFILE_FIELDS) {
+      if (updates[field] !== undefined) safeUpdates[field] = updates[field];
+    }
+    const updated = this.userRepo.update(userId, safeUpdates);
     return updated.toSafeObject();
   }
 

@@ -9,12 +9,14 @@
 const assert = require('node:assert/strict');
 const http = require('node:http');
 const { createApp } = require('../app');
+const { adminAuthHeader } = require('./helpers/adminAuth');
 
 function makeRequest(server, { method, path, headers = {}, body = null }) {
   return new Promise((resolve, reject) => {
     const address = server.address();
     const payload = body ? JSON.stringify(body) : null;
-    const reqHeaders = { ...headers };
+    // CRUD suite: act as an administrator (owner/admin-gated endpoints).
+    const reqHeaders = { ...adminAuthHeader(), ...headers };
 
     if (payload) {
       reqHeaders['Content-Type'] = 'application/json';
@@ -148,17 +150,17 @@ async function runTestSuite() {
 
     await test('POST /api/ride-groups/:id/join increments members and enforces max capacity', async () => {
       // 1. Join 1 (current = 2)
-      const res1 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join` });
+      const res1 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join`, headers: { Authorization: '' } });
       assert.strictEqual(res1.status, 200);
       assert.strictEqual(res1.body.group.current_members, 2);
 
       // 2. Join 2 (current = 3, reaches max)
-      const res2 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join` });
+      const res2 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join`, headers: { Authorization: '' } });
       assert.strictEqual(res2.status, 200);
       assert.strictEqual(res2.body.group.current_members, 3);
 
       // 3. Join 3 (fails: group full)
-      const res3 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join` });
+      const res3 = await makeRequest(server, { method: 'POST', path: `/api/ride-groups/${createdGroupId}/join`, headers: { Authorization: '' } });
       assert.strictEqual(res3.status, 400);
       assert.strictEqual(res3.body.code, 'GROUP_FULL');
     });

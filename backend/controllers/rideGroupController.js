@@ -33,7 +33,7 @@ function createRideGroup(req, res, next) {
       return next(new ValidationError('Validation failed', parsed.error.format()));
     }
 
-    const newGroup = rideGroupService.createRideGroup(parsed.data);
+    const newGroup = rideGroupService.createRideGroup(parsed.data, req.user || undefined);
     return created(res, { group: newGroup });
   } catch (err) {
     next(err);

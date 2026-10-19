@@ -13,7 +13,7 @@ const {
   updateUserProfile,
   listUsers
 } = require('../controllers/authController');
-const { validate, registerSchema, loginSchema } = require('../validators');
+const { validate, registerSchema, loginSchema, updateProfileSchema } = require('../validators');
 const { authenticate, requireRole, requireUserOwnership } = require('../middleware/authMiddleware');
 
 function createAuthRoutes() {
@@ -24,7 +24,13 @@ function createAuthRoutes() {
   router.get('/auth/me', authenticate, getMe);
   router.get('/auth/users', authenticate, requireRole(['admin']), listUsers);
   router.get('/auth/users/:id', authenticate, requireUserOwnership, getUserById);
-  router.patch('/auth/users/:id', authenticate, requireUserOwnership, updateUserProfile);
+  router.patch(
+    '/auth/users/:id',
+    authenticate,
+    requireUserOwnership,
+    validate({ body: updateProfileSchema }),
+    updateUserProfile
+  );
 
   return router;
 }
