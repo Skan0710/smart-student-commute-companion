@@ -2,6 +2,7 @@ const { z } = require('zod');
 const { reportService } = require('../services');
 const { ValidationError } = require('../errors');
 const { success, created, paginated } = require('../utils/apiResponse');
+const { getClientIdentity } = require('../utils/clientIdentity');
 
 const reportSchema = z.object({
   pseudonym: z.string().min(2).max(30).optional().default('Student_Rider'),
@@ -65,7 +66,7 @@ function confirmReport(io) {
   return (req, res, next) => {
     try {
       const { id } = req.params;
-      const userToken = req.headers['x-user-token'] || req.ip || 'anon-user';
+      const userToken = getClientIdentity(req);
 
       const result = reportService.confirmReport(id, userToken);
 
@@ -91,7 +92,7 @@ function contradictReport(io) {
   return (req, res, next) => {
     try {
       const { id } = req.params;
-      const userToken = req.headers['x-user-token'] || req.ip || 'anon-user';
+      const userToken = getClientIdentity(req);
 
       const result = reportService.contradictReport(id, userToken);
 

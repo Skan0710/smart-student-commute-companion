@@ -13,10 +13,10 @@ const deliveryChannelEnum = z.enum(['in_app', 'socket', 'email', 'push']);
  * Schema for listing active commute disruption alerts.
  */
 const commuteAlertQuerySchema = z.object({
-  mode: z.string().optional(),
-  area: z.string().optional(),
+  mode: z.string().trim().max(50).optional(),
+  area: z.string().trim().max(100).optional(),
   severity: disruptionSeverityEnum.optional(),
-  disruptionType: z.string().optional(),
+  disruptionType: z.string().trim().max(50).optional(),
   includeBroadcast: z.union([
     z.boolean(),
     z.string().transform(val => {
@@ -33,7 +33,7 @@ const commuteAlertQuerySchema = z.object({
 const updateCommuteAlertPreferencesSchema = z.object({
   alertsEnabled: z.boolean().optional(),
   minimumSeverity: disruptionSeverityEnum.optional(),
-  enabledCategories: z.array(z.string().min(1, 'Category cannot be empty')).optional(),
+  enabledCategories: z.array(z.string().min(1, 'Category cannot be empty').max(50)).max(25).optional(),
   preferredChannels: z.array(deliveryChannelEnum).min(1, 'At least one delivery channel is required').optional()
 }).refine(data => {
   return data.alertsEnabled !== undefined ||
@@ -50,8 +50,8 @@ const updateCommuteAlertPreferencesSchema = z.object({
 const triggerAlertProcessingSchema = z.object({
   dryRun: z.boolean().optional().default(false),
   forceSync: z.boolean().optional().default(true),
-  targetUserId: z.string().optional().nullable(),
-  disruptions: z.array(z.any()).optional()
+  targetUserId: z.string().max(100).optional().nullable(),
+  disruptions: z.array(z.any()).max(200).optional()
 }).optional().default({});
 
 module.exports = {

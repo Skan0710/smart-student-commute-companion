@@ -5,6 +5,7 @@
  */
 
 const { z } = require('zod');
+const { safeHttpUrlSchema } = require('./commonValidators');
 
 const resourceTypeEnum = z.enum(['note', 'link', 'reference', 'document', 'other']);
 
@@ -14,7 +15,7 @@ const createStudyResourceSchema = z.object({
   resource_type: resourceTypeEnum.optional(),
   resourceType: resourceTypeEnum.optional(),
   type: resourceTypeEnum.optional(),
-  url: z.string().trim().max(1000).nullable().optional(),
+  url: safeHttpUrlSchema.nullable().optional(),
   content: z.string().max(50000, 'Content cannot exceed 50000 characters').nullable().optional(),
   file_name: z.string().trim().max(255).nullable().optional(),
   fileName: z.string().trim().max(255).nullable().optional(),
@@ -69,7 +70,7 @@ const updateStudyResourceSchema = z.object({
   resource_type: resourceTypeEnum.optional(),
   resourceType: resourceTypeEnum.optional(),
   type: resourceTypeEnum.optional(),
-  url: z.string().trim().max(1000).nullable().optional(),
+  url: safeHttpUrlSchema.nullable().optional(),
   content: z.string().max(50000).nullable().optional(),
   file_name: z.string().trim().max(255).nullable().optional(),
   fileName: z.string().trim().max(255).nullable().optional(),

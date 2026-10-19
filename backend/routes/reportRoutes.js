@@ -38,8 +38,8 @@ function createReportRoutes(io) {
     validate({ params: idParamSchema }),
     deleteReport(io)
   );
-  router.post('/live-reports/:id/confirm', validate({ params: idParamSchema }), confirmReport(io));
-  router.post('/live-reports/:id/contradict', validate({ params: idParamSchema }), contradictReport(io));
+  router.post('/live-reports/:id/confirm', optionalAuthenticate, validate({ params: idParamSchema }), confirmReport(io));
+  router.post('/live-reports/:id/contradict', optionalAuthenticate, validate({ params: idParamSchema }), contradictReport(io));
 
   return router;
 }

@@ -2,6 +2,7 @@ const { z } = require('zod');
 const { rideGroupService } = require('../services');
 const { ValidationError } = require('../errors');
 const { success, created, paginated } = require('../utils/apiResponse');
+const { getAnonymousToken } = require('../utils/clientIdentity');
 
 const rideGroupSchema = z.object({
   creator_pseudonym: z.string().min(2),
@@ -43,7 +44,7 @@ function createRideGroup(req, res, next) {
 function joinRideGroup(req, res, next) {
   try {
     const { id } = req.params;
-    const userOrToken = req.user || req.headers['x-user-token'];
+    const userOrToken = req.user || getAnonymousToken(req) || undefined;
     const updated = rideGroupService.joinRideGroup(id, userOrToken);
     return success(res, { message: 'Joined commute group successfully!', group: updated });
   } catch (err) {

@@ -9,7 +9,7 @@ const eventTypeEnum = z.enum([
 ]);
 
 const createCalendarEventSchema = z.object({
-  course_id: z.string().min(1).nullable().optional(),
+  course_id: z.string().min(1).max(100).nullable().optional(),
   title: z.string().min(2, 'Title must be at least 2 characters').max(150),
   description: z.string().max(1000).nullable().optional(),
   location: z.string().max(150).nullable().optional(),
@@ -24,7 +24,7 @@ const createCalendarEventSchema = z.object({
 });
 
 const updateCalendarEventSchema = z.object({
-  course_id: z.string().min(1).nullable().optional(),
+  course_id: z.string().min(1).max(100).nullable().optional(),
   title: z.string().min(2).max(150).optional(),
   description: z.string().max(1000).nullable().optional(),
   location: z.string().max(150).nullable().optional(),
@@ -47,7 +47,7 @@ const updateCalendarEventSchema = z.object({
 const calendarEventFilterSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20),
-  course_id: z.string().optional(),
+  course_id: z.string().max(100).optional(),
   event_type: eventTypeEnum.optional(),
   status: z.enum(['scheduled', 'cancelled']).optional(),
   start_after: z.coerce.number().int().positive().optional(),

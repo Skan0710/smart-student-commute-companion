@@ -128,7 +128,7 @@ const commuteDisruptionQuerySchema = z.object({
  * Schema for submitting crowdsourced commute feedback.
  */
 const commuteFeedbackInputSchema = z.object({
-  routeId: z.string().trim().min(1, 'Route ID is required'),
+  routeId: z.string().trim().min(1, 'Route ID is required').max(100),
   rating: z.coerce.number().int().min(1, 'Rating must be between 1 and 5').max(5, 'Rating must be between 1 and 5'),
   punctualityScore: z.coerce.number().int().min(1).max(5).optional(),
   crowdLevel: z.enum(['low', 'moderate', 'packed', 'crush_load']).optional().default('moderate'),
@@ -200,8 +200,8 @@ const commuteCandidateRequestSchema = z.object({
     .max(20, 'Limit cannot exceed 20')
     .optional()
     .default(5),
-  date: z.string().optional(),
-  dayOfWeek: z.string().optional()
+  date: z.string().max(32).optional(),
+  dayOfWeek: z.string().max(16).optional()
 }).passthrough().superRefine((data, ctx) => {
   // 1. Strict privacy check
   const forbidden = findForbiddenPrivacyFields(data);
@@ -284,8 +284,8 @@ const commuteRecommendationRequestSchema = z.object({
     .min(0, 'Budget cannot be negative')
     .max(2000, 'Budget cannot exceed ₹2000')
     .optional(),
-  date: z.string().optional(),
-  dayOfWeek: z.string().optional(),
+  date: z.string().max(32).optional(),
+  dayOfWeek: z.string().max(16).optional(),
   candidates: z.array(z.any()).optional(),
   candidateRoutes: z.array(z.any()).optional(),
   evaluations: z.array(z.any()).optional(),

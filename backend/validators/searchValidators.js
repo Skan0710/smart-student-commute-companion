@@ -53,10 +53,10 @@ const studentSearchQuerySchema = z.object({
   q: z.string().trim().max(200, 'Search query cannot exceed 200 characters').optional(),
   query: z.string().trim().max(200, 'Search query cannot exceed 200 characters').optional(),
   types: z.union([
-    z.string().trim(),
-    z.array(z.string().trim())
+    z.string().trim().max(200),
+    z.array(z.string().trim().max(50)).max(20)
   ]).optional(),
-  type: z.string().trim().optional(),
+  type: z.string().trim().max(50).optional(),
   limit: z.coerce
     .number()
     .int('Limit must be an integer')

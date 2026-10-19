@@ -2345,6 +2345,29 @@ if (!authFormGoogle.includes('VITE_GOOGLE_CLIENT_ID in .env')) {
 }
 
 // ============================================================
+// NO UNSAFE HTML SINKS (regression)
+// ============================================================
+
+section('UNSAFE HTML SINKS');
+
+const sinkPattern = /dangerouslySetInnerHTML|\.innerHTML\s*=|insertAdjacentHTML|document\.write\(/;
+const sinkOffenders = [];
+(function scan(dir) {
+  for (const entry of fs.readdirSync(path.join(__dirname, dir), { withFileTypes: true })) {
+    const rel = path.join(dir, entry.name);
+    if (entry.isDirectory()) scan(rel);
+    else if (/\.(jsx?|tsx?)$/.test(entry.name) && sinkPattern.test(fs.readFileSync(path.join(__dirname, rel), 'utf8'))) {
+      sinkOffenders.push(rel);
+    }
+  }
+})('src');
+if (sinkOffenders.length === 0) {
+  pass('No dangerouslySetInnerHTML / innerHTML / document.write sinks in application source');
+} else {
+  fail('Unsafe HTML sinks found in: ' + sinkOffenders.join(', '));
+}
+
+// ============================================================
 // SUMMARY
 // ============================================================
 

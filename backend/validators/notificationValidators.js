@@ -20,7 +20,7 @@ const notificationFilterSchema = z.object({
 });
 
 const bulkReadNotificationSchema = z.object({
-  ids: z.array(z.string().min(1)).min(1, 'At least one notification ID is required')
+  ids: z.array(z.string().min(1).max(100)).min(1, 'At least one notification ID is required').max(200, 'At most 200 notifications can be updated at once')
 });
 
 const createReminderSchema = z.object({

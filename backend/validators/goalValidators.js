@@ -122,8 +122,8 @@ const goalFilterSchema = z.object({
 }));
 
 const linkGoalAssignmentsSchema = z.object({
-  assignment_ids: z.array(z.string().min(1)).min(1, 'At least one assignment ID must be provided').optional(),
-  assignmentIds: z.array(z.string().min(1)).min(1, 'At least one assignment ID must be provided').optional()
+  assignment_ids: z.array(z.string().min(1).max(100)).min(1, 'At least one assignment ID must be provided').max(100).optional(),
+  assignmentIds: z.array(z.string().min(1).max(100)).min(1, 'At least one assignment ID must be provided').max(100).optional()
 }).refine(data => (data.assignment_ids && data.assignment_ids.length > 0) || (data.assignmentIds && data.assignmentIds.length > 0), {
   message: 'assignment_ids must contain at least one assignment ID'
 }).transform(data => ({
@@ -131,8 +131,8 @@ const linkGoalAssignmentsSchema = z.object({
 }));
 
 const linkGoalStudySessionsSchema = z.object({
-  session_ids: z.array(z.string().min(1)).min(1, 'At least one session ID must be provided').optional(),
-  sessionIds: z.array(z.string().min(1)).min(1, 'At least one session ID must be provided').optional()
+  session_ids: z.array(z.string().min(1).max(100)).min(1, 'At least one session ID must be provided').max(100).optional(),
+  sessionIds: z.array(z.string().min(1).max(100)).min(1, 'At least one session ID must be provided').max(100).optional()
 }).refine(data => (data.session_ids && data.session_ids.length > 0) || (data.sessionIds && data.sessionIds.length > 0), {
   message: 'session_ids must contain at least one session ID'
 }).transform(data => ({

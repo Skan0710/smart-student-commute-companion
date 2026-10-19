@@ -34,7 +34,10 @@ function notFoundHandler(req, res, next) {
  * Global Error Handler Middleware (4 parameters required by Express).
  */
 function errorHandler(err, req, res, next) {
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Secure by default: internals (stack traces, raw 5xx messages) are only
+  // exposed when NODE_ENV is explicitly development/test. An unset NODE_ENV
+  // behaves like production here.
+  const isProduction = !['development', 'test'].includes(process.env.NODE_ENV);
 
   // Automatically normalize SQLite driver or database errors
   const isSqliteError =

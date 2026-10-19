@@ -140,7 +140,7 @@ export default function AuthForm({
             if (response?.credential) googleCallbackRef.current?.(response.credential);
           },
         });
-        googleButtonRef.current.innerHTML = '';
+        googleButtonRef.current.replaceChildren();
         google.accounts.id.renderButton(googleButtonRef.current, {
           theme: 'outline',
           size: 'large',
