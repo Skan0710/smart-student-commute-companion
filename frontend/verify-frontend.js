@@ -2503,7 +2503,7 @@ if (
 }
 
 if (
-  buildPageJsonLd('about', '').length === 0 &&
+  buildPageJsonLd('about', '').length === 1 && buildPageJsonLd('about', '')[0]['@type'] === 'FAQPage' &&
   buildPageJsonLd('about', 'https://example.org').some((d) => d['@type'] === 'BreadcrumbList' && d.itemListElement.length === 2 && d.itemListElement[1].item === 'https://example.org/about') &&
   !JSON.stringify(buildPageJsonLd('about', 'https://example.org')).match(/aggregateRating|review|LocalBusiness|telephone|streetAddress|priceRange/i)
 ) {
@@ -2600,6 +2600,155 @@ if (fileExists('dist/about/index.html') && fileExists('dist/404.html')) {
   }
 } else {
   warn('dist/ not built; skipped prerendered-output checks (run npm run build)');
+}
+
+// ============================================================
+// CONTENT TRUTHFULNESS: FAQ, PRIVACY, DIRECTIONS, ALT TEXT
+// ============================================================
+
+section('PUBLIC CONTENT');
+
+const privacyModule = await import(new URL('./src/content/privacyContent.js', import.meta.url).href);
+const { getPrivacyPolicy, THIRD_PARTIES, DEVICE_STORAGE } = privacyModule;
+const { buildOsmDirectionsUrl } = await import(new URL('./src/utils/mapLinks.js', import.meta.url).href);
+
+// -- Exactly five FAQs, visible and marked up identically
+const faqLd = buildPageJsonLd('about', '').find((d) => d['@type'] === 'FAQPage');
+if (
+  ABOUT.faqs.length === 5 &&
+  ABOUT.faqs.every((f) => f.question.endsWith('?') && f.answer.length >= 60) &&
+  new Set(ABOUT.faqs.map((f) => f.question)).size === 5 &&
+  faqLd && faqLd.mainEntity.length === 5 &&
+  faqLd.mainEntity.every((q, i) => q.name === ABOUT.faqs[i].question && q.acceptedAnswer.text === ABOUT.faqs[i].answer) &&
+  (readFile('src/components/public/FaqList.jsx') || '').includes('<summary')
+) {
+  pass('About page has exactly five FAQs, rendered with native details/summary and matching FAQPage markup');
+} else {
+  fail('FAQ count/markup is wrong (must be exactly five, visible and identical to the structured data)');
+}
+
+// -- Nothing invented: reviews, case studies, response-time promises, business facts
+const publicCopy = JSON.stringify([
+  ABOUT, NOT_FOUND, PAGES, getPrivacyPolicy({ analyticsEnabled: true, contactEmail: 'x@example.org' }), getPrivacyPolicy(),
+]);
+const forbiddenClaims = [
+  [/testimonial|case stud(y|ies)|customer stor/i, 'case study/testimonial'],
+  [/\b[1-5](\.\d)?\s*(\/\s*5|stars?|★)|★/i, 'star rating'],
+  [/within\s+\d+\s*(hours?|minutes?|days?|business)|24\s*\/\s*7|respond(s)? (to you )?(quickly|instantly)|instant support|guarantee/i, 'response-time or support promise'],
+  [/\b(pvt|ltd|llp|inc\.|gmbh|corporation)\b/i, 'legal entity'],
+  [/\b\d+\s*(days?|months?|years?)\b.*\b(retain|retention|delete|kept)\b/i, 'invented retention period'],
+  [/telephone|opening hours|street address|\bpincode\b|\b4000\d\d\b/i, 'business address/phone/hours'],
+];
+const claimHits = forbiddenClaims.filter(([re]) => re.test(publicCopy)).map(([, label]) => label);
+if (claimHits.length === 0) {
+  pass('Public copy contains no invented reviews, ratings, case studies, support promises, legal entity, retention period or business details');
+} else {
+  fail('Unverifiable claims found in public copy: ' + claimHits.join(', '));
+}
+
+// -- Privacy policy matches the code
+const sourceBlob = [];
+(function collect(dir) {
+  for (const entry of fs.readdirSync(path.join(__dirname, dir), { withFileTypes: true })) {
+    const rel = path.join(dir, entry.name);
+    if (entry.isDirectory()) collect(rel);
+    else if (/\.(jsx?|html)$/.test(entry.name) && !rel.includes(path.join('src', 'content'))) {
+      sourceBlob.push(fs.readFileSync(path.join(__dirname, rel), 'utf8'));
+    }
+  }
+})('src');
+sourceBlob.push(readFile('index.html') || '');
+const backendBlob = ['aiPlannerService', 'geocodingService', 'routingService', 'weatherService', 'googleIdentityService']
+  .map((n) => { try { return fs.readFileSync(path.join(__dirname, '../backend/services', n + '.js'), 'utf8'); } catch { return ''; } }).join('\n');
+const codeBlob = sourceBlob.join('\n') + '\n' + backendBlob;
+const allParties = [...THIRD_PARTIES.fromBrowser, ...THIRD_PARTIES.fromServer, ...THIRD_PARTIES.optional];
+const missingParties = allParties.filter((p) => !codeBlob.includes(p.code)).map((p) => p.name);
+const missingKeys = DEVICE_STORAGE.filter((s) => !codeBlob.includes(s.key)).map((s) => s.key);
+const sourceNoCookies = !/document\.cookie/.test(sourceBlob.join('\n'));
+if (missingParties.length === 0 && missingKeys.length === 0 && sourceNoCookies) {
+  pass('Every third party and storage key named in the privacy policy exists in the code; the app sets no cookies');
+} else {
+  fail('Privacy policy is out of sync with the code. Missing parties: ' + missingParties.join(', ') + '; keys: ' + missingKeys.join(', '));
+}
+
+const policyOff = getPrivacyPolicy({ analyticsEnabled: false });
+const policyOn = getPrivacyPolicy({ analyticsEnabled: true, contactEmail: 'privacy@example.org' });
+const text = (p) => JSON.stringify(p);
+if (
+  text(policyOff).includes('does not load analytics') && !text(policyOff).includes('Google Analytics') &&
+  text(policyOn).includes('Accept analytics') && text(policyOn).includes('never sent') &&
+  text(policyOn).includes('privacy@example.org') &&
+  text(policyOff).includes('has not published a privacy contact') &&
+  policyOff.sections.every((s) => s.id && s.heading)
+) {
+  pass('Privacy policy adapts to the real configuration (analytics on/off, contact published or not)');
+} else {
+  fail('Privacy policy does not reflect analytics/contact configuration');
+}
+
+if (
+  FOOTER_LINKS.some((l) => l.href === '/privacy') &&
+  listPrerenderedPages().some((p) => p.path === '/privacy') &&
+  resolveRoute('/privacy').id === 'privacy'
+) {
+  pass('Privacy policy is routed, prerendered, in the sitemap list and linked from every footer');
+} else {
+  fail('Privacy policy is not reachable from the footer/routing');
+}
+
+// -- Directions links
+const okUrl = buildOsmDirectionsUrl({ origin: { lat: 19.1197, lon: 72.8464 }, destination: { lat: '19.1077', lon: '72.8371' }, profile: 'foot' });
+const badInputs = [
+  { origin: { lat: 91, lon: 0 }, destination: { lat: 0, lon: 0 } },
+  { origin: { lat: 'abc', lon: 0 }, destination: { lat: 0, lon: 0 } },
+  { origin: { lat: '1);alert(1)', lon: 0 }, destination: { lat: 0, lon: 0 } },
+  { origin: null, destination: { lat: 0, lon: 0 } },
+  { origin: { lat: null, lon: 0 }, destination: { lat: 0, lon: 0 } },
+  {},
+];
+const routeParam = okUrl ? new URL(okUrl).searchParams.get('route') : '';
+if (
+  okUrl && okUrl.startsWith('https://www.openstreetmap.org/directions?') &&
+  new URL(okUrl).searchParams.get('engine') === 'fossgis_osrm_foot' &&
+  routeParam === '19.1197,72.8464;19.1077,72.8371' &&
+  !okUrl.includes(';') && // separators are percent-encoded
+  badInputs.every((input) => buildOsmDirectionsUrl(input) === null)
+) {
+  pass('Directions links use encoded OpenStreetMap URLs and are refused for missing/invalid coordinates');
+} else {
+  fail('Directions link builder mis-encodes or accepts invalid input: ' + okUrl);
+}
+
+const routeResultsSource = readFile('src/components/RouteResults.jsx') || '';
+if (
+  routeResultsSource.includes('buildOsmDirectionsUrl') &&
+  routeResultsSource.includes('rel="noopener noreferrer"') &&
+  routeResultsSource.includes('opens in a new tab')
+) {
+  pass('Route results offer a safe external directions link (noopener, announced new tab)');
+} else {
+  fail('Route directions link is missing or unsafe');
+}
+
+// -- Images and map markers are named
+const imgWithoutAlt = [];
+(function scanImages(dir) {
+  for (const entry of fs.readdirSync(path.join(__dirname, dir), { withFileTypes: true })) {
+    const rel = path.join(dir, entry.name);
+    if (entry.isDirectory()) scanImages(rel);
+    else if (/\.jsx$/.test(entry.name)) {
+      const source = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+      for (const match of source.matchAll(/<img\b[^>]*>/g)) {
+        if (!/\balt=/.test(match[0])) imgWithoutAlt.push(rel);
+      }
+    }
+  }
+})('src');
+const mapSource = readFile('src/components/MapView.jsx') || '';
+if (imgWithoutAlt.length === 0 && (mapSource.match(/title=\{`/g) || []).length >= 3 && (mapSource.match(/alt=\{`/g) || []).length >= 3) {
+  pass('No <img> lacks alt text; map markers carry descriptive titles/alt text');
+} else {
+  fail('Images or map markers lack accessible names: ' + imgWithoutAlt.join(', '));
 }
 
 // ============================================================

@@ -11,6 +11,7 @@ import {
   Info,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
 } from 'lucide-react';
 import {
   ErrorState,
@@ -21,6 +22,7 @@ import {
   TradeoffPill
 } from './ui';
 import { staggerRouteCards } from '../utils/motion';
+import { buildOsmDirectionsUrl } from '../utils/mapLinks';
 
 export default function RouteResults({
   planResult,
@@ -54,6 +56,12 @@ export default function RouteResults({
   const { recommendation, alternatives = [], weather, scheduleContext } = planResult;
   const recRoute = recommendation?.route;
   const aiReasoning = recommendation?.aiReasoning;
+  // Area-level origin/destination from the plan request; null when unusable
+  const directionsUrl = buildOsmDirectionsUrl({
+    origin: planResult.query?.origin,
+    destination: planResult.query?.destination,
+    profile: 'car',
+  });
 
   if (!recRoute) {
     return (
@@ -163,6 +171,19 @@ export default function RouteResults({
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{recRoute.subtitle}</p>
+          {directionsUrl && (
+            <a
+              href={directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => event.stopPropagation()}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              Road directions on OpenStreetMap
+              <ExternalLink className="w-3 h-3" aria-hidden="true" />
+              <span className="sr-only">(opens in a new tab; uses approximate area-level points)</span>
+            </a>
+          )}
         </div>
 
         {/* Why this route: Decision Rationale */}

@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRight, CloudSun, Map as MapIcon, Users, Radio } from 'lucide-react';
 import { ABOUT } from '../../content/siteContent.js';
 import LinkButton from '../../components/public/LinkButton.jsx';
+import FaqList from '../../components/public/FaqList.jsx';
 
 const FEATURE_ICONS = [MapIcon, Radio, Users, CloudSun];
 
@@ -111,6 +112,25 @@ export default function AboutPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section id="faq" aria-labelledby="faq-heading" className="mt-14 max-w-3xl scroll-mt-20">
+        <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 dark:text-white">
+          {ABOUT.faqHeading}
+        </h2>
+        <div className="mt-5">
+          <FaqList items={ABOUT.faqs} />
+        </div>
+        <p className="mt-4 text-sm text-slate-700 dark:text-slate-300">
+          More detail on what is stored and shared is in the{' '}
+          <a
+            href="/privacy"
+            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            privacy policy
+          </a>
+          .
+        </p>
       </section>
 
       <section

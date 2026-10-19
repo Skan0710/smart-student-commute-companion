@@ -8,7 +8,7 @@
  * it those tags are omitted rather than pointing at an invented hostname.
  */
 
-import { SITE_NAME, SOCIAL_IMAGE, PAGES, getBreadcrumbTrail } from './siteContent.js';
+import { SITE_NAME, SOCIAL_IMAGE, PAGES, ABOUT, getBreadcrumbTrail } from './siteContent.js';
 
 /** Validated origin ("https://example.org") or '' when unset/invalid. */
 export function normalizeSiteUrl(raw) {
@@ -152,9 +152,25 @@ export function serializeHeadTags(tags) {
  */
 export function buildPageJsonLd(pageId, siteUrl) {
   const origin = normalizeSiteUrl(siteUrl);
-  if (!origin) return [];
-
   const data = [];
+
+  // Marked up only because the same questions and answers are visible on the
+  // page. (Search engines may or may not show them as rich results.)
+  if (pageId === 'about') {
+    data.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: ABOUT.faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    });
+  }
+
+  // The rest needs absolute URLs, which need the real production origin.
+  if (!origin) return data;
+
   const breadcrumbs = buildBreadcrumbJsonLd(getBreadcrumbTrail(pageId), origin);
   if (breadcrumbs) data.push(breadcrumbs);
 

@@ -8,9 +8,9 @@ import PublicSite from '../PublicSite.jsx';
  * the same content. Bundled and executed by scripts/prerender-public-pages.js.
  *
  * @param {{ id: string, page: object }} route
- * @param {string} siteUrl
+ * @param {{ siteUrl?: string, analyticsEnabled?: boolean, contactEmail?: string }} config
  * @returns {string}
  */
-export function renderPublicPage(route, siteUrl) {
-  return renderToStaticMarkup(<PublicSite route={route} siteUrl={siteUrl} />);
+export function renderPublicPage(route, config = {}) {
+  return renderToStaticMarkup(<PublicSite route={route} {...config} />);
 }

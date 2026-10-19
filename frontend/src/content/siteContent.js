@@ -38,6 +38,14 @@ export const PAGES = {
       'See how Smart Student Commute Companion compares Mumbai train, metro and bus routes for college students using schedules, OpenStreetMap routing, weather and reports.',
     breadcrumb: 'How it works',
   },
+  privacy: {
+    id: 'privacy',
+    path: '/privacy',
+    title: 'Privacy Policy | Smart Student Commute Companion',
+    description:
+      'How Smart Student Commute Companion handles account details, commute inputs, community reports and third-party services, and the choices you have over your data.',
+    breadcrumb: 'Privacy policy',
+  },
   notFound: {
     id: 'notfound',
     path: null,
@@ -118,6 +126,36 @@ export const ABOUT = {
     { name: 'Student community reports', use: 'live conditions, shown as community-reported' },
   ],
 
+  faqHeading: 'Frequently asked questions',
+  /** Exactly five. Each answer is checked against the product's real behaviour. */
+  faqs: [
+    {
+      question: 'Do I need an account to plan a commute?',
+      answer:
+        'No. Planning routes, reading live alerts and searching transit work without an account. An optional student account (email and password, or Google where the operator has enabled it) lets you personalise commute preferences and notifications.',
+    },
+    {
+      question: 'Where does the route information come from?',
+      answer:
+        'Routes combine GTFS-format train, metro and bus schedule data bundled with the app, OpenStreetMap and OSRM for road and walking routes, Open-Meteo for weather, and reports from other students.',
+    },
+    {
+      question: 'How accurate are the travel times?',
+      answer:
+        'They are estimates based on scheduled timetables, routing and weather, not live vehicle tracking, so real journeys can differ. Each recommendation shows how reliable its data is and the trade-offs behind the ranking.',
+    },
+    {
+      question: 'Does the app use my location?',
+      answer:
+        'It does not read your device location. You type a neighbourhood or station and your college, so the app works with area names instead of tracking where you are. See the privacy policy for what is stored and which services receive place names.',
+    },
+    {
+      question: 'Are live student reports verified?',
+      answer:
+        'No. Reports come from other students and are labelled community-reported. Students can confirm that something is still happening or mark it as cleared, and reports fade as they age before they expire.',
+    },
+  ],
+
   closing: {
     heading: 'Ready to plan your next commute?',
     body: 'It takes a starting area and your college. No account needed.',
@@ -141,6 +179,7 @@ export const NOT_FOUND = {
 /** Footer links shown on every public page and in the app footer. */
 export const FOOTER_LINKS = [
   { label: 'How it works', href: '/about' },
+  { label: 'Privacy policy', href: '/privacy' },
 ];
 
 /**

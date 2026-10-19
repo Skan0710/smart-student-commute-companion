@@ -44,7 +44,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     {route.id === 'app' ? (
       <App />
     ) : (
-      <PublicSite route={route} siteUrl={import.meta.env.VITE_SITE_URL || ''} />
+      <PublicSite
+        route={route}
+        siteUrl={import.meta.env.VITE_SITE_URL || ''}
+        analyticsEnabled={Boolean(import.meta.env.VITE_GA_MEASUREMENT_ID)}
+        contactEmail={import.meta.env.VITE_PRIVACY_CONTACT_EMAIL || ''}
+      />
     )}
   </React.StrictMode>,
 );

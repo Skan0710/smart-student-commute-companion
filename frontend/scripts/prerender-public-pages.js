@@ -46,6 +46,12 @@ if (env.VITE_SITE_URL && !siteUrl) {
   console.warn('[prerender] VITE_SITE_URL is not a valid http(s) origin; ignoring it.');
 }
 
+const siteConfig = {
+  siteUrl,
+  analyticsEnabled: Boolean(env.VITE_GA_MEASUREMENT_ID),
+  contactEmail: env.VITE_PRIVACY_CONTACT_EMAIL || '',
+};
+
 // ---- 1. Bundle + load the renderer ------------------------------------------
 const cacheDir = path.join(root, 'node_modules', '.cache', 'sscc-prerender');
 fs.mkdirSync(cacheDir, { recursive: true });
@@ -109,7 +115,7 @@ write('index.html', composePage({ page: PAGES.home, routeId: 'home', noscript: h
 
 // Public pages with real content
 for (const page of listPrerenderedPages().filter((p) => p.id !== 'home')) {
-  const body = renderPublicPage({ id: page.id, page }, siteUrl);
+  const body = renderPublicPage({ id: page.id, page }, siteConfig);
   write(`${page.path.replace(/^\//, '')}/index.html`, composePage({ page, routeId: page.id, body }));
 }
 
@@ -119,7 +125,7 @@ write(
   composePage({
     page: PAGES.notFound,
     routeId: 'notfound',
-    body: renderPublicPage({ id: 'notfound', page: PAGES.notFound }, siteUrl),
+    body: renderPublicPage({ id: 'notfound', page: PAGES.notFound }, siteConfig),
   })
 );
 

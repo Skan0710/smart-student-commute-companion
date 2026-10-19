@@ -136,6 +136,8 @@ export default function MapView({
           <Marker 
             position={[planResult.query.origin.lat, planResult.query.origin.lon]} 
             icon={originIcon}
+            title={`Starting area: ${planResult.query.origin.display_name || 'origin'}`}
+            alt={`Starting area: ${planResult.query.origin.display_name || 'origin'}`}
           >
             <Popup>
               <div className="text-xs">
@@ -151,6 +153,8 @@ export default function MapView({
           <Marker 
             position={[planResult.query.destination.lat, planResult.query.destination.lon]} 
             icon={destIcon}
+            title={`Destination college: ${planResult.query.destination.display_name || 'destination'}`}
+            alt={`Destination college: ${planResult.query.destination.display_name || 'destination'}`}
           >
             <Popup>
               <div className="text-xs">
@@ -210,6 +214,8 @@ export default function MapView({
             key={idx}
             position={[station.lat, station.lon]}
             icon={transitIcon}
+            title={`Transit stop: ${station.name || 'stop'}`}
+            alt={`Transit stop: ${station.name || 'stop'}`}
           >
             <Popup>
               <div className="text-xs">
