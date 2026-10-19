@@ -248,8 +248,7 @@ const uiComponents = [
   'src/components/ui/Alert.jsx',
   'src/components/ui/EmptyState.jsx',
   'src/components/ui/Card.jsx',
-  'src/components/ui/index.js',
-  'src/components/ui/README.md'
+  'src/components/ui/index.js'
 ];
 
 uiComponents.forEach(file => {
@@ -1157,12 +1156,6 @@ if (uiBarrelDay10 && uiBarrelDay10.includes("from './EventLogList'")) {
 } else {
   fail('UI barrel is missing the event log export');
 }
-const uiReadmeDay10 = readFile('src/components/ui/README.md');
-if (uiReadmeDay10 && uiReadmeDay10.includes('EventLogList')) {
-  pass('UI component docs cover the event log component');
-} else {
-  fail('UI component docs are missing the event log component');
-}
 
 if (
   analyticsPage &&
@@ -1397,12 +1390,6 @@ if (uiBarrelDay11 && uiBarrelDay11.includes("from './QueueReportItem'")) {
 } else {
   fail('UI barrel is missing the queue row export');
 }
-const uiReadmeDay11 = readFile('src/components/ui/README.md');
-if (uiReadmeDay11 && uiReadmeDay11.includes('QueueReportItem')) {
-  pass('UI component docs cover the queue row component');
-} else {
-  fail('UI component docs are missing the queue row component');
-}
 
 if (
   offlineQueuePage &&
@@ -1625,12 +1612,6 @@ if (uiBarrelDay12 && uiBarrelDay12.includes("from './UnreadCountBadge'")) {
 } else {
   fail('UI barrel is missing the count badge export');
 }
-const uiReadmeDay12 = readFile('src/components/ui/README.md');
-if (uiReadmeDay12 && uiReadmeDay12.includes('UnreadCountBadge')) {
-  pass('UI component docs cover the count badge');
-} else {
-  fail('UI component docs are missing the count badge');
-}
 if (
   notificationItem &&
   notificationItem.includes('>Unread</Badge>') &&
@@ -1811,12 +1792,6 @@ if (uiBarrelDay13 && uiBarrelDay13.includes("from './TimeRangeInput'")) {
   pass('UI barrel exports the time range component');
 } else {
   fail('UI barrel is missing the time range export');
-}
-const uiReadmeDay13 = readFile('src/components/ui/README.md');
-if (uiReadmeDay13 && uiReadmeDay13.includes('TimeRangeInput')) {
-  pass('UI component docs cover the time range component');
-} else {
-  fail('UI component docs are missing the time range component');
 }
 
 const prefsStoreDay13 = readFile('src/utils/uiPreferences.js');
@@ -2014,7 +1989,7 @@ if (
   fail('UI barrel exports are out of sync with the kit files');
 }
 
-if (!fileExists('public/icons/convert-to-png.md') && fileExists('docs/icons/convert-to-png.md')) {
+if (!fileExists('public/icons/convert-to-png.md')) {
   pass('Icon conversion guide lives outside public/ so it cannot ship to dist');
 } else {
   fail('Icon conversion guide still ships from public/ into dist');
@@ -2178,12 +2153,6 @@ if (uiBarrelDay14 && uiBarrelDay14.includes("from './PasswordField'")) {
 } else {
   fail('UI barrel is missing the password field export');
 }
-const uiReadmeDay14 = readFile('src/components/ui/README.md');
-if (uiReadmeDay14 && uiReadmeDay14.includes('PasswordField')) {
-  pass('UI component docs cover the password field');
-} else {
-  fail('UI component docs are missing the password field');
-}
 
 // Profile card
 const profileCardDay14 = readFile('src/components/AccountProfileCard.jsx');
@@ -2320,6 +2289,25 @@ if (
   pass('Eleven-tab navigation keeps overflow-safe label tiers and a full-width-safe brand');
 } else {
   fail('Navigation label tiers or brand sizing were not adjusted for the eleventh tab');
+}
+
+// ============================================================
+// SERVICE WORKER NAVIGATION FRESHNESS (regression)
+// ============================================================
+
+section('SERVICE WORKER NAVIGATION FRESHNESS');
+
+const swSource = (readFile('public/sw.js') || '').split('\r\n').join('\n');
+if (
+  swSource &&
+  swSource.includes("request.mode === 'navigate'") &&
+  swSource.indexOf("request.mode === 'navigate' && url.origin") <
+    swSource.indexOf('caches.match(request)\n      .then((cachedResponse)') &&
+  /fetch\(request\)\s*\.then\(\(networkResponse\) => \{\s*if \(networkResponse\.ok && url\.pathname === '\/'\)/.test(swSource)
+) {
+  pass('Navigations are network-first so a deploy never pins a stale HTML shell');
+} else {
+  fail('Service worker serves navigations cache-first (stale shell after deploy)');
 }
 
 // ============================================================

@@ -274,6 +274,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Navigations are network-first: a cache-first HTML shell would keep
+  // pointing at hashed bundles from a previous deploy (stale/404 assets).
+  // The cached shell is only the offline fallback, and it is refreshed
+  // every time the app root is fetched successfully.
+  if (request.mode === 'navigate' && url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse.ok && url.pathname === '/') {
+            const shell = networkResponse.clone();
+            caches.open(STATIC_CACHE_NAME)
+              .then((cache) => cache.put('/index.html', shell))
+              .catch(() => {});
+          }
+          return networkResponse;
+        })
+        .catch(() =>
+          caches.match(request)
+            .then((exact) => exact || caches.match('/index.html'))
+            .then((cachedShell) => {
+              if (cachedShell) return cachedShell;
+              return new Response(OFFLINE_FALLBACK_HTML, {
+                status: 503,
+                statusText: 'Offline',
+                headers: { 'Content-Type': 'text/html; charset=utf-8' }
+              });
+            })
+        )
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request)
       .then((cachedResponse) => {
