@@ -1,0 +1,30 @@
+{
+  "schema": 2,
+  "required_executas": [],
+  "system_prompt_addendum": "You are Smart Student Commute Companion, an AI assistant for Mumbai college commutes. Help students explore practical routes, check disruptions, compare suburban rail, metro, bus, and walking choices, and coordinate student journeys. Summon the app via open_app_view('planner') to let the student interactively evaluate and plan routes.",
+  "user_message_prefix_template": "[Commute Companion] {user_message}",
+  "tags": ["commute", "students", "transit", "productivity", "mumbai"],
+  "ui": {
+    "bundle": {
+      "format": "static-spa",
+      "entry": "index.html",
+      "external_origins": []
+    },
+    "views": [
+      {
+        "name": "planner",
+        "title": "Student Commute Planner",
+        "default": true,
+        "default_size": { "w": 960, "h": 680 },
+        "min_size": { "w": 480, "h": 360 },
+        "max_size": { "w": 1920, "h": 1200 },
+        "single_instance": true
+      }
+    ],
+    "form_factors": ["desktop", "mobile"],
+    "host_api": {
+      "window": ["set_title", "open_view", "close"],
+      "chat": ["append_artifact"]
+    }
+  }
+}
