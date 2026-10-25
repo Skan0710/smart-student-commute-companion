@@ -3,6 +3,8 @@ import { Route as RouteIcon } from 'lucide-react';
 import { FOOTER_LINKS, SITE_NAME } from '../../content/siteContent.js';
 import { AnalyticsSettingsButton } from '../ConsentBanner.jsx';
 
+import LineHoverLink from '../ui/line-hover-link';
+
 /**
  * PublicLayout - shell for pages that are not the app itself (About, 404, ...)
  *
@@ -25,7 +27,7 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
         Skip to main content
       </a>
 
-      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <a
             href="/"
@@ -36,13 +38,14 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
             </span>
             <span className="truncate">{SITE_NAME}</span>
           </a>
-          <nav aria-label="Primary" className="shrink-0">
-            <a
+          <nav aria-label="Primary" className="shrink-0 flex items-center gap-4">
+            <LineHoverLink
+              variant="slide"
               href="/"
-              className="whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               Open the planner
-            </a>
+            </LineHoverLink>
           </nav>
         </div>
       </header>

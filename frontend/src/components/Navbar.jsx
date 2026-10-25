@@ -228,12 +228,26 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Desktop/Tablet Primary Navigation */}
+          {/* Desktop/Tablet Primary Navigation with Spotlight effect */}
           <nav
-            className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0 transition-colors"
+            className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0 transition-all relative overflow-hidden spotlight-nav-shadow"
             role="navigation"
             aria-label="Main application navigation"
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              e.currentTarget.style.setProperty('--spotlight-x', `${x}px`);
+            }}
           >
+            {/* Ambient & mouse spotlight overlay */}
+            <span
+              className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-60 transition-opacity"
+              style={{
+                background:
+                  'radial-gradient(140px circle at var(--spotlight-x, 50%) 50%, rgba(37, 99, 235, 0.15), transparent 70%)',
+              }}
+              aria-hidden="true"
+            />
             {NAV_ITEMS.filter((item) => PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;

@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
+import Lenis from 'lenis';
+import gsap from 'gsap';
 import ConsentBanner from './components/ConsentBanner.jsx';
 import { initAnalytics } from './services/analytics.js';
 import PublicSite from './PublicSite.jsx';
@@ -7,6 +9,26 @@ import { resolveRoute } from './utils/publicRoutes.js';
 import './index.css';
 import { validateConfig } from './config/index.js';
 import { registerServiceWorker } from './utils/registerSW.js';
+
+// Initialize Lenis smooth scroll and synchronize with GSAP ticker
+if (typeof window !== 'undefined') {
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+  });
+
+  lenis.on('scroll', () => {
+    // Scroll triggers can listen to Lenis scroll events
+  });
+
+  gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+  });
+
+  gsap.ticker.lagSmoothing(0);
+}
+
 
 // Validate configuration before rendering the app
 try {

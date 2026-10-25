@@ -421,22 +421,27 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           )}
         </div>
 
-        {/* Submit Action */}
+        {/* Submit Action — Enhanced with VengeanceUI Generation & Shine aesthetics */}
         <button
           type="submit"
           disabled={isLoading}
           aria-busy={isLoading}
-          className="w-full min-h-[48px] py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900"
+          className="group relative w-full min-h-[48px] py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 border border-white/20"
         >
+          {/* Glowing edge sweep */}
+          <span
+            className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent"
+            aria-hidden="true"
+          />
           {isLoading ? (
             <>
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Calculating Multi-Modal Commute...</span>
+              <span className="relative z-10 tracking-wide">Calculating Multi-Modal Commute...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-white fill-white" />
-              <span>Plan My Commute</span>
+              <Sparkles className="w-4 h-4 text-white fill-white relative z-10 group-hover:rotate-12 transition-transform" />
+              <span className="relative z-10 tracking-wide">Plan My Commute</span>
             </>
           )}
         </button>

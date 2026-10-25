@@ -1,4 +1,5 @@
 import React from 'react';
+import AnimatedNumber from './animated-number';
 
 const VARIANT_CLASSES = {
   slate: 'bg-slate-500/10 text-slate-300 border-slate-500/30',
@@ -37,6 +38,7 @@ export default function StatTile({
   className = '',
 }) {
   const variantClasses = VARIANT_CLASSES[variant] || VARIANT_CLASSES.slate;
+  const isNumeric = typeof value === 'number' && Number.isFinite(value);
 
   return (
     <div
@@ -51,8 +53,12 @@ export default function StatTile({
         </span>
       )}
       <div className="min-w-0">
-        <div className="text-lg font-extrabold text-white leading-tight truncate">
-          {value}
+        <div className="text-lg font-extrabold text-white leading-tight truncate flex items-center">
+          {isNumeric ? (
+            <AnimatedNumber value={value} className="inline-flex" />
+          ) : (
+            value
+          )}
         </div>
         <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide truncate">
           {label}

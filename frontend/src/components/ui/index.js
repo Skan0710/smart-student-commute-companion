@@ -75,3 +75,13 @@ export { default as RouteBadge } from './RouteBadge';
 export { default as ProvenanceTag } from './ProvenanceTag';
 export { default as TradeoffPill } from './TradeoffPill';
 export { default as StatusIndicator } from './StatusIndicator';
+
+// Vengeance UI & Animated Interactive Primitives
+export { default as AnimatedButton } from './animated-button';
+export { default as GenerateButton } from './generate-button';
+export { default as AnimatedNumber } from './animated-number';
+export { default as StatsCounter } from './stats-counter';
+export { default as FaqAccordion } from './faq-accordion';
+export { default as SpotlightNavbar } from './spotlight-navbar';
+export { default as LineHoverLink } from './line-hover-link';
+

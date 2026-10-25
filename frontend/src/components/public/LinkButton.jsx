@@ -35,6 +35,24 @@ export default function LinkButton({
     lg: 'min-h-[48px] px-6 py-3 text-base rounded-xl',
   };
 
+  if (variant === 'primary') {
+    return (
+      <a
+        href={href}
+        className={`group inline-flex items-center justify-center gap-2 font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-md shadow-blue-500/20 rounded-xl relative overflow-hidden transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
+        {...rest}
+      >
+        {/* Subtle shine sweep overlay */}
+        <span
+          className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          aria-hidden="true"
+        />
+        {icon}
+        <span className="relative z-10">{children}</span>
+      </a>
+    );
+  }
+
   return (
     <a
       href={href}

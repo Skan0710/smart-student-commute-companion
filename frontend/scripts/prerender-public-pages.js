@@ -64,7 +64,10 @@ await build({
   platform: 'node',
   format: 'esm',
   jsx: 'automatic',
-  loader: { '.js': 'jsx' },
+  alias: {
+    '@': path.join(root, 'src')
+  },
+  loader: { '.js': 'jsx', '.ts': 'ts', '.tsx': 'tsx' },
   external: ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/server'],
   logLevel: 'error',
 });
