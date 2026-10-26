@@ -33,13 +33,48 @@ function generateFallbackGeometry(lat1, lon1, lat2, lon2, steps = 10) {
   };
 }
 
+// In-memory cache for OSRM route geometries to eliminate redundant API calls and prevent rate limiting
+const routeGeometryCache = new Map();
+const ROUTE_CACHE_MAX = 500;
+
+function getCacheKey(mode, coordsStr) {
+  return `${mode}:${coordsStr}`;
+}
+
+function setCache(key, data) {
+  if (routeGeometryCache.size >= ROUTE_CACHE_MAX) {
+    const firstKey = routeGeometryCache.keys().next().value;
+    routeGeometryCache.delete(firstKey);
+  }
+  routeGeometryCache.set(key, { data, timestamp: Date.now() });
+}
+
+function getCache(key) {
+  const cached = routeGeometryCache.get(key);
+  if (!cached) return null;
+  // Valid for 2 hours
+  if (Date.now() - cached.timestamp > 2 * 60 * 60 * 1000) {
+    routeGeometryCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
 /**
  * Fetches routing geometry and estimated travel duration using OSRM.
  * mode: 'driving' or 'walking'
  */
 async function getOsrmRoute(origin, destination, mode = 'driving') {
   const profile = mode === 'walking' ? 'walking' : 'driving';
-  const url = `https://router.project-osrm.org/route/v1/${profile}/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=full&geometries=geojson&steps=true`;
+  const coordsKey = `${origin.lon.toFixed(5)},${origin.lat.toFixed(5)};${destination.lon.toFixed(5)},${destination.lat.toFixed(5)}`;
+  const cacheKey = getCacheKey(profile, coordsKey);
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const url = `https://router.project-osrm.org/route/v1/${profile}/${coordsKey}?overview=full&geometries=geojson&steps=true`;
 
   try {
     const response = await axios.get(url, { timeout: 4500 });
@@ -47,24 +82,24 @@ async function getOsrmRoute(origin, destination, mode = 'driving') {
       const route = response.data.routes[0];
       const distanceKm = +(route.distance / 1000).toFixed(2);
       // In Mumbai, driving speed during peak hours is slower (~22 km/h city average)
-      // OSRM returns ideal free-flow duration; adjust driving duration for Mumbai typical city traffic
       let durationMinutes = Math.round(route.duration / 60);
       if (mode === 'driving') {
-        // Apply Mumbai road density calibration factor
         durationMinutes = Math.max(10, Math.round(distanceKm * 2.8 + 8));
       } else {
-        // Walking: standard ~4.5 km/h
         durationMinutes = Math.max(3, Math.round(distanceKm * 13.3));
       }
 
-      return {
+      const result = {
         success: true,
-        source: 'OSRM Estimated Route',
+        source: 'OSRM Real Road Network API',
         distanceKm,
         durationMinutes,
         geometry: route.geometry,
         legs: route.legs
       };
+
+      setCache(cacheKey, result);
+      return result;
     }
   } catch (err) {
     console.warn(`OSRM ${mode} route calculation failed: ${err.message}. Using fallback geometry.`);
@@ -97,13 +132,22 @@ async function getOsrmRoute(origin, destination, mode = 'driving') {
 async function getOsrmRouteThroughWaypoints(points, mode = 'driving') {
   if (!points || points.length < 2) return null;
   const profile = mode === 'walking' ? 'walking' : 'driving';
-  const coordsStr = points.map(p => `${p.lon},${p.lat}`).join(';');
+  const coordsStr = points.map(p => `${p.lon.toFixed(5)},${p.lat.toFixed(5)}`).join(';');
+  const cacheKey = getCacheKey(profile, coordsStr);
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    return cached.geometry;
+  }
+
   const url = `https://router.project-osrm.org/route/v1/${profile}/${coordsStr}?overview=full&geometries=geojson&steps=false`;
 
   try {
     const response = await axios.get(url, { timeout: 6000 });
     if (response.data && response.data.routes && response.data.routes.length > 0) {
-      return response.data.routes[0].geometry;
+      const geometry = response.data.routes[0].geometry;
+      setCache(cacheKey, { geometry });
+      return geometry;
     }
   } catch (err) {
     console.warn(`OSRM multi-waypoint ${mode} failed: ${err.message}`);
