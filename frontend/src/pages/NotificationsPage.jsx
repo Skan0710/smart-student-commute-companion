@@ -63,7 +63,7 @@ export default function NotificationsPage({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 max-w-4xl mx-auto w-full">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Notifications</h1>

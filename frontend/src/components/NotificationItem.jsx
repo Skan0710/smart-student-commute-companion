@@ -11,8 +11,8 @@ function formatAge(report) {
 
 export default function NotificationItem({ report, isRead = false, onToggleRead }) {
   return (
-    <article className={`flex min-w-0 gap-3 p-3 sm:p-4 ${isRead ? 'opacity-70' : 'bg-emerald-500/[0.04]'}`}>
-      <span className="mt-0.5 rounded-full bg-amber-500/10 p-2 text-amber-700 dark:text-amber-300" aria-hidden="true">
+    <article className={`flex min-w-0 gap-3 p-3 sm:p-4 ${isRead ? 'opacity-70' : 'bg-blue-500/[0.05]'}`}>
+      <span className="mt-0.5 self-start shrink-0 rounded-full bg-amber-500/10 p-2 text-amber-700 dark:text-amber-300" aria-hidden="true">
         <Bell className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
@@ -23,7 +23,7 @@ export default function NotificationItem({ report, isRead = false, onToggleRead 
         <p className="mt-1 break-words text-sm leading-relaxed text-slate-600 dark:text-slate-300">{report.message}</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {!isRead && <Badge variant="emerald" size="xs">Unread</Badge>}
-          {report.mode && <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">{report.mode}</p>}
+          {report.mode && <p className="text-xs font-medium text-blue-700 dark:text-blue-300 capitalize">{report.mode}</p>}
           {onToggleRead && (
             <button
               type="button"
