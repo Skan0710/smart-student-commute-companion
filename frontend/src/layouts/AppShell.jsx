@@ -58,24 +58,24 @@ export default function AppShell({
       <main
         id="main-content"
         tabIndex={-1}
-        className={`flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28 md:pb-8 pb-safe outline-none ${
-          fullWidth ? 'max-w-none' : 'max-w-7xl'
+        className={`flex-1 w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 pb-28 md:pb-8 pb-safe outline-none ${
+          fullWidth ? 'max-w-none' : 'max-w-[1600px]'
         } ${contentClassName}`}
       >
         {isSplit ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Primary Content (7 columns on desktop) */}
-            <div className="lg:col-span-7 space-y-6 w-full min-w-0">
-              {children}
-            </div>
-
-            {/* Sidebar / Auxiliary Content (5 columns on desktop) */}
+            {/* Map / Spatial Sidebar on LEFT (5 columns on desktop) */}
             <aside
               aria-label="Interactive map and context panel"
-              className={`lg:col-span-5 lg:sticky lg:top-24 h-[480px] sm:h-[550px] lg:h-[calc(100vh-140px)] w-full min-w-0 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 shadow-md dark:shadow-2xl bg-white dark:bg-slate-900/60 backdrop-blur-sm ${sidebarClassName}`}
+              className={`lg:col-span-5 lg:sticky lg:top-24 h-[480px] sm:h-[550px] lg:h-[calc(100vh-120px)] w-full min-w-0 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 shadow-md dark:shadow-2xl bg-white dark:bg-slate-900/60 backdrop-blur-sm order-2 lg:order-1 ${sidebarClassName}`}
             >
               {sidebar}
             </aside>
+
+            {/* Primary Content on RIGHT (7 columns on desktop) */}
+            <div className="lg:col-span-7 space-y-6 w-full min-w-0 order-1 lg:order-2">
+              {children}
+            </div>
           </div>
         ) : (
           <div className={`w-full min-w-0 ${layoutMode === 'centered' ? 'max-w-3xl mx-auto' : ''}`}>
@@ -89,7 +89,7 @@ export default function AppShell({
         footer
       ) : (
         <footer className="border-t border-slate-200 dark:border-slate-900 bg-white/90 dark:bg-slate-950/90 px-4 sm:px-6 py-4 text-xs text-slate-500 dark:text-slate-400 mt-auto backdrop-blur-md">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Commute Companion</span>

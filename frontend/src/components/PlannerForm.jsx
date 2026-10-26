@@ -116,23 +116,23 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm transition-colors">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm transition-colors space-y-5 font-sans">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5 font-sans">
+          <Navigation className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <span>Student Commute Planner</span>
         </h2>
-        <span className="text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+        <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 font-sans">
           GTFS + Gemini Grounded
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-5 font-sans">
         {/* Core Decision 1: Origin */}
         <div>
-          <label htmlFor="planner-origin" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" aria-hidden="true"></span>
+          <label htmlFor="planner-origin" className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2 flex items-center justify-between font-sans">
+            <span className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400" aria-hidden="true"></span>
               Starting Area (Neighborhood / Station)
             </span>
           </label>
@@ -149,19 +149,19 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
               clearError('origin');
             }}
             placeholder="e.g. Andheri East, Borivali, Dadar..."
-            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all ${
+            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-2xl px-4 py-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all font-sans ${
               errors.origin
                 ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
                 : 'border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
             }`}
           />
           {errors.origin && (
-            <p id="planner-origin-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400" role="alert">
+            <p id="planner-origin-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400 font-sans" role="alert">
               {errors.origin}
             </p>
           )}
           {/* Quick origin suggestions */}
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-2 mt-2.5">
             {ORIGIN_PRESETS.slice(0, 5).map((area) => (
               <button
                 key={area}
@@ -170,10 +170,10 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                   setFormData({ ...formData, origin: area });
                   clearError('origin');
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded-lg transition-all ${
+                className={`text-xs px-3 py-1.5 rounded-xl transition-all font-sans ${
                   formData.origin === area
                     ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-300 dark:border-blue-800 font-semibold'
-                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700/60'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700/60'
                 }`}
               >
                 {area}
@@ -184,9 +184,9 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
 
         {/* Core Decision 2: Destination */}
         <div>
-          <label htmlFor="planner-destination" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+          <label htmlFor="planner-destination" className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2 flex items-center justify-between font-sans">
+            <span className="flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
               College Destination
             </span>
           </label>
@@ -203,14 +203,14 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
               clearError('destination');
             }}
             placeholder="e.g. IIT Bombay, VJTI, NMIMS..."
-            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all ${
+            className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-2xl px-4 py-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all font-sans ${
               errors.destination
                 ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                : 'border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500'
+                : 'border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
             }`}
           />
           {errors.destination && (
-            <p id="planner-destination-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400" role="alert">
+            <p id="planner-destination-error" className="mt-1.5 text-xs text-rose-500 dark:text-rose-400 font-sans" role="alert">
               {errors.destination}
             </p>
           )}
@@ -426,7 +426,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           type="submit"
           disabled={isLoading}
           aria-busy={isLoading}
-          className="group relative w-full min-h-[48px] py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 border border-white/20"
+          className="group relative w-full min-h-[52px] py-3.5 px-6 rounded-2xl font-bold text-base bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-blue-500/25 transition-all flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50 mt-3 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 border border-white/20 font-sans"
         >
           {/* Glowing edge sweep */}
           <span

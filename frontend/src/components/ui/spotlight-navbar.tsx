@@ -5,8 +5,11 @@ import { animate } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
+    id?: string;
     label: string;
     href: string;
+    badge?: number;
+    icon?: React.ComponentType<{ className?: string }>;
 }
 
 export interface SpotlightNavbarProps {
@@ -14,6 +17,7 @@ export interface SpotlightNavbarProps {
     className?: string;
     onItemClick?: (item: NavItem, index: number) => void;
     defaultActiveIndex?: number;
+    activeIndex?: number;
 }
 
 export function SpotlightNavbar({
@@ -27,11 +31,20 @@ export function SpotlightNavbar({
     className,
     onItemClick,
     defaultActiveIndex = 0,
+    activeIndex: controlledActiveIndex,
 }: SpotlightNavbarProps) {
     const navRef = useRef<HTMLDivElement>(null);
-    const [activeIndex, setActiveIndex] = useState(defaultActiveIndex);
+    const [activeIndex, setActiveIndex] = useState(
+        controlledActiveIndex !== undefined ? controlledActiveIndex : defaultActiveIndex
+    );
     const [hoverX, setHoverX] = useState<number | null>(null);
     const [isDark, setIsDark] = useState(false);
+
+    useEffect(() => {
+        if (controlledActiveIndex !== undefined) {
+            setActiveIndex(controlledActiveIndex);
+        }
+    }, [controlledActiveIndex]);
 
     // Refs for the "light" positions so we can animate them imperatively
     const spotlightX = useRef(0);
@@ -119,7 +132,7 @@ export function SpotlightNavbar({
     };
 
     return (
-        <div className={cn("relative flex justify-center pt-10", className)}>
+        <div className={cn("relative flex justify-center", className)}>
             <nav
                 ref={navRef}
                 className={cn(
@@ -139,15 +152,21 @@ export function SpotlightNavbar({
                                     handleItemClick(item, idx);
                                 }}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-full",
+                                    "px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-colors duration-200 rounded-full flex items-center gap-1.5 whitespace-nowrap",
                                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-white/30",
                                     // Active vs Inactive Text
                                     activeIndex === idx
-                                        ? "text-black dark:text-white"
-                                        : "text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white"
+                                        ? "text-blue-600 dark:text-white"
+                                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                 )}
                             >
-                                {item.label}
+                                {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0" })}
+                                <span>{item.label}</span>
+                                {item.badge !== undefined && item.badge > 0 && (
+                                    <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                        {item.badge}
+                                    </span>
+                                )}
                             </a>
                         </li>
                     ))}
@@ -192,13 +211,13 @@ export function SpotlightNavbar({
         This allows us to switch the gradient colors cleanly using Tailwind classes 
         without messy inline conditionals.
       */}
-            <style jsx>{`
+            <style>{`
         nav {
           /* Light Mode Colors: Dark Gray/Black lights */
           --spotlight-color: rgba(0,0,0,0.08);
           --ambience-color: rgba(0,0,0,0.8);
         }
-        :global(.dark) nav {
+        .dark nav {
           /* Dark Mode Colors: White lights */
           --spotlight-color: rgba(255,255,255,0.15);
           --ambience-color: rgba(255,255,255,1);
@@ -207,3 +226,5 @@ export function SpotlightNavbar({
         </div>
     );
 }
+
+export default SpotlightNavbar;

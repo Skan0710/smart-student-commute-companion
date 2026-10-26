@@ -41,13 +41,13 @@ export default function DashboardOverview({
   const count = (value) => (isLoading ? '—' : value);
 
   return (
-    <section aria-label="Commute dashboard" className="space-y-3.5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+    <section aria-label="Commute dashboard" className="space-y-4 font-sans">
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
           Your commute at a glance
         </h2>
         <span
-          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border font-sans ${
             isConnected
               ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
               : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'

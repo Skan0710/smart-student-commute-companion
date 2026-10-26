@@ -51,13 +51,13 @@ export default function LiveStudentFeed({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <div className="relative">
             <Radio className="w-5 h-5 text-amber-500 dark:text-amber-400 animate-pulse" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-500 dark:bg-amber-400"></span>
           </div>
           <div>
             <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">

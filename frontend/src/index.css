@@ -132,6 +132,7 @@ body {
    ============================================================ */
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-base);
   color: var(--color-text-primary);
   font-weight: 700;
   line-height: 1.2;
@@ -538,6 +539,30 @@ input[type="range"]:focus-visible {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(71, 85, 105, 0.6);
+  }
+
+  /* Vengeance UI Spotlight Navbar Primitives */
+  .spotlight-nav-bg {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .dark .spotlight-nav-bg {
+    background-color: rgba(15, 23, 42, 0.85);
+  }
+
+  .glass-border {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+  }
+  .dark .glass-border {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .spotlight-nav-shadow {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  }
+  .dark .spotlight-nav-shadow {
+    box-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(59, 130, 246, 0.15);
   }
 }
 

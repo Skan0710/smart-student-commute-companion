@@ -24,6 +24,7 @@ import {
 import { ENABLE_DEMO_RESET } from '../config/index.js';
 import { ConfirmDialog, UnreadCountBadge } from './ui';
 import ThemeToggle from './ThemeToggle';
+import SpotlightNavbar from './ui/spotlight-navbar';
 
 /**
  * Valid application routes
@@ -107,16 +108,17 @@ export const NAV_ITEMS = [
     label: 'Account',
     shortLabel: 'Account',
     icon: UserRound,
-    description: 'Sign in to your optional student account'
+    description: 'Sign in to your student account and profile'
   }
 ];
 
-export const PRIMARY_NAV_IDS = ['planner', 'mycommutes', 'feed', 'together'];
+export const PRIMARY_NAV_IDS = ['planner', 'mycommutes', 'transit', 'together', 'feed'];
 
 export default function Navbar({ 
   isConnected, 
   onResetDemo, 
-  isResetting,  activeTab,
+  isResetting, 
+  activeTab,
   setActiveTab,
   reportsCount = 0,
   unreadNotificationsCount = 0,
@@ -133,7 +135,7 @@ export default function Navbar({
   const mobileNavRef = useRef(null);
   const moreDropdownRef = useRef(null);
 
-  const isSecondaryActive = !PRIMARY_NAV_IDS.includes(activeTab);
+  const isSecondaryActive = !PRIMARY_NAV_IDS.includes(activeTab) && activeTab !== 'account';
   const activeItem = NAV_ITEMS.find((item) => item.id === activeTab);
 
   // Close desktop more dropdown when clicking outside
@@ -183,6 +185,17 @@ export default function Navbar({
     }
   };
 
+  // Primary navigation items mapped for VengeanceUI SpotlightNavbar
+  const spotlightNavItems = [
+    { id: 'planner', label: 'Plan Route', href: '#planner', icon: Compass },
+    { id: 'mycommutes', label: 'My Commutes', href: '#mycommutes', icon: Bookmark },
+    { id: 'transit', label: 'Transit Search', href: '#transit', icon: TrainFront },
+    { id: 'together', label: 'Travel Together', href: '#together', icon: Users },
+    { id: 'feed', label: 'Live Alerts', href: '#feed', icon: AlertTriangle, badge: reportsCount },
+  ];
+
+  const currentSpotlightIndex = spotlightNavItems.findIndex((item) => item.id === activeTab);
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-150">
@@ -204,11 +217,15 @@ export default function Navbar({
         </div>
 
         {/* Main Navbar Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
           
           {/* Brand Logo & Title */}
-          <div className="flex items-center gap-3 min-w-10">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-emerald-500 dark:to-indigo-600 p-0.5 shadow-md shadow-blue-500/10 dark:shadow-emerald-500/20 shrink-0">
+          <div 
+            onClick={() => handleSelectTab('planner')}
+            className="flex items-center gap-3 min-w-10 cursor-pointer select-none group"
+            title="Smart Student Commute Companion"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-emerald-500 dark:to-indigo-600 p-0.5 shadow-md shadow-blue-500/10 dark:shadow-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[10px] flex items-center justify-center">
                 <Compass className="w-5 h-5 text-blue-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
@@ -222,70 +239,23 @@ export default function Navbar({
                   MUMBAI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden lg:block truncate">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden xl:block truncate">
                 Multimodal Transit • Community Disruptions • Weather Intelligence
               </p>
             </div>
           </div>
 
-          {/* Desktop/Tablet Primary Navigation with Spotlight effect */}
-          <nav
-            className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs font-medium shrink-0 transition-all relative overflow-hidden spotlight-nav-shadow"
-            role="navigation"
-            aria-label="Main application navigation"
-            onMouseMove={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left;
-              e.currentTarget.style.setProperty('--spotlight-x', `${x}px`);
-            }}
-          >
-            {/* Ambient & mouse spotlight overlay */}
-            <span
-              className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-60 transition-opacity"
-              style={{
-                background:
-                  'radial-gradient(140px circle at var(--spotlight-x, 50%) 50%, rgba(37, 99, 235, 0.15), transparent 70%)',
-              }}
-              aria-hidden="true"
+          {/* Desktop/Tablet Primary Navigation with VengeanceUI SpotlightNavbar */}
+          <div className="hidden lg:flex items-center gap-2">
+            <SpotlightNavbar
+              items={spotlightNavItems}
+              activeIndex={currentSpotlightIndex >= 0 ? currentSpotlightIndex : -1}
+              onItemClick={(item) => handleSelectTab(item.id || 'planner')}
+              className="py-0"
             />
-            {NAV_ITEMS.filter((item) => PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleSelectTab(item.id)}
-                  aria-current={isActive ? 'page' : undefined}
-                  aria-label={item.label}
-                  title={item.label}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 ${
-                    isActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${item.id === 'feed' && !isActive ? 'text-amber-500' : ''}`} aria-hidden="true" />
-                  <span className="hidden min-[2600px]:inline">{item.label}</span>
-                  <span className="hidden min-[1840px]:inline min-[2600px]:hidden">{item.shortLabel}</span>
-                  <span className="inline min-[1840px]:hidden">{item.label}</span>
-                  {item.hasBadge && reportsCount > 0 && (
-                    <span
-                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ml-0.5 ${
-                        isActive
-                          ? 'bg-white/20 text-white'
-                          : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
-                      }`}
-                      aria-label={`${reportsCount} active alerts`}
-                    >
-                      {reportsCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
 
             {/* Desktop More Menu Dropdown */}
-            <div className="relative" ref={moreDropdownRef}>
+            <div className="relative ml-1" ref={moreDropdownRef}>
               <button
                 type="button"
                 onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
@@ -296,14 +266,14 @@ export default function Navbar({
                     : 'More navigation options'
                 }
                 title="More navigation options"
-                className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 ${
+                className={`h-11 px-3.5 rounded-full transition-all flex items-center gap-1.5 spotlight-nav-bg glass-border spotlight-nav-shadow text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isSecondaryActive
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-400'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <MoreHorizontal className="w-3.5 h-3.5" aria-hidden="true" />
-                <span className="font-medium">
+                <span className="hidden xl:inline">
                   {isSecondaryActive ? activeItem?.shortLabel || 'More' : 'More'}
                 </span>
                 <ChevronDown className={`w-3 h-3 transition-transform ${moreDropdownOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -318,11 +288,11 @@ export default function Navbar({
               </button>
 
               {moreDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
-                    Secondary Views
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                    Tools &amp; Alerts
                   </div>
-                  {NAV_ITEMS.filter((item) => !PRIMARY_NAV_IDS.includes(item.id)).map((item) => {
+                  {NAV_ITEMS.filter((item) => !PRIMARY_NAV_IDS.includes(item.id) && item.id !== 'account').map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     return (
@@ -333,12 +303,7 @@ export default function Navbar({
                           setMoreDropdownOpen(false);
                         }}
                         aria-current={isActive ? 'page' : undefined}
-                        aria-label={
-                          item.id === 'notifications' && unreadNotificationsCount > 0
-                            ? `${item.label}, ${unreadNotificationsCount} unread notifications`
-                            : item.label
-                        }
-                        className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left transition-colors ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-left transition-colors ${
                           isActive
                             ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -361,51 +326,30 @@ export default function Navbar({
                 </div>
               )}
             </div>
-          </nav>
+          </div>
 
-          {/* Right Controls: Connectivity, Theme & Preferences */}
+          {/* Right Controls: Accounts, Profile & Theme Toggle */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Live Socket Status Badge */}
-            <div
-              className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border ${
-                isConnected
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+            {/* Account / Profile Quick Access Tab Button on Top Right */}
+            <button
+              type="button"
+              onClick={() => handleSelectTab('account')}
+              aria-label="Open student account and profile"
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all shadow-sm border ${
+                activeTab === 'account'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-slate-800/80'
               }`}
-              role="status"
-              aria-live="polite"
-              title={isConnected ? 'Live sync connected via Socket.IO' : 'Live sync disconnected, reconnecting...'}
             >
-              {isConnected ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" aria-hidden="true"></span>
-                  <span className="font-medium text-[11px] hidden sm:inline">Live Sync</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-3 h-3 text-rose-500 dark:text-rose-400" aria-hidden="true" />
-                  <span className="font-medium text-[11px] hidden sm:inline">Offline</span>
-                </>
-              )}
-            </div>
+              <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 dark:from-emerald-400 dark:to-blue-500 flex items-center justify-center text-[10px] text-white font-bold shrink-0">
+                <UserRound className="w-3.5 h-3.5" aria-hidden="true" />
+              </div>
+              <span className="hidden sm:inline">Profile</span>
+            </button>
 
             {/* Accessible Theme Switcher */}
             {onToggleTheme && (
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-            )}
-
-            {/* Preferences (client-side personalization controls) */}
-            {onOpenPreferences && (
-              <button
-                type="button"
-                onClick={onOpenPreferences}
-                title="Personalize your interface"
-                aria-label="Open preferences"
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all hover:border-slate-300 dark:hover:border-slate-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                <span className="hidden lg:inline">Preferences</span>
-              </button>
             )}
 
             {/* Mobile Hamburger Toggle Button */}
@@ -416,7 +360,7 @@ export default function Navbar({
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-950 transition-colors"
+              className="lg:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />

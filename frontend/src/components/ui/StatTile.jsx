@@ -42,29 +42,29 @@ export default function StatTile({
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/60 px-3.5 py-2.5 min-w-0 ${className}`}
+      className={`flex items-center gap-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 px-4 py-3 min-w-0 shadow-sm font-sans ${className}`}
     >
       {icon && (
         <span
           aria-hidden="true"
-          className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center ${variantClasses}`}
+          className={`shrink-0 w-9 h-9 rounded-xl border flex items-center justify-center ${variantClasses}`}
         >
           {icon}
         </span>
       )}
       <div className="min-w-0">
-        <div className="text-lg font-extrabold text-white leading-tight truncate flex items-center">
+        <div className="text-xl font-extrabold text-slate-900 dark:text-white leading-tight truncate flex items-center font-sans">
           {isNumeric ? (
             <AnimatedNumber value={value} className="inline-flex" />
           ) : (
             value
           )}
         </div>
-        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide truncate">
+        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate font-sans">
           {label}
         </div>
         {hint && (
-          <div className="text-[10px] text-slate-500 truncate">{hint}</div>
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-sans">{hint}</div>
         )}
       </div>
     </div>

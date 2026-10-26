@@ -73,14 +73,14 @@ export default function PlannerPage({
   showDashboardOverview = true,
 }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Page heading — establishes the h1 for this view */}
-      <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+      <header className="pb-2 flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-sans">
             Plan Your Commute
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-sans">
             Multimodal AI transit recommendations across Mumbai campuses
           </p>
         </div>
@@ -90,9 +90,9 @@ export default function PlannerPage({
             onClick={onRefresh}
             disabled={isLoadingInitial || isRefreshing}
             aria-busy={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-sm transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         )}
