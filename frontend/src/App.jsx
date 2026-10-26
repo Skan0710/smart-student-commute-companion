@@ -1324,6 +1324,7 @@ export default function App() {
     <>
       <MainLayout 
         navbarProps={navbarProps}
+        layoutMode={activeTab === 'planner' ? 'split' : 'single'}
         sidebar={
           <MapView
             planResult={planResult}

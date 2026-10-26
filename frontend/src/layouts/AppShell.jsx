@@ -38,7 +38,7 @@ export default function AppShell({
   const isSplit = hasSidebar && layoutMode === 'split';
 
   return (
-    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-500/20 selection:text-blue-900 dark:selection:bg-blue-400/30 dark:selection:text-blue-200 transition-colors duration-150 ${className}`}>
+    <div className={`min-h-screen app-backdrop text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-500/20 selection:text-blue-900 dark:selection:bg-blue-400/30 dark:selection:text-blue-200 transition-colors duration-150 ${className}`}>
       {/* Accessibility: Skip to Content Anchor */}
       <a
         href="#main-content"
@@ -67,7 +67,7 @@ export default function AppShell({
             {/* Map / Spatial Sidebar on LEFT (5 columns on desktop) */}
             <aside
               aria-label="Interactive map and context panel"
-              className={`lg:col-span-5 lg:sticky lg:top-24 h-[480px] sm:h-[550px] lg:h-[calc(100vh-120px)] w-full min-w-0 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 shadow-md dark:shadow-2xl bg-white dark:bg-slate-900/60 backdrop-blur-sm order-2 lg:order-1 ${sidebarClassName}`}
+              className={`lg:col-span-5 lg:sticky lg:top-28 h-[420px] sm:h-[520px] lg:h-[calc(100vh-9rem)] w-full min-w-0 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-xl shadow-slate-900/5 dark:shadow-black/40 bg-white dark:bg-slate-900/60 ring-1 ring-black/5 order-2 lg:order-1 ${sidebarClassName}`}
             >
               {sidebar}
             </aside>

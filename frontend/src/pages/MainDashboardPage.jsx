@@ -64,13 +64,16 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-8 font-sans">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-blue-500/20">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-indigo-950 dark:via-slate-900 dark:to-blue-950 text-white p-6 sm:p-10 shadow-2xl shadow-indigo-600/20 border border-white/10">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 w-80 h-80 rounded-full bg-white/10 blur-3xl"></div>
+        <div aria-hidden="true" className="pointer-events-none absolute right-24 -bottom-32 w-72 h-72 rounded-full bg-sky-400/20 blur-3xl"></div>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]"></div>
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-blue-100">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>Welcome back to Smart Student Companion</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-white leading-[1.1]">
             Your Complete Student Platform
           </h1>
           <p className="text-sm sm:text-base text-blue-100 dark:text-slate-300 font-normal leading-relaxed">
@@ -97,20 +100,20 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
       </div>
 
       {/* 4 Overview Quick Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Active Courses */}
         <div 
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all"
+          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Enrolled Courses</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Enrolled Courses</span>
             <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
               <GraduationCap className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 dark:text-white">{courses.length || 4}</span>
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{courses.length || 4}</span>
             <span className="text-xs text-slate-500">Subjects this semester</span>
           </div>
           <div className="mt-2 text-xs text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
@@ -122,16 +125,16 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         {/* Card 2: Pending Tasks & Assignments */}
         <div 
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 transition-all"
+          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Assignments Due</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Assignments Due</span>
             <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">
               <Clock className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 dark:text-white">
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">
               {assignments.filter(a => a.status !== 'completed').length || 2}
             </span>
             <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Pending submissions</span>
@@ -145,16 +148,16 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         {/* Card 3: AI Study Plan */}
         <div 
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-emerald-400 dark:hover:border-emerald-500 transition-all"
+          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-emerald-400 dark:hover:border-emerald-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">AI Study Plan</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">AI Study Plan</span>
             <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
               <Zap className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 dark:text-white">{studyPlan?.targetCompletion || '82%'}</span>
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{studyPlan?.targetCompletion || '82%'}</span>
             <span className="text-xs text-slate-500">Weekly target hit</span>
           </div>
           <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
@@ -166,16 +169,16 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         {/* Card 4: Shared Commute Groups */}
         <div 
           onClick={() => onNavigate?.('community')}
-          className="group cursor-pointer p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-violet-400 dark:hover:border-violet-500 transition-all"
+          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-violet-400 dark:hover:border-violet-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Student Travel Pools</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Student Travel Pools</span>
             <div className="p-2 rounded-xl bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
               <Users className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 dark:text-white">{journeys.length || 3}</span>
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{journeys.length || 3}</span>
             <span className="text-xs text-slate-500">Active campus rides</span>
           </div>
           <div className="mt-2 text-xs text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
@@ -188,7 +191,7 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
       {/* Middle Grid: Today's Schedule & Academic Assignments */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Today's Schedule (Subsystem B) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
@@ -230,7 +233,7 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         </div>
 
         {/* AI Study Plan Items (Subsystem D) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
@@ -278,7 +281,7 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
       {/* Bottom Grid: Commute Overview & Active Student Goals */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Commute Quick Access & Live Disruptions */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
@@ -320,7 +323,7 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         </div>
 
         {/* Goals & Student Milestones (Subsystem E) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">

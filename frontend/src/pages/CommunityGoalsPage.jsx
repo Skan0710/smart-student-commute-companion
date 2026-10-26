@@ -76,7 +76,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans">
       {/* Top Banner & Tab Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none">
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300">
@@ -144,7 +144,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
             {goals.map((goal) => (
               <div 
                 key={goal.id} 
-                className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-violet-400 dark:hover:border-violet-500 transition-all flex flex-col justify-between"
+                className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4 hover:border-violet-400 dark:hover:border-violet-500 transition-all flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -177,7 +177,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
           {/* Goal Modal */}
           {showGoalModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-              <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+              <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-2xl space-y-4">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Create New Milestone Goal</h3>
                 <form onSubmit={handleAddGoal} className="space-y-3">
                   <div>
@@ -264,7 +264,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
             {journeys.map((j) => (
               <div 
                 key={j.id} 
-                className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 flex flex-col justify-between hover:border-blue-400 transition-all"
+                className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4 flex flex-col justify-between hover:border-blue-400 transition-all"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -311,7 +311,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
           </div>
 
           {/* Supported Public Meeting Points */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
             <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
               <MapPin className="w-4 h-4 text-emerald-500" />
               <span>Designated Safe Campus Meeting Points</span>

@@ -140,18 +140,18 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-150 font-sans">
-        {/* Top Privacy & Verified Banner */}
-        <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800/80 px-4 py-1.5 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between gap-3 min-w-0 transition-colors">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl backdrop-saturate-150 border-b border-slate-200/70 dark:border-white/10 transition-colors duration-150 font-sans">
+        {/* Top Privacy & Verified Banner (desktop/tablet only) */}
+        <div className="hidden sm:flex bg-gradient-to-r from-blue-600/[0.06] via-indigo-500/[0.05] to-violet-500/[0.06] dark:from-blue-500/10 dark:via-indigo-500/10 dark:to-violet-500/10 border-b border-slate-200/60 dark:border-white/5 px-4 py-1.5 text-xs text-slate-600 dark:text-slate-300 items-center justify-between gap-3 min-w-0 transition-colors">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
             <span className="truncate min-w-0 font-medium">
-              <strong className="text-blue-700 dark:text-emerald-400 font-semibold">Smart Student Companion:</strong> Integrated Academics, Multimodal Transit &amp; Campus Collaboration.
+              <strong className="text-blue-700 dark:text-blue-300 font-semibold">Smart Student Companion:</strong> Integrated Academics, Multimodal Transit &amp; Campus Collaboration.
             </span>
           </div>
           <div className="hidden md:flex items-center gap-4 text-slate-500 dark:text-slate-400 shrink-0 text-[11px] font-medium">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
               Mumbai GTFS &amp; Academic Engine
             </span>
             <span>OSRM Multimodal</span>
@@ -159,21 +159,21 @@ export default function Navbar({
         </div>
 
         {/* Main Navbar Bar */}
-        <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
-          
+        <div className="max-w-[1650px] mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 sm:gap-4">
+
           {/* Brand Logo & Title */}
-          <div 
+          <div
             onClick={() => handleSelectTab('dashboard')}
-            className="flex items-center gap-3 cursor-pointer select-none group shrink-0"
+            className="flex items-center gap-3 cursor-pointer select-none group min-w-0 flex-1 lg:flex-none"
             title="Smart Student Companion"
           >
             <Logo />
             <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-display font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-blue-500/10 text-blue-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-blue-500/20 dark:border-emerald-500/20 shrink-0">
+                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
                   MUMBAI
                 </span>
               </div>
@@ -193,25 +193,23 @@ export default function Navbar({
             />
           </div>
 
-          {/* Top Right Controls: Swapped order -> Theme toggle on left, Profile on right */}
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Sliding Theme Toggle */}
+          {/* Top Right Controls */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {onToggleTheme && (
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             )}
 
-            {/* Profile Button placed on far right */}
             <button
               type="button"
               onClick={() => handleSelectTab('account')}
               aria-label="Open student account and profile"
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm border ${
+              className={`flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 rounded-full text-xs font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-slate-800/80'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30'
+                  : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
               }`}
             >
-              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 dark:from-emerald-400 dark:to-blue-500 flex items-center justify-center text-[10px] text-white font-bold shrink-0">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center text-white shrink-0">
                 <UserRound className="w-3.5 h-3.5" aria-hidden="true" />
               </div>
               <span className="hidden sm:inline">Profile</span>
@@ -225,12 +223,12 @@ export default function Navbar({
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="lg:hidden p-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="lg:hidden p-2 rounded-xl bg-white/80 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
             >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               ) : (
-                <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
+                <Menu className="w-5 h-5" aria-hidden="true" />
               )}
             </button>
           </div>

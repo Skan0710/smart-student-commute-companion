@@ -90,7 +90,7 @@ export default function RouteResults({
     <div ref={containerRef} className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
+        <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <CloudRain className="w-5 h-5" />
@@ -356,7 +356,7 @@ export default function RouteResults({
 
       {/* OPTION COMPARISON (Visual comparison of travel time and fares) */}
       {alternatives.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-4 shadow-xs">
+        <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-4 space-y-4 shadow-xs">
           <ComparisonBars
             title="Travel time across your options"
             valueUnit="min"
