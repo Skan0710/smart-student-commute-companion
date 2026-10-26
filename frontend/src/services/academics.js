@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { request } from './api';
 
 /**
  * Academics, Courses, Calendar & Study Service
@@ -8,7 +8,7 @@ import { apiFetch } from './api';
 // --- Subsystem A: Courses & Assignments ---
 export async function getCourses() {
   try {
-    const res = await apiFetch('/api/academic/courses');
+    const res = await request('/api/academic/courses');
     return res?.data?.courses || res?.courses || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback courses:', err.message);
@@ -22,7 +22,7 @@ export async function getCourses() {
 }
 
 export async function createCourse(courseData) {
-  return await apiFetch('/api/academic/courses', {
+  return await request('/api/academic/courses', {
     method: 'POST',
     body: JSON.stringify(courseData),
   });
@@ -30,7 +30,7 @@ export async function createCourse(courseData) {
 
 export async function getAssignments() {
   try {
-    const res = await apiFetch('/api/academic/assignments');
+    const res = await request('/api/academic/assignments');
     return res?.data?.assignments || res?.assignments || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback assignments:', err.message);
@@ -43,7 +43,7 @@ export async function getAssignments() {
 }
 
 export async function createAssignment(assignmentData) {
-  return await apiFetch('/api/academic/assignments', {
+  return await request('/api/academic/assignments', {
     method: 'POST',
     body: JSON.stringify(assignmentData),
   });
@@ -52,7 +52,7 @@ export async function createAssignment(assignmentData) {
 // --- Subsystem B: Student Calendar & Study Sessions ---
 export async function getTodayCalendar() {
   try {
-    const res = await apiFetch('/api/calendar/today');
+    const res = await request('/api/calendar/today');
     return res?.data?.events || res?.events || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback calendar schedule:', err.message);
@@ -66,7 +66,7 @@ export async function getTodayCalendar() {
 
 export async function getStudySessions() {
   try {
-    const res = await apiFetch('/api/calendar/study-sessions');
+    const res = await request('/api/calendar/study-sessions');
     return res?.data?.sessions || res?.sessions || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback study sessions:', err.message);
@@ -80,7 +80,7 @@ export async function getStudySessions() {
 // --- Subsystem C: Study Resources & Materials ---
 export async function getStudyResources() {
   try {
-    const res = await apiFetch('/api/student/resources');
+    const res = await request('/api/student/resources');
     return res?.data?.resources || res?.resources || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback study resources:', err.message);
@@ -94,7 +94,7 @@ export async function getStudyResources() {
 }
 
 export async function createStudyResource(resourceData) {
-  return await apiFetch('/api/student/resources', {
+  return await request('/api/student/resources', {
     method: 'POST',
     body: JSON.stringify(resourceData),
   });
@@ -103,7 +103,7 @@ export async function createStudyResource(resourceData) {
 // --- Subsystem D: AI Study Plans & Work Scheduling Engine ---
 export async function getCurrentStudyPlan() {
   try {
-    const res = await apiFetch('/api/student/study-plans/current');
+    const res = await request('/api/student/study-plans/current');
     return res?.data?.plan || res?.plan || res?.data || null;
   } catch (err) {
     console.warn('Using fallback study plan:', err.message);
@@ -124,7 +124,7 @@ export async function getCurrentStudyPlan() {
 }
 
 export async function generateStudyPlan(preferences) {
-  return await apiFetch('/api/student/study-plans/generate', {
+  return await request('/api/student/study-plans/generate', {
     method: 'POST',
     body: JSON.stringify(preferences || {}),
   });

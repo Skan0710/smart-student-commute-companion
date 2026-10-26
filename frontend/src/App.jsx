@@ -10,7 +10,22 @@ import FeedbackModal from './components/FeedbackModal';
 import PreferencesDialog from './components/PreferencesDialog';
 import PwaStatusBanner from './components/PwaStatusBanner';
 import InstallPromoBanner from './components/InstallPromoBanner';
-import { PlannerPage, MyCommutesPage, TravelTogetherPage, LiveAlertsPage, TransitSearchPage, NotificationsPage, DeviceAlertsPage, InstallShareHubPage, AnalyticsPage, OfflineQueuePage, AccountPage } from './pages';
+import { 
+  MainDashboardPage,
+  AcademicsPage,
+  PlannerPage, 
+  CommunityGoalsPage,
+  MyCommutesPage, 
+  TravelTogetherPage, 
+  LiveAlertsPage, 
+  TransitSearchPage, 
+  NotificationsPage, 
+  DeviceAlertsPage, 
+  InstallShareHubPage, 
+  AnalyticsPage, 
+  OfflineQueuePage, 
+  AccountPage 
+} from './pages';
 import { 
   requestPlan, 
   sendFeedback
@@ -113,20 +128,18 @@ export default function App() {
   // on load via /?tab=<screenId>; unknown or missing values fall back to the
   // planner. Navigation afterwards is the existing in-app tab switching.
   const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window === 'undefined') return 'planner';
+    if (typeof window === 'undefined') return 'dashboard';
     try {
       const params = new URLSearchParams(window.location.search);
       const requestedTab = params.get('tab');
       if (requestedTab && NAV_ITEMS.some((item) => item.id === requestedTab)) {
         return requestedTab;
       }
-      // Share-Target launches land on the Install & Share hub, where shared
-      // content is reviewed before becoming a report (see shareTarget service).
       if (params.get('share-target')) return 'installshare';
     } catch {
       // Malformed query string — default view is the safe fallback.
     }
-    return 'planner';
+    return 'dashboard';
   });
   // Page views for in-app screens (no-op unless analytics is configured and accepted)
   useEffect(() => {
@@ -1042,6 +1055,27 @@ export default function App() {
   // Render helper for active feature page
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return (
+          <MainDashboardPage
+            onNavigate={setActiveTab}
+            reportsCount={reports.length}
+          />
+        );
+
+      case 'academics':
+        return <AcademicsPage />;
+
+      case 'community':
+        return (
+          <CommunityGoalsPage
+            onJoinSharedJourney={(journey) => {
+              showToast(`Requested to join ${journey.title}!`);
+            }}
+            onOpenCreateRideGroup={() => setIsGroupModalOpen(true)}
+          />
+        );
+
       case 'planner':
         return (
           <PlannerPage
@@ -1074,6 +1108,26 @@ export default function App() {
             onSelectRecent={handleDashboardRecentSearch}
             onNavigate={setActiveTab}
             showDashboardOverview={appPreferences.showDashboardOverview}
+            savedCommutes={savedCommutes}
+            savedCommutesLoading={savedCommutesResource.isLoading}
+            savedCommutesError={savedCommutesResource.loadError}
+            onRefreshSavedCommutes={handleRefreshSavedCommutes}
+            onPlanCommute={handlePlanCommute}
+            onRemoveCommute={handleRemoveSavedCommute}
+            activeSignature={currentCommuteSignature}
+            transitQuery={transitQuery}
+            onTransitQueryChange={setTransitQuery}
+            onTransitSearch={handleTransitSearch}
+            transitStatus={transitResource.status}
+            transitResult={transitResource.data}
+            transitError={transitResource.error}
+            onTransitRetry={handleTransitRetry}
+            onTransitRefresh={handleTransitRefresh}
+            onClearRecentSearches={handleClearRecentSearches}
+            onUseAsOrigin={handleUseAsOrigin}
+            onUseAsDestination={handleUseAsDestination}
+            isConnectionLost={isConnectionLost}
+            onReconnect={handleReconnect}
           />
         );
 

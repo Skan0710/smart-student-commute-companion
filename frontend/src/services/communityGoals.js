@@ -1,11 +1,11 @@
-import { apiFetch } from './api';
+import { request } from './api';
 
 /**
  * Student Goals & Milestones Service (Subsystem E)
  */
 export async function getStudentGoals() {
   try {
-    const res = await apiFetch('/api/academic/goals');
+    const res = await request('/api/academic/goals');
     return res?.data?.goals || res?.goals || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback goals:', err.message);
@@ -18,7 +18,7 @@ export async function getStudentGoals() {
 }
 
 export async function createStudentGoal(goalData) {
-  return await apiFetch('/api/academic/goals', {
+  return await request('/api/academic/goals', {
     method: 'POST',
     body: JSON.stringify(goalData),
   });
@@ -29,7 +29,7 @@ export async function createStudentGoal(goalData) {
  */
 export async function getSharedJourneys() {
   try {
-    const res = await apiFetch('/api/shared-travel/journeys');
+    const res = await request('/api/shared-travel/journeys');
     return res?.data?.journeys || res?.journeys || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback shared journeys:', err.message);
@@ -73,7 +73,7 @@ export async function getSharedJourneys() {
 
 export async function getMeetingPoints() {
   try {
-    const res = await apiFetch('/api/shared-travel/meeting-points');
+    const res = await request('/api/shared-travel/meeting-points');
     return res?.data?.meetingPoints || res?.meetingPoints || (Array.isArray(res?.data) ? res.data : []);
   } catch (err) {
     console.warn('Using fallback meeting points:', err.message);
