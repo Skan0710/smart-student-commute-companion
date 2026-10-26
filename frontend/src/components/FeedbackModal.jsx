@@ -54,6 +54,9 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
+        setIsUseful(true);
+        setSelectedTags([]);
+        setComment('');
         onClose();
       }, 1400);
     } catch (err) {

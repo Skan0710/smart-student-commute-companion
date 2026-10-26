@@ -20,7 +20,7 @@ export const OPEN_CONSENT_EVENT = 'sscc:open-analytics-settings';
 const GA_ID_PATTERN = /^G-[A-Z0-9]{6,14}$/;
 const SCRIPT_BASE = 'https://www.googletagmanager.com/gtag/js';
 const SAFE_TABS = new Set([
-  'planner', 'mycommutes', 'transit', 'together', 'feed', 'notifications',
+  'dashboard', 'academics', 'community', 'planner', 'mycommutes', 'transit', 'together', 'feed', 'notifications',
   'devicealerts', 'installshare', 'analytics', 'offlinequeue', 'account',
 ]);
 

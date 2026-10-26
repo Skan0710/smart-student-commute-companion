@@ -163,10 +163,19 @@ function toFriendlyHttpError(status, serverMessage) {
  * Used only for pseudonymous crowdsourced voting — NOT for authentication.
  */
 function getOrGenerateUserToken() {
-  let token = localStorage.getItem('smart_commute_user_token');
+  let token = null;
+  try {
+    token = localStorage.getItem('smart_commute_user_token');
+  } catch {
+    // Storage blocked (private mode) — fall through to a per-session token.
+  }
   if (!token) {
     token = 'student-' + Math.random().toString(36).substring(2, 10);
-    localStorage.setItem('smart_commute_user_token', token);
+    try {
+      localStorage.setItem('smart_commute_user_token', token);
+    } catch {
+      // Not persisted; votes from this session still carry a pseudonym.
+    }
   }
   return token;
 }

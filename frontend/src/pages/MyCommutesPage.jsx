@@ -46,9 +46,9 @@ export default function MyCommutesPage({
       {/* Page heading — establishes the h1 for this view */}
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             My Commutes
-          </h1>
+          </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Saved commute setups for one-tap planning across your week
           </p>

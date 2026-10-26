@@ -162,6 +162,8 @@ export default function PlannerPage({
                 }
               }}
               onOpenCreateReport={onOpenCreateReport}
+              suggestedDeparture={planResult?.recommendation?.route?.estimatedDeparture || null}
+              arrivalTarget={formData.desiredArrivalTime || null}
             />
           )}
 

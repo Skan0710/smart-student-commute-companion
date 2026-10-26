@@ -53,7 +53,7 @@ export default function CreateReportModal({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Reusable client-side validation
@@ -83,13 +83,25 @@ export default function CreateReportModal({
     }
 
     setErrors({});
-    onSubmit({
+    const delivered = await onSubmit({
       ...formData,
       pseudonym: formData.pseudonym.trim() || 'Student_Rider',
       route_name: formData.route_name.trim() || 'Transit Link',
       area: formData.area.trim(),
       message: formData.message.trim()
     });
+    // A posted (or queued) report is done: don't show it again next time the dialog opens
+    if (delivered === true) {
+      setFormData({
+        pseudonym: formData.pseudonym,
+        area: '',
+        route_name: '',
+        mode: 'auto',
+        message: '',
+        impact: 'medium',
+        durationObservedMinutes: 60
+      });
+    }
   };
 
   const handleFieldChange = (field, value) => {

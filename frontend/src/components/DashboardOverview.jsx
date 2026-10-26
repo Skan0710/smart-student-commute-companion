@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AlertTriangle,
   Bookmark,
@@ -12,6 +12,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { Alert, Button, StatTile } from './ui';
+import { loadTodaySchedule } from '../services/academics';
 
 /**
  * DashboardOverview - Student dashboard summary for the main screen
@@ -37,8 +38,28 @@ export default function DashboardOverview({
   onSelectRecent,
   onNavigate,
   onOpenCreateReport,
+  suggestedDeparture = null,
+  arrivalTarget = null,
 }) {
   const count = (value) => (isLoading ? '—' : value);
+
+  // Today's real timetable (signed-in students only; guests get a sign-in hint)
+  const [timetable, setTimetable] = useState({ status: 'loading', events: [], isSignedIn: false });
+  useEffect(() => {
+    let isMounted = true;
+    loadTodaySchedule()
+      .then((result) => isMounted && setTimetable({ status: 'ready', ...result }))
+      .catch(() => isMounted && setTimetable({ status: 'error', events: [], isSignedIn: true }));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const now = Date.now();
+  const nextClass =
+    timetable.events.find((event) => Number.isFinite(event.startTime) && event.startTime >= now) ||
+    timetable.events[0] ||
+    null;
 
   return (
     <section aria-label="Commute dashboard" className="space-y-4 font-sans">
@@ -127,26 +148,56 @@ export default function DashboardOverview({
       <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 space-y-2 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
-            <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             <span>Academic Schedule &amp; Commute Target</span>
           </div>
-          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            DJSCE Sync
-          </span>
+          {timetable.status === 'ready' && (
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              {timetable.isSignedIn ? 'Your timetable' : 'Not signed in'}
+            </span>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-200/80 dark:border-slate-800/60 flex items-start gap-2.5">
-            <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+            <Calendar className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-slate-800 dark:text-slate-200">Next Class: 09:15 AM</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Operating Systems • Room 302</p>
+              {timetable.status === 'loading' ? (
+                <p className="font-semibold text-slate-600 dark:text-slate-400">Checking your timetable…</p>
+              ) : nextClass ? (
+                <>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">Next: {nextClass.title}</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    {[nextClass.time, nextClass.location].filter(Boolean).join(' • ')}
+                  </p>
+                </>
+              ) : timetable.status === 'error' ? (
+                <p className="font-semibold text-slate-600 dark:text-slate-400">Couldn&rsquo;t load today&rsquo;s timetable.</p>
+              ) : timetable.isSignedIn ? (
+                <p className="font-semibold text-slate-800 dark:text-slate-200">No classes scheduled today.</p>
+              ) : (
+                <>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">Sync your timetable</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Sign in to see your next class here.</p>
+                </>
+              )}
             </div>
           </div>
           <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-200/80 dark:border-slate-800/60 flex items-start gap-2.5">
-            <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            <Clock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-slate-800 dark:text-slate-200">Suggested Departure: 08:05 AM</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Includes 15m suburban line buffer</p>
+              {suggestedDeparture ? (
+                <>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">Suggested departure: {suggestedDeparture}</p>
+                  {arrivalTarget && (
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400">To arrive by {arrivalTarget}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">No departure suggested yet</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Plan a route below to get one.</p>
+                </>
+              )}
             </div>
           </div>
         </div>

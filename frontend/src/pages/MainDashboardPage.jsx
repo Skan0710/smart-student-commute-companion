@@ -1,65 +1,171 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  GraduationCap, 
-  Compass, 
-  Users, 
-  Target, 
-  Calendar, 
-  BookOpen, 
-  Sparkles, 
-  ArrowRight, 
-  CheckCircle2, 
-  Clock, 
-  AlertTriangle, 
-  TrainFront,
+import React, { useEffect } from 'react';
+import {
+  GraduationCap,
+  Compass,
+  Users,
+  Target,
+  Calendar,
+  Sparkles,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
   Zap
 } from 'lucide-react';
-import { getCourses, getAssignments, getTodayCalendar, getCurrentStudyPlan } from '../services/academics';
-import { getStudentGoals, getSharedJourneys } from '../services/communityGoals';
+import { loadAcademicSnapshot } from '../services/academics';
+import { loadCommunitySnapshot } from '../services/communityGoals';
+import { readAuthSession } from '../utils/authSession';
+import { formatStatus } from '../utils/formatters';
+import useAsyncResource from '../hooks/useAsyncResource';
+import { Alert, Button, SampleDataBanner } from '../components/ui';
+
+const CARD_SURFACE =
+  'bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none';
+
+const STAT_ACCENTS = {
+  blue: {
+    chip: 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400',
+    link: 'text-blue-700 dark:text-blue-400',
+    hover: 'hover:border-blue-400 dark:hover:border-blue-500',
+  },
+  indigo: {
+    chip: 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400',
+    link: 'text-indigo-700 dark:text-indigo-400',
+    hover: 'hover:border-indigo-400 dark:hover:border-indigo-500',
+  },
+  emerald: {
+    chip: 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400',
+    link: 'text-emerald-700 dark:text-emerald-400',
+    hover: 'hover:border-emerald-400 dark:hover:border-emerald-500',
+  },
+  violet: {
+    chip: 'bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400',
+    link: 'text-violet-700 dark:text-violet-400',
+    hover: 'hover:border-violet-400 dark:hover:border-violet-500',
+  },
+};
+
+/** Clickable summary tile (a real button, so it is keyboard reachable). */
+function StatCard({ accent, icon: Icon, label, value, caption, action, onClick }) {
+  const styles = STAT_ACCENTS[accent];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group text-left p-4 sm:p-5 rounded-2xl ${CARD_SURFACE} ${styles.hover} hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">{label}</span>
+        <span className={`p-2 rounded-xl ${styles.chip}`}>
+          <Icon className="w-5 h-5" aria-hidden="true" />
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+        <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{value}</span>
+        <span className="text-xs text-slate-600 dark:text-slate-400">{caption}</span>
+      </div>
+      <div className={`mt-2 text-xs ${styles.link} font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1`}>
+        <span>{action}</span>
+        <ArrowRight className="w-3 h-3" aria-hidden="true" />
+      </div>
+    </button>
+  );
+}
+
+/** Titled card with an icon chip and a text action. */
+function Panel({ icon: Icon, chipClass, title, action, onAction, actionClass, trailing, children }) {
+  return (
+    <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label={title}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className={`p-2 rounded-xl shrink-0 ${chipClass}`}>
+            <Icon className="w-5 h-5" aria-hidden="true" />
+          </div>
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">{title}</h2>
+        </div>
+        {trailing || (
+          action && (
+            <button
+              type="button"
+              onClick={onAction}
+              className={`shrink-0 text-xs font-semibold hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${actionClass}`}
+            >
+              {action}
+            </button>
+          )
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function RowSkeleton({ rows = 3 }) {
+  return (
+    <div className="space-y-3 animate-pulse" aria-hidden="true">
+      {Array.from({ length: rows }, (_, index) => (
+        <div key={index} className="h-[58px] rounded-2xl bg-slate-100 dark:bg-slate-800/60" />
+      ))}
+    </div>
+  );
+}
+
+function EmptyNote({ children }) {
+  return (
+    <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
+      {children}
+    </p>
+  );
+}
 
 /**
  * MainDashboardPage
  *
- * Provides a rich, unified overview of the entire student platform:
- * - Academic Schedule & Current Courses
- * - AI Study Plan & Productivity Milestones
- * - Quick Route Planning & Live Disruptions
- * - Goals & Shared Peer Travel Groups
+ * Provides a unified overview of the student platform:
+ * - Academic schedule & current courses
+ * - AI study plan & productivity milestones
+ * - Quick route planning & live disruptions
+ * - Goals & shared peer travel
+ *
+ * Signed-in students see their own data; guests see labelled sample data.
  */
 export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
-  const [courses, setCourses] = useState([]);
-  const [assignments, setAssignments] = useState([]);
-  const [schedule, setSchedule] = useState([]);
-  const [studyPlan, setStudyPlan] = useState(null);
-  const [goals, setGoals] = useState([]);
-  const [journeys, setJourneys] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const academic = useAsyncResource(loadAcademicSnapshot, {
+    errorMessage: 'Unable to load your academic summary. Please check your connection and try again.',
+  });
+  const community = useAsyncResource(loadCommunitySnapshot, {
+    errorMessage: 'Unable to load your goals and shared travel. Please check your connection and try again.',
+  });
 
   useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        const [c, a, s, sp, g, j] = await Promise.all([
-          getCourses(),
-          getAssignments(),
-          getTodayCalendar(),
-          getCurrentStudyPlan(),
-          getStudentGoals(),
-          getSharedJourneys()
-        ]);
-        setCourses(c);
-        setAssignments(a);
-        setSchedule(s);
-        setStudyPlan(sp);
-        setGoals(g);
-        setJourneys(j);
-      } catch (err) {
-        console.error('Error loading dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadDashboardData();
+    academic.load();
+    community.load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadError = academic.loadError || community.loadError;
+  const retryAll = () => {
+    academic.load();
+    community.load();
+  };
+
+  const courses = academic.data?.courses || [];
+  const assignments = academic.data?.assignments || [];
+  const schedule = academic.data?.events || [];
+  const plan = academic.data?.plan || null;
+  const goals = community.data?.goals || [];
+  const journeyCount = community.data?.journeyCount ?? 0;
+  const isSample = Boolean(academic.data?.isSample || community.data?.isSample);
+
+  const pendingAssignments = assignments.filter(
+    (assignment) => assignment.status !== 'completed' && assignment.status !== 'cancelled'
+  );
+  const nextDue = pendingAssignments[0];
+
+  const academicLoading = academic.isLoading;
+  const communityLoading = community.isLoading;
+  const show = (loading, value) => (loading ? '—' : value);
+
+  const firstName = (readAuthSession()?.user?.full_name || '').trim().split(/\s+/)[0];
 
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-8 font-sans">
@@ -69,302 +175,263 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         <div aria-hidden="true" className="pointer-events-none absolute right-24 -bottom-32 w-72 h-72 rounded-full bg-sky-400/20 blur-3xl"></div>
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]"></div>
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-blue-100">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Welcome back to Smart Student Companion</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-blue-50">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" aria-hidden="true" />
+            <span>{firstName ? `Welcome back, ${firstName}` : 'Welcome to Smart Student Companion'}</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-white leading-[1.1]">
             Your Complete Student Platform
           </h1>
-          <p className="text-sm sm:text-base text-blue-100 dark:text-slate-300 font-normal leading-relaxed">
+          <p className="text-sm sm:text-base text-blue-50 dark:text-slate-300 font-normal leading-relaxed">
             Everything you need for Mumbai student life: real-time campus commute routing, class schedules, AI study planners, and collaborative student travel.
           </p>
           <div className="pt-2 flex flex-wrap gap-3">
             <button
+              type="button"
               onClick={() => onNavigate?.('planner')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-blue-700 font-bold text-xs sm:text-sm shadow-md hover:bg-blue-50 active:scale-95 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-blue-700 font-bold text-xs sm:text-sm shadow-md hover:bg-blue-50 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
             >
-              <Compass className="w-4 h-4" />
+              <Compass className="w-4 h-4" aria-hidden="true" />
               <span>Plan Today's Commute</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
             <button
+              type="button"
               onClick={() => onNavigate?.('academics')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs sm:text-sm active:scale-95 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs sm:text-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
             >
-              <GraduationCap className="w-4 h-4" />
+              <GraduationCap className="w-4 h-4" aria-hidden="true" />
               <span>View Academics Hub</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 4 Overview Quick Stats Cards */}
+      {isSample && !academicLoading && (
+        <SampleDataBanner onSignIn={() => onNavigate?.('account')} what="courses, plan, goals and journeys" />
+      )}
+
+      {loadError && (
+        <Alert variant="warning" title="Some of your dashboard couldn't be loaded">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>{loadError}</span>
+            <Button type="button" size="sm" variant="secondary" onClick={retryAll}>
+              Retry
+            </Button>
+          </div>
+        </Alert>
+      )}
+
+      {/* Overview quick stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: Active Courses */}
-        <div 
+        <StatCard
+          accent="blue"
+          icon={GraduationCap}
+          label="Enrolled Courses"
+          value={show(academicLoading, courses.length)}
+          caption="this semester"
+          action="Manage courses & resources"
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Enrolled Courses</span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
-              <GraduationCap className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{courses.length || 4}</span>
-            <span className="text-xs text-slate-500">Subjects this semester</span>
-          </div>
-          <div className="mt-2 text-xs text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-            <span>Manage courses &amp; resources</span>
-            <ArrowRight className="w-3 h-3" />
-          </div>
-        </div>
-
-        {/* Card 2: Pending Tasks & Assignments */}
-        <div 
+        />
+        <StatCard
+          accent="indigo"
+          icon={Clock}
+          label="Assignments Due"
+          value={show(academicLoading, pendingAssignments.length)}
+          caption={nextDue ? `next: ${nextDue.dueDate}` : 'nothing pending'}
+          action="View task deadlines"
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Assignments Due</span>
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">
-              {assignments.filter(a => a.status !== 'completed').length || 2}
-            </span>
-            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Pending submissions</span>
-          </div>
-          <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-            <span>View task deadlines</span>
-            <ArrowRight className="w-3 h-3" />
-          </div>
-        </div>
-
-        {/* Card 3: AI Study Plan */}
-        <div 
+        />
+        <StatCard
+          accent="emerald"
+          icon={Zap}
+          label="AI Study Plan"
+          value={show(academicLoading, Number.isFinite(plan?.targetCompletion) ? `${plan.targetCompletion}%` : '—')}
+          caption={plan ? 'of this week done' : 'no plan yet'}
+          action="Check scheduled sessions"
           onClick={() => onNavigate?.('academics')}
-          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-emerald-400 dark:hover:border-emerald-500 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">AI Study Plan</span>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
-              <Zap className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{studyPlan?.targetCompletion || '82%'}</span>
-            <span className="text-xs text-slate-500">Weekly target hit</span>
-          </div>
-          <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-            <span>Check scheduled sessions</span>
-            <ArrowRight className="w-3 h-3" />
-          </div>
-        </div>
-
-        {/* Card 4: Shared Commute Groups */}
-        <div 
+        />
+        <StatCard
+          accent="violet"
+          icon={Users}
+          label="Student Travel Pools"
+          value={show(communityLoading, journeyCount)}
+          caption={journeyCount === 1 ? 'active journey' : 'active journeys'}
+          action="Join or coordinate journeys"
           onClick={() => onNavigate?.('community')}
-          className="group cursor-pointer p-4 sm:p-5 rounded-2xl hover:-translate-y-0.5 bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none hover:shadow-md hover:border-violet-400 dark:hover:border-violet-500 transition-all"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight">Student Travel Pools</span>
-            <div className="p-2 rounded-xl bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
-              <Users className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-            <span className="text-3xl font-display font-bold tabular-nums text-slate-900 dark:text-white">{journeys.length || 3}</span>
-            <span className="text-xs text-slate-500">Active campus rides</span>
-          </div>
-          <div className="mt-2 text-xs text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-            <span>Join or coordinate journeys</span>
-            <ArrowRight className="w-3 h-3" />
-          </div>
-        </div>
+        />
       </div>
 
-      {/* Middle Grid: Today's Schedule & Academic Assignments */}
+      {/* Middle Grid: Today's Schedule & Study Plan */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Today's Schedule (Subsystem B) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                Today's Schedule &amp; Lectures
-              </h2>
-            </div>
-            <button
-              onClick={() => onNavigate?.('academics')}
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Full Calendar
-            </button>
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {schedule.slice(0, 3).map((item) => (
-              <div 
-                key={item.id}
-                className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60"
-              >
-                <div className="space-y-1">
-                  <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">
-                    {item.title}
+        <Panel
+          icon={Calendar}
+          chipClass="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+          title="Today's Schedule & Lectures"
+          action="Full Calendar"
+          onAction={() => onNavigate?.('academics')}
+          actionClass="text-blue-700 dark:text-blue-400"
+        >
+          {academicLoading ? (
+            <RowSkeleton />
+          ) : schedule.length === 0 ? (
+            <EmptyNote>No classes or events scheduled for today.</EmptyNote>
+          ) : (
+            <ul className="space-y-3 pt-1 list-none">
+              {schedule.slice(0, 3).map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">{item.title}</div>
+                    {item.location && (
+                      <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-blue-500 shrink-0" aria-hidden="true"></span>
+                        <span>{item.location}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
-                    <span>{item.location}</span>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">
-                  {item.time}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+                  <span className="shrink-0 px-2.5 py-1 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">
+                    {item.time}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
 
-        {/* AI Study Plan Items (Subsystem D) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-                <Zap className="w-5 h-5" />
-              </div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                AI Study Plan &amp; Focus Tasks
-              </h2>
-            </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
-              Active Plan
-            </span>
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {studyPlan?.items?.slice(0, 3).map((task) => (
-              <div 
-                key={task.id}
-                className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60"
-              >
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className={`w-4 h-4 ${task.status === 'completed' ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`} />
-                  <div>
-                    <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">
-                      {task.title}
+        <Panel
+          icon={Zap}
+          chipClass="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+          title="AI Study Plan & Focus Tasks"
+          trailing={
+            plan ? (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">
+                {formatStatus(plan.status)} plan
+              </span>
+            ) : null
+          }
+          action={plan ? null : 'Open Academics'}
+          onAction={() => onNavigate?.('academics')}
+          actionClass="text-emerald-700 dark:text-emerald-400"
+        >
+          {academicLoading ? (
+            <RowSkeleton />
+          ) : !plan || plan.items.length === 0 ? (
+            <EmptyNote>No study plan yet. Generate one from your assignments and goals in Academics.</EmptyNote>
+          ) : (
+            <ul className="space-y-3 pt-1 list-none">
+              {plan.items.slice(0, 3).map((task) => (
+                <li
+                  key={task.id}
+                  className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <CheckCircle2
+                      className={`w-4 h-4 shrink-0 ${task.status === 'completed' ? 'text-emerald-600' : 'text-slate-400 dark:text-slate-600'}`}
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">{task.title}</div>
+                      <div className="text-xs text-slate-600 dark:text-slate-400">
+                        {[task.day, task.duration].filter(Boolean).join(' • ')}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                      Scheduled: {task.day} • {task.duration}
-                    </div>
                   </div>
-                </div>
-                <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold ${
-                  task.status === 'completed' 
-                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' 
-                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
-                }`}>
-                  {task.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+                  <span className={`shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-bold ${
+                    task.status === 'completed'
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
+                  }`}>
+                    {formatStatus(task.status)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       </div>
 
       {/* Bottom Grid: Commute Overview & Active Student Goals */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Commute Quick Access & Live Disruptions */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                <Compass className="w-5 h-5" />
-              </div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                Transit &amp; Route Planner
-              </h2>
-            </div>
-            <button
-              onClick={() => onNavigate?.('planner')}
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Open Full Planner
-            </button>
-          </div>
-
+        <Panel
+          icon={Compass}
+          chipClass="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+          title="Transit & Route Planner"
+          action="Open Full Planner"
+          onAction={() => onNavigate?.('planner')}
+          actionClass="text-blue-700 dark:text-blue-400"
+        >
           <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700/80 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Real-Time Live Transit Alerts
               </span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300">
-                {reportsCount} Active Disruptions
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                {reportsCount} Active {reportsCount === 1 ? 'Disruption' : 'Disruptions'}
               </span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Western Line local trains, Metro Line 1 &amp; 2A/7 real-time delays verified with crowd-sourced student reporting.
+            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              Western Line local trains, Metro Line 1 &amp; 2A/7 delays, reported and confirmed by fellow students.
             </p>
             <div className="pt-1">
               <button
+                type="button"
                 onClick={() => onNavigate?.('planner')}
-                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all"
+                className="w-full py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
               >
                 Find Best Multimodal Route to College
               </button>
             </div>
           </div>
-        </div>
+        </Panel>
 
-        {/* Goals & Student Milestones (Subsystem E) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
-                <Target className="w-5 h-5" />
-              </div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                Student Goals &amp; Milestones
-              </h2>
-            </div>
-            <button
-              onClick={() => onNavigate?.('community')}
-              className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline"
-            >
-              View All Goals
-            </button>
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {goals.slice(0, 2).map((goal) => (
-              <div 
-                key={goal.id}
-                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-xs text-slate-900 dark:text-slate-100">{goal.title}</span>
-                  <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{goal.progress}%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 rounded-full" 
-                    style={{ width: `${goal.progress}%` }}
-                  />
-                </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
-                  <span>Category: {goal.category}</span>
-                  <span>Target: {goal.targetDate}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Panel
+          icon={Target}
+          chipClass="bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400"
+          title="Student Goals & Milestones"
+          action="View All Goals"
+          onAction={() => onNavigate?.('community')}
+          actionClass="text-violet-700 dark:text-violet-400"
+        >
+          {communityLoading ? (
+            <RowSkeleton rows={2} />
+          ) : goals.length === 0 ? (
+            <EmptyNote>No goals yet. Set your first milestone in Community &amp; Goals.</EmptyNote>
+          ) : (
+            <ul className="space-y-3 pt-1 list-none">
+              {goals.slice(0, 2).map((goal) => (
+                <li
+                  key={goal.id}
+                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold text-xs text-slate-900 dark:text-slate-100">{goal.title}</span>
+                    <span className="text-xs font-bold text-violet-700 dark:text-violet-400 tabular-nums">{goal.progress}%</span>
+                  </div>
+                  <div
+                    role="progressbar"
+                    aria-label={`Progress for ${goal.title}`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={goal.progress}
+                    className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"
+                  >
+                    <div
+                      className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 rounded-full"
+                      style={{ width: `${goal.progress}%` }}
+                    />
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400 flex justify-between gap-3">
+                    <span>{goal.category ? `Category: ${goal.category}` : formatStatus(goal.status)}</span>
+                    <span>Target: {goal.targetDate}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       </div>
     </div>
   );
