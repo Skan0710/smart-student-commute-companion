@@ -122,45 +122,6 @@ export default function DashboardOverview({
         </Alert>
       )}
 
-      {/* Quick-access actions */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          icon={<Bookmark className="w-3.5 h-3.5" aria-hidden="true" />}
-          onClick={() => onNavigate?.('mycommutes')}
-        >
-          My Commutes
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          icon={<Users className="w-3.5 h-3.5" aria-hidden="true" />}
-          onClick={() => onNavigate?.('together')}
-        >
-          Travel Together
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          icon={<Search className="w-3.5 h-3.5" aria-hidden="true" />}
-          onClick={() => onNavigate?.('transit')}
-        >
-          Search transit stops
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          icon={<Plus className="w-3.5 h-3.5" aria-hidden="true" />}
-          onClick={onOpenCreateReport}
-        >
-          Post a disruption
-        </Button>
-      </div>
 
       {/* Academic & Schedule Context — Smart Commute Alignment */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2 shadow-sm">

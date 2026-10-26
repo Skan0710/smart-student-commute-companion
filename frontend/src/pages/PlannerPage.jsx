@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Plus } from 'lucide-react';
 import PlannerForm from '../components/PlannerForm';
 import DashboardOverview from '../components/DashboardOverview';
 import RouteResults from '../components/RouteResults';
@@ -84,18 +84,30 @@ export default function PlannerPage({
             Multimodal AI transit recommendations across Mumbai campuses
           </p>
         </div>
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={isLoadingInitial || isRefreshing}
-            aria-busy={isRefreshing}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-sm transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2.5">
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={isLoadingInitial || isRefreshing}
+              aria-busy={isRefreshing}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-sm transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
+              <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+            </button>
+          )}
+          {onOpenCreateReport && (
+            <button
+              type="button"
+              onClick={onOpenCreateReport}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm shadow-blue-500/25 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans active:scale-95"
+            >
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              <span>Post a disruption</span>
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Student dashboard summary — hidden when the user turns it off in Preferences */}

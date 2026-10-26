@@ -1,10 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  
-  <g transform="translate(0, 0) scale(1.3333333333333333)">
-    <!-- Layered map/route symbol -->
-    <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#10b981" opacity="0.9"/>
-    <path d="M2 12l10 5 10-5" stroke="#10b981" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
-    <path d="M2 17l10 5 10-5" stroke="#10b981" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
-  </g>
+<svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="40" height="40" rx="10" fill="#2563EB"/>
+  <path d="M20 9L31 15L20 21L9 15L20 9Z" fill="#FFFFFF"/>
+  <path d="M20 19V32M13 24L27 27M27 24L13 27" stroke="#93C5FD" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="20" cy="21" r="2.5" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
 </svg>
