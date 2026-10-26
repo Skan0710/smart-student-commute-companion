@@ -3,7 +3,7 @@ import MainLayout from './layouts/MainLayout';
 import Toast from './components/Toast';
 import NotFound from './components/NotFound';
 import MapView from './components/MapView';
-import { NAV_ITEMS } from './components/Navbar';
+import { NAV_ITEMS, SECONDARY_SCREENS } from './components/Navbar';
 import CreateReportModal from './components/CreateReportModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import FeedbackModal from './components/FeedbackModal';
@@ -105,6 +105,23 @@ import usePwaInstall from './hooks/usePwaInstall';
 import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
+/**
+ * Resolve a screen id (from `/?tab=`, nav clicks or in-app hand-offs) to the
+ * tab that renders it plus, for Plan Route, the sub-tab to open. Returns null
+ * for unknown ids so callers fall back to the default screen.
+ */
+function resolveScreen(screenId) {
+  if (!screenId) return null;
+  if (NAV_ITEMS.some((item) => item.id === screenId)) {
+    return { tab: screenId, subTab: 'planner' };
+  }
+  const secondary = SECONDARY_SCREENS.find((item) => item.id === screenId);
+  if (secondary) {
+    return { tab: secondary.route.tab, subTab: secondary.route.subTab || 'planner' };
+  }
+  return null;
+}
+
 export default function App() {
   // Desktop smooth scrolling via Lenis + GSAP ticker (no-ops on mobile/touch & reduced motion)
   useSmoothScroll();
@@ -127,20 +144,30 @@ export default function App() {
   // Deep links (PWA app shortcuts & shared links) open a specific screen once
   // on load via /?tab=<screenId>; unknown or missing values fall back to the
   // planner. Navigation afterwards is the existing in-app tab switching.
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window === 'undefined') return 'dashboard';
+  const [initialScreen] = useState(() => {
+    if (typeof window === 'undefined') return { tab: 'dashboard', subTab: 'planner' };
     try {
       const params = new URLSearchParams(window.location.search);
-      const requestedTab = params.get('tab');
-      if (requestedTab && NAV_ITEMS.some((item) => item.id === requestedTab)) {
-        return requestedTab;
-      }
-      if (params.get('share-target')) return 'installshare';
+      const resolved = resolveScreen(params.get('tab'));
+      if (resolved) return resolved;
+      if (params.get('share-target')) return { tab: 'installshare', subTab: 'planner' };
     } catch {
       // Malformed query string — default view is the safe fallback.
     }
-    return 'dashboard';
+    return { tab: 'dashboard', subTab: 'planner' };
   });
+  const [activeTab, setActiveTab] = useState(initialScreen.tab);
+  // Plan Route hosts My Commutes / Transit Search / Live Alerts as sub-tabs
+  const [plannerSubTab, setPlannerSubTab] = useState(initialScreen.subTab);
+
+  // Move to any screen id: a core tab, or a secondary screen that may live
+  // inside Plan Route (feed → Live Alerts, transit → Transit Search, …).
+  const navigateToScreen = (screenId) => {
+    const resolved = resolveScreen(screenId);
+    if (!resolved) return;
+    if (resolved.tab === 'planner') setPlannerSubTab(resolved.subTab);
+    setActiveTab(resolved.tab);
+  };
   // Page views for in-app screens (no-op unless analytics is configured and accepted)
   useEffect(() => {
     trackPageView('/', `?tab=${activeTab}`, { title: 'Smart Commute app' });
@@ -644,6 +671,7 @@ export default function App() {
       await createReport(reportData);
       setIsReportModalOpen(false);
       showToast('Live commute report broadcast to all students!');
+      return true;
     } catch (err) {
       if (err?.isNetwork) {
         // Day 11 — the connection dropped: save the report locally instead of
@@ -656,6 +684,7 @@ export default function App() {
             "Saved to your Offline Queue — it will send automatically once you're back online.",
             'warning'
           );
+          return true;
         } else {
           showToast(`${err.message} Your report was not saved.`, 'error');
         }
@@ -946,7 +975,7 @@ export default function App() {
 
   // Dashboard recent-search chip: jump to Transit Search and run the query
   const handleDashboardRecentSearch = (q) => {
-    setActiveTab('transit');
+    navigateToScreen('transit');
     handleSelectRecentSearch(q);
   };
 
@@ -958,13 +987,13 @@ export default function App() {
   // Hand a searched stop over to the planner (cross-screen hand-off)
   const handleUseAsOrigin = (place) => {
     setFormData((prev) => ({ ...prev, origin: place }));
-    setActiveTab('planner');
+    navigateToScreen('planner');
     showToast(`Starting point set to "${place}". Press Plan Route to recalculate.`);
   };
 
   const handleUseAsDestination = (place) => {
     setFormData((prev) => ({ ...prev, destination: place }));
-    setActiveTab('planner');
+    navigateToScreen('planner');
     showToast(`Destination set to "${place}". Press Plan Route to recalculate.`);
   };
 
@@ -1006,7 +1035,7 @@ export default function App() {
       maxBudgetRupees: commute.maxBudgetRupees,
     };
     setFormData((prev) => ({ ...prev, ...setup }));
-    setActiveTab('planner');
+    navigateToScreen('planner');
     showToast(`Loaded ${commute.origin} → ${commute.destination} into the planner.`, 'info');
     await handlePlan(false, setup);
   };
@@ -1058,21 +1087,19 @@ export default function App() {
       case 'dashboard':
         return (
           <MainDashboardPage
-            onNavigate={setActiveTab}
+            onNavigate={navigateToScreen}
             reportsCount={reports.length}
           />
         );
 
       case 'academics':
-        return <AcademicsPage />;
+        return <AcademicsPage onNavigate={navigateToScreen} onNotify={showToast} />;
 
       case 'community':
         return (
           <CommunityGoalsPage
-            onJoinSharedJourney={(journey) => {
-              showToast(`Requested to join ${journey.title}!`);
-            }}
-            onOpenCreateRideGroup={() => setIsGroupModalOpen(true)}
+            onNavigate={navigateToScreen}
+            onNotify={showToast}
           />
         );
 
@@ -1106,7 +1133,9 @@ export default function App() {
             groupsCount={groups.length}
             recentSearches={recentSearches}
             onSelectRecent={handleDashboardRecentSearch}
-            onNavigate={setActiveTab}
+            onNavigate={navigateToScreen}
+            subTab={plannerSubTab}
+            onSubTabChange={setPlannerSubTab}
             showDashboardOverview={appPreferences.showDashboardOverview}
             savedCommutes={savedCommutes}
             savedCommutesLoading={savedCommutesResource.isLoading}
@@ -1144,7 +1173,7 @@ export default function App() {
             onRemoveCommute={handleRemoveSavedCommute}
             isPlanning={isLoading}
             activeSignature={currentCommuteSignature}
-            onNavigateToPlanner={() => setActiveTab('planner')}
+            onNavigateToPlanner={() => navigateToScreen('planner')}
           />
         );
 
@@ -1298,7 +1327,7 @@ export default function App() {
         return (
           <NotFound 
             message="Unknown View"
-            onNavigateHome={() => setActiveTab('planner')}
+            onNavigateHome={() => navigateToScreen('dashboard')}
           />
         );
     }
@@ -1311,6 +1340,7 @@ export default function App() {
     isResetting,
     activeTab,
     setActiveTab,
+    onNavigateScreen: navigateToScreen,
     reportsCount: reports.length,
     unreadNotificationsCount,
     onOpenPreferences: () => setIsPreferencesOpen(true),
@@ -1342,7 +1372,7 @@ export default function App() {
           canInstall={canInstall}
           isInstalled={isInstalled}
           onInstallApp={handleInstallApp}
-          onOpenHub={() => setActiveTab('installshare')}
+          onOpenHub={() => navigateToScreen('installshare')}
           activeTab={activeTab}
         />
         {renderTabContent()}

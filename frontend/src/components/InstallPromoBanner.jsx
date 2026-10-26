@@ -149,7 +149,7 @@ export default function InstallPromoBanner({
           onClick={handleDismiss}
           aria-label="Dismiss install promotion"
           title="Dismiss install promotion"
-          className="min-h-9 min-w-9 p-2 inline-flex items-center justify-center rounded-lg text-emerald-700 dark:text-emerald-300/70 hover:text-emerald-200 hover:bg-emerald-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+          className="min-h-9 min-w-9 p-2 inline-flex items-center justify-center rounded-lg text-emerald-700 dark:text-emerald-300/70 hover:text-emerald-900 dark:hover:text-emerald-200 hover:bg-emerald-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
           <X className="w-3.5 h-3.5" aria-hidden="true" />
         </button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 /**
@@ -47,8 +47,9 @@ export default function Select({
   containerClassName = '',
   ...rest
 }) {
-  // Generate unique ID if not provided
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  // Stable unique ID when none is provided (useId is stable across renders)
+  const autoId = useId();
+  const selectId = id || autoId;
   
   // Base select styles with 44px touch target
   const baseStyles = 'w-full min-h-[44px] bg-white dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-white transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none shadow-sm';

@@ -36,7 +36,7 @@ export default function Spinner({
   // Color variants
   const variants = {
     primary: 'text-emerald-700 dark:text-emerald-400',
-    white: 'text-slate-900 dark:text-white',
+    white: 'text-white',
     muted: 'text-slate-500 dark:text-slate-400',
   };
   

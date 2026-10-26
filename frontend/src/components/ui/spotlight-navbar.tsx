@@ -9,6 +9,8 @@ export interface NavItem {
     label: string;
     href: string;
     badge?: number;
+    /** Accessible name override (e.g. "Notifications, 6 unread notifications"). */
+    ariaLabel?: string;
     icon?: React.ComponentType<{ className?: string }>;
 }
 
@@ -147,6 +149,8 @@ export function SpotlightNavbar({
                             <a
                                 href={item.href}
                                 data-index={idx}
+                                aria-label={item.ariaLabel}
+                                aria-current={activeIndex === idx ? "page" : undefined}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     handleItemClick(item, idx);
@@ -160,10 +164,10 @@ export function SpotlightNavbar({
                                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                 )}
                             >
-                                {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0" })}
+                                {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0", "aria-hidden": true } as React.ComponentProps<"svg">)}
                                 <span>{item.label}</span>
                                 {item.badge !== undefined && item.badge > 0 && (
-                                    <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                    <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                                         {item.badge}
                                     </span>
                                 )}

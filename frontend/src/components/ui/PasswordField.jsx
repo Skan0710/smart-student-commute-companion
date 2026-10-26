@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 /**
@@ -59,7 +59,8 @@ export default function PasswordField({
   ...rest
 }) {
   const [visible, setVisible] = useState(false);
-  const fieldId = id || `password-${Math.random().toString(36).substr(2, 9)}`;
+  const autoId = useId();
+  const fieldId = id || autoId;
 
   const baseStyles =
     'w-full bg-slate-50 dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 pr-11 text-sm text-slate-900 dark:text-white placeholder-slate-500 transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';

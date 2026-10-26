@@ -56,6 +56,8 @@ export function initDesktopSmoothScroll(options = {}) {
       wheelMultiplier: 1.0,
       touchMultiplier: 1.0,
       infinite: false,
+      // Let dialogs, carousels and textareas scroll natively instead of the page
+      allowNestedScroll: true,
       ...options,
     });
 

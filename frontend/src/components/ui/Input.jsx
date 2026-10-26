@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 /**
  * Input - Reusable input field component
@@ -48,8 +48,9 @@ export default function Input({
   containerClassName = '',
   ...rest
 }) {
-  // Generate unique ID if not provided
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  // Stable unique ID when none is provided (useId is stable across renders)
+  const autoId = useId();
+  const inputId = id || autoId;
   
   // Base input styles with 44px touch target
   const baseStyles = 'w-full min-h-[44px] bg-white dark:bg-slate-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm';

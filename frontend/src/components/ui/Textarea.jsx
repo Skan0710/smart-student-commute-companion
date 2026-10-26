@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 /**
  * Textarea - Reusable textarea component
@@ -50,7 +50,8 @@ export default function Textarea({
   ...rest
 }) {
   // Generate unique ID if not provided
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const autoId = useId();
+  const textareaId = id || autoId;
   
   // Base textarea styles
   const baseStyles = 'w-full bg-white dark:bg-slate-950 border rounded-xl p-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-vertical transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm';
