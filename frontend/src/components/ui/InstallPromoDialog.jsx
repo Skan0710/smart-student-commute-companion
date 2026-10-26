@@ -36,21 +36,21 @@ export default function InstallPromoDialog({
       isOpen={isOpen}
       onClose={onClose}
       title="Why install?"
-      icon={<Download className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
+      icon={<Download className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />}
       size="md"
       footer={
         <div className="flex flex-wrap justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="min-h-9 px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+            className="min-h-9 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
           >
             Not now
           </button>
           <button
             type="button"
             onClick={onOpenHub}
-            className="min-h-9 px-3.5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+            className="min-h-9 px-3.5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
           >
             Open Install &amp; Share
           </button>
@@ -58,7 +58,7 @@ export default function InstallPromoDialog({
       }
     >
       <div className="space-y-4">
-        <p className="text-xs leading-relaxed text-slate-400">
+        <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
           Installing takes one tap and adds the companion to your home screen —
           no app store, no account, and nothing stored on a server.
         </p>
@@ -83,14 +83,14 @@ export default function InstallPromoDialog({
           <button
             type="button"
             onClick={onInstall}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-all hover:bg-emerald-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-all hover:bg-emerald-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
           >
             <Download className="h-4 w-4" aria-hidden="true" />
             Install app
           </button>
         )}
         {!canInstall && (
-          <p className="rounded-xl border border-slate-800 bg-slate-950/60 px-3.5 py-2.5 text-xs text-slate-400">
+          <p className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-xs text-slate-500 dark:text-slate-400">
             This browser doesn&rsquo;t offer one-tap install right now — the
             Install &amp; Share screen has manual steps for every device.
           </p>

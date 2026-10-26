@@ -89,14 +89,14 @@ export default function ShareableCard({
     copyState === 'copied' ? 'Copied to clipboard' : copyState === 'failed' ? 'Copy failed — select the text and copy manually' : '';
 
   return (
-    <div className={`rounded-2xl border border-slate-800 bg-slate-900/60 p-4 ${className}`}>
+    <div className={`rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-bold text-white">{label}</h3>
-        <p role="status" aria-live="polite" className="text-xs text-emerald-300">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">{label}</h3>
+        <p role="status" aria-live="polite" className="text-xs text-emerald-700 dark:text-emerald-300">
           {copyStatusText}
         </p>
       </div>
-      <p className="mt-2 break-all rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-300">
+      <p className="mt-2 break-all rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
         {value}
       </p>
       {description && <p className="mt-2 text-xs text-slate-500">{description}</p>}
@@ -104,10 +104,10 @@ export default function ShareableCard({
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
           {copyState === 'copied' ? (
-            <Check className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
+            <Check className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
           ) : (
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
           )}
@@ -118,7 +118,7 @@ export default function ShareableCard({
             type="button"
             onClick={handleShare}
             disabled={isSharing}
-            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-emerald-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-emerald-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
           >
             <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
             {isSharing ? 'Sharing…' : 'Share'}

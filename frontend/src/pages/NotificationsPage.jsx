@@ -66,8 +66,8 @@ export default function NotificationsPage({
     <div className="space-y-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-extrabold tracking-tight text-white">Notifications</h1>
-          <p className="max-w-2xl text-sm text-slate-400">
+          <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Notifications</h1>
+          <p className="max-w-2xl text-sm text-slate-500 dark:text-slate-400">
             Recent commute updates from the student community
           </p>
           <p
@@ -88,7 +88,7 @@ export default function NotificationsPage({
               type="button"
               onClick={handleMarkAllClick}
               disabled={!hasUnread}
-              className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               Mark all as read
             </button>
@@ -99,7 +99,7 @@ export default function NotificationsPage({
               onClick={onRefresh}
               disabled={isLoading || isRefreshing}
               aria-busy={isRefreshing}
-              className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-800 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
@@ -127,8 +127,8 @@ export default function NotificationsPage({
 
       <section aria-label="Commute notifications" aria-busy={isLoading || isRefreshing}>
         {isRefreshing && !isLoading && !loadError && (
-          <p role="status" className="mb-3 flex items-center gap-2 text-xs text-slate-400">
-            <RefreshCw className="h-3.5 w-3.5 animate-spin text-emerald-400" aria-hidden="true" />
+          <p role="status" className="mb-3 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
             Checking for new notifications...
           </p>
         )}
@@ -155,7 +155,7 @@ export default function NotificationsPage({
           />
         ) : (
           <>
-            <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-3 sm:flex-row sm:items-end">
+            <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 sm:flex-row sm:items-end">
               <SearchInput
                 value={query}
                 onChange={setQuery}
@@ -190,7 +190,7 @@ export default function NotificationsPage({
                     <button
                       type="button"
                       onClick={() => { setQuery(''); setView('all'); }}
-                      className="min-h-10 rounded-xl bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                      className="min-h-10 rounded-xl bg-slate-100 dark:bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
                     >
                       Show all notifications
                     </button>
@@ -206,7 +206,7 @@ export default function NotificationsPage({
                     <button
                       type="button"
                       onClick={() => { setQuery(''); setView('all'); }}
-                      className="min-h-10 rounded-xl bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                      className="min-h-10 rounded-xl bg-slate-100 dark:bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
                     >
                       Clear filters
                     </button>
@@ -214,7 +214,7 @@ export default function NotificationsPage({
                 />
               )
             ) : (
-              <ul className="mt-3 divide-y divide-slate-800 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
+              <ul className="mt-3 divide-y divide-slate-200 dark:divide-slate-800 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60">
                 {visibleReports.map((report) => (
                   <li key={report.id}>
                     <NotificationItem

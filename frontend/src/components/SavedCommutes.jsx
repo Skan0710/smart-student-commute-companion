@@ -79,7 +79,7 @@ export default function SavedCommutes({
           return (
             <li key={commute.id}>
               <DataCard
-                accent={isActive ? 'bg-emerald-500' : 'bg-slate-700'}
+                accent={isActive ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}
                 header={
                   <>
                     <Badge variant={isActive ? 'emerald' : 'slate'} size="xs" icon={<MapPin />}>
@@ -122,7 +122,7 @@ export default function SavedCommutes({
                   ))}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-2 pt-2.5 mt-2.5 border-t border-slate-800">
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-2.5 mt-2.5 border-t border-slate-200 dark:border-slate-800">
                   <Button
                     type="button"
                     size="sm"

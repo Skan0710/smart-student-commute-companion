@@ -33,7 +33,7 @@ export default function Breadcrumbs({ trail }) {
                   >
                     {crumb.label}
                   </a>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                 </>
               )}
             </li>

@@ -102,10 +102,10 @@ export default function LiveAlertsPage({
     <div className="space-y-5">
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Live Alerts
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Real-time crowd-sourced transit disruptions reported by students
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function LiveAlertsPage({
             onClick={onRefresh}
             disabled={isLoading || isRefreshing}
             aria-busy={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
@@ -172,8 +172,8 @@ export default function LiveAlertsPage({
       {officialAlerts.length > 0 && (
         <section aria-label="Official transit corridor advisories" className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+            <h2 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
               <span>Official Corridor Advisories ({officialAlerts.length})</span>
             </h2>
             <ProvenanceTag tier="VERIFIED" size="xs" />
@@ -207,32 +207,32 @@ export default function LiveAlertsPage({
                         {alert.severity || 'ADVISORY'}
                       </span>
                       {alert.mode && <RouteBadge mode={alert.mode} size="xs" />}
-                      <span className="font-bold text-sm text-white">{alert.title || alert.corridor}</span>
+                      <span className="font-bold text-sm text-slate-900 dark:text-white">{alert.title || alert.corridor}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleDismissOfficial(alert.id)}
                       disabled={isDismissing}
-                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 shrink-0"
+                      className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0"
                       title="Dismiss alert"
                       aria-label={`Dismiss alert: ${alert.title || alert.corridor}`}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
                     {alert.message}
                   </p>
                   {(alert.recommendedAction || alert.estimatedDelayMinutes) && (
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60 text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/60 text-xs">
                       {alert.recommendedAction && (
-                        <span className="text-emerald-300 font-medium flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span className="text-emerald-700 dark:text-emerald-300 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                           <span>Detour advice: {alert.recommendedAction}</span>
                         </span>
                       )}
                       {alert.estimatedDelayMinutes > 0 && (
-                        <span className="text-amber-400 font-mono text-[11px] ml-auto">
+                        <span className="text-amber-700 dark:text-amber-400 font-mono text-[11px] ml-auto">
                           +{alert.estimatedDelayMinutes}m delay
                         </span>
                       )}
@@ -301,9 +301,9 @@ export default function LiveAlertsPage({
         {isRefreshing && !isLoading && !loadError && (
           <p
             role="status"
-            className="flex items-center gap-2 text-xs text-slate-400 pb-2"
+            className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 pb-2"
           >
-            <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" aria-hidden="true" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
             Checking for new alerts…
           </p>
         )}
@@ -331,7 +331,7 @@ export default function LiveAlertsPage({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60"
               >
                 Clear Filters
               </button>

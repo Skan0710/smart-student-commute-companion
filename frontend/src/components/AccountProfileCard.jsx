@@ -283,7 +283,7 @@ export default function AccountProfileCard({
       {/* Verification footer & Sign-out */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
         <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 min-w-0">
-          <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
+          <KeyRound className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden="true" />
           <span className="min-w-0 truncate">
             {isRefreshingSession
               ? 'Refreshing your profile…'

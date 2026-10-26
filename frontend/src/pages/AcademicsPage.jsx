@@ -262,7 +262,7 @@ export default function AcademicsPage() {
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
                       {res.course}
                     </span>
-                    <span className="text-[11px] text-slate-400">{res.size}</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">{res.size}</span>
                   </div>
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-snug">
                     {res.title}

@@ -176,7 +176,7 @@ export default function CommunityGoalsPage({ onJoinSharedJourney, onOpenCreateRi
 
           {/* Goal Modal */}
           {showGoalModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
               <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-2xl space-y-4">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Create New Milestone Goal</h3>
                 <form onSubmit={handleAddGoal} className="space-y-3">

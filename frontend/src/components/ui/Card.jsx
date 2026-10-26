@@ -38,11 +38,11 @@ export default function Card({
   const hasHeader = title || headerAction;
   
   return (
-    <Component className={`bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-xl backdrop-blur-sm ${className}`}>
+    <Component className={`bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-xl backdrop-blur-sm ${className}`}>
       {hasHeader && (
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800/80">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800/80">
           {title && (
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
               {title}
             </h3>
           )}
@@ -59,7 +59,7 @@ export default function Card({
       </div>
       
       {footer && (
-        <div className="px-5 py-4 border-t border-slate-800/80 bg-slate-950/40">
+        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40">
           {footer}
         </div>
       )}

@@ -12,24 +12,24 @@ function formatAge(report) {
 export default function NotificationItem({ report, isRead = false, onToggleRead }) {
   return (
     <article className={`flex min-w-0 gap-3 p-3 sm:p-4 ${isRead ? 'opacity-70' : 'bg-emerald-500/[0.04]'}`}>
-      <span className="mt-0.5 rounded-full bg-amber-500/10 p-2 text-amber-300" aria-hidden="true">
+      <span className="mt-0.5 rounded-full bg-amber-500/10 p-2 text-amber-700 dark:text-amber-300" aria-hidden="true">
         <Bell className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="text-sm font-semibold text-white">{report.area || 'Commute update'}</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{report.area || 'Commute update'}</h2>
           <time dateTime={report.created_at || undefined} className="text-xs text-slate-500">{formatAge(report)}</time>
         </div>
-        <p className="mt-1 break-words text-sm leading-relaxed text-slate-300">{report.message}</p>
+        <p className="mt-1 break-words text-sm leading-relaxed text-slate-600 dark:text-slate-300">{report.message}</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {!isRead && <Badge variant="emerald" size="xs">Unread</Badge>}
-          {report.mode && <p className="text-xs font-medium text-emerald-300">{report.mode}</p>}
+          {report.mode && <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">{report.mode}</p>}
           {onToggleRead && (
             <button
               type="button"
               onClick={() => onToggleRead(report.id)}
               aria-pressed={isRead}
-              className="min-h-8 rounded-lg border border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="min-h-8 rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               {isRead ? 'Mark unread' : 'Mark read'}
             </button>

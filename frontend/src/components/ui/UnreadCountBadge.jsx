@@ -38,10 +38,10 @@ export default function UnreadCountBadge({
       : 'min-w-4 px-1 py-0.5 text-[10px]';
   const variantClasses =
     variant === 'amber'
-      ? 'border-amber-500/30 bg-amber-500/15 text-amber-300'
+      ? 'border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300'
       : variant === 'dark'
-        ? 'border-emerald-500/40 bg-slate-950 text-emerald-400'
-        : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300';
+        ? 'border-emerald-500/40 bg-slate-50 dark:bg-slate-950 text-emerald-700 dark:text-emerald-400'
+        : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300';
 
   return (
     <span

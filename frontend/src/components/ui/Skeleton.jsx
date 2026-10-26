@@ -30,7 +30,7 @@ export function Skeleton({
     <div
       aria-hidden="true"
       style={style}
-      className={`animate-pulse bg-slate-800/70 border border-slate-700/30 ${variantClasses[variant]} ${className}`}
+      className={`animate-pulse bg-slate-100 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700/30 ${variantClasses[variant]} ${className}`}
     />
   );
 }
@@ -44,7 +44,7 @@ export function CardSkeleton({ count = 1 }) {
       {Array.from({ length: count }).map((_, idx) => (
         <div 
           key={idx} 
-          className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 space-y-4 shadow-lg animate-pulse"
+          className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 space-y-4 shadow-lg animate-pulse"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ export function CardSkeleton({ count = 1 }) {
             <Skeleton variant="rounded" className="h-12 w-full" />
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-slate-800/60">
+          <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800/60">
             <Skeleton variant="text" className="w-full h-3" />
             <Skeleton variant="text" className="w-4/5 h-3" />
           </div>

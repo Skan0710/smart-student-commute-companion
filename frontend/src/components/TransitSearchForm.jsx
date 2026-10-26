@@ -52,13 +52,13 @@ export default function TransitSearchForm({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-bold text-white flex items-center gap-2">
-          <Search className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Search className="w-4 h-4 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
           <span>Search the Transit Network</span>
         </h2>
-        <span className="text-[11px] font-medium text-emerald-400/90 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
+        <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400/90 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
           <TrainFront className="w-3 h-3" aria-hidden="true" />
           Mumbai GTFS Verified
         </span>
@@ -96,7 +96,7 @@ export default function TransitSearchForm({
         {/* Recent searches — one click re-runs a previous query */}
         {recentSearches.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 mt-3">
-            <span className="text-[11px] font-semibold text-slate-400">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
               Recent:
             </span>
             {recentSearches.map((recent) => (
@@ -104,7 +104,7 @@ export default function TransitSearchForm({
                 key={recent}
                 type="button"
                 onClick={() => onSelectRecent?.(recent)}
-                className="text-[11px] px-2.5 py-1.5 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                className="text-[11px] px-2.5 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700/50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/60"
                 aria-label={`Search again for ${recent}`}
               >
                 {recent}
@@ -113,7 +113,7 @@ export default function TransitSearchForm({
             <button
               type="button"
               onClick={onClearRecent}
-              className="text-[11px] text-slate-400 hover:text-white underline underline-offset-2 px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline underline-offset-2 px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               Clear
             </button>

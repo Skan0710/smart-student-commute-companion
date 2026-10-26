@@ -62,7 +62,7 @@ export default function EventLogList({
   return (
     <ol
       aria-label={label}
-      className={`rounded-xl border border-slate-800 bg-slate-950/60 divide-y divide-slate-800/80 ${className}`}
+      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 divide-y divide-slate-200 dark:divide-slate-800/80 ${className}`}
     >
       {items.map((item, index) => {
         const kind = KIND_STYLES[item.kind] || { label: item.kind || 'Event', variant: 'slate' };
@@ -81,7 +81,7 @@ export default function EventLogList({
                 <Badge variant={kind.variant} size="xs">
                   {kind.label}
                 </Badge>
-                <span className="min-w-0 text-xs leading-relaxed text-slate-300 break-words">
+                <span className="min-w-0 text-xs leading-relaxed text-slate-600 dark:text-slate-300 break-words">
                   {item.message}
                 </span>
               </div>

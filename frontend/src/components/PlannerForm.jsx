@@ -440,7 +440,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-white fill-white relative z-10 group-hover:rotate-12 transition-transform" />
+              <Sparkles className="w-4 h-4 text-slate-900 dark:text-white fill-white relative z-10 group-hover:rotate-12 transition-transform" />
               <span className="relative z-10 tracking-wide">Plan My Commute</span>
             </>
           )}

@@ -46,10 +46,10 @@ export default function MyCommutesPage({
       {/* Page heading — establishes the h1 for this view */}
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             My Commutes
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Saved commute setups for one-tap planning across your week
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function MyCommutesPage({
             onClick={onRefresh}
             disabled={isBusy}
             aria-busy={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
             <span>{isRefreshing ? 'Reloading...' : 'Reload'}</span>
@@ -68,10 +68,10 @@ export default function MyCommutesPage({
       </header>
 
       {/* On-device storage note */}
-      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-300 flex items-center gap-2">
-        <Bookmark className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
+      <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
+        <Bookmark className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" aria-hidden="true" />
         <span>
-          <strong className="text-emerald-400">Stored on this device only:</strong> saved commutes keep
+          <strong className="text-emerald-700 dark:text-emerald-400">Stored on this device only:</strong> saved commutes keep
           area-level planner settings (start, destination, modes, budget) — never accounts, tokens, or exact locations.
         </span>
       </div>
@@ -95,7 +95,7 @@ export default function MyCommutesPage({
         ) : commutes.length === 0 ? (
           <EmptyState
             headingLevel={2}
-            icon={<Bookmark className="w-6 h-6 text-emerald-400" aria-hidden="true" />}
+            icon={<Bookmark className="w-6 h-6 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />}
             title="No saved commutes yet"
             description="Configure your route in the planner, then press “Save this commute” to keep it here for one-tap planning."
             action={
@@ -106,7 +106,7 @@ export default function MyCommutesPage({
           />
         ) : (
           <>
-            <p role="status" className="text-xs text-slate-400 pb-3">
+            <p role="status" className="text-xs text-slate-500 dark:text-slate-400 pb-3">
               {commutes.length} saved {commutes.length === 1 ? 'commute' : 'commutes'} on this device
               {isRefreshing && ' — reloading…'}
             </p>

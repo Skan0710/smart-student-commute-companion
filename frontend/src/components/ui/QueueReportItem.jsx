@@ -38,15 +38,15 @@ import { Clock } from 'lucide-react';
 const STATUS_STYLES = {
   pending: {
     label: 'Waiting',
-    className: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+    className: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
   },
   sending: {
     label: 'Sending',
-    className: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+    className: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
   },
   failed: {
     label: 'Rejected',
-    className: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+    className: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
   },
 };
 
@@ -64,7 +64,7 @@ export default function QueueReportItem({
 
   return (
     <li
-      className={`rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 ${className}`}
+      className={`rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-4 py-3 ${className}`}
     >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span
@@ -72,7 +72,7 @@ export default function QueueReportItem({
         >
           {style.label}
         </span>
-        <span className="min-w-0 text-sm text-slate-200 break-words">{title}</span>
+        <span className="min-w-0 text-sm text-slate-800 dark:text-slate-200 break-words">{title}</span>
       </div>
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
         {queuedAt && (
@@ -84,7 +84,7 @@ export default function QueueReportItem({
         {area && <span>{area}</span>}
         {attempts > 0 && <span>{attempts} send attempt(s)</span>}
       </div>
-      {error && <p className="mt-1 text-xs text-rose-300/90 break-words">{error}</p>}
+      {error && <p className="mt-1 text-xs text-rose-700 dark:text-rose-300/90 break-words">{error}</p>}
       {children && <div className="mt-2 flex flex-wrap items-center gap-2">{children}</div>}
     </li>
   );

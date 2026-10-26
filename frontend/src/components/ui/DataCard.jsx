@@ -27,7 +27,7 @@ import React from 'react';
  * <DataCard
  *   accent="bg-emerald-500"
  *   header={<Badge variant="amber">Community reported</Badge>}
- *   title={<span className="font-bold text-white">Andheri East</span>}
+ *   title={<span className="font-bold text-slate-900 dark:text-white">Andheri East</span>}
  *   subtitle="Western Line"
  *   footer={<span>12 confirmed</span>}
  * >
@@ -45,7 +45,7 @@ export default function DataCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5 transition-all hover:border-slate-700 ${className}`}
+      className={`relative overflow-hidden bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/90 rounded-xl p-3.5 transition-all hover:border-slate-300 dark:hover:border-slate-700 ${className}`}
     >
       {accent && (
         <div className={`absolute top-0 left-0 bottom-0 w-1 ${accent}`} aria-hidden="true" />
@@ -59,7 +59,7 @@ export default function DataCard({
         )}
 
         <div className="pl-2 min-w-0">
-          <div className="text-sm font-bold text-white flex items-center justify-between gap-2 min-w-0">
+          <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between gap-2 min-w-0">
             <span className="truncate min-w-0">{title}</span>
             {subtitle && <span className="shrink-0">{subtitle}</span>}
           </div>

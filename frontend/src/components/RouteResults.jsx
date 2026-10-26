@@ -449,12 +449,12 @@ export default function RouteResults({
                 }`}
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex flex-col gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
                       <RouteBadge mode={alt.primaryMode} size="sm" />
-                      <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{alt.title}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white break-words min-w-0">{alt.title}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
                       {alt.badgeLabel && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
@@ -482,7 +482,7 @@ export default function RouteResults({
                       <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                       {alt.walkingDurationMinutes}m
                     </span>
-                    <span className="font-mono text-slate-400 ml-auto text-[10px]">
+                    <span className="font-mono text-slate-500 dark:text-slate-400 ml-auto text-[10px]">
                       {alt.estimatedDeparture} → {alt.estimatedArrival}
                     </span>
                   </div>

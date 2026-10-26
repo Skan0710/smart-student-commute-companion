@@ -24,16 +24,16 @@ export default function PageContainer({
   as: Component = 'div'
 }) {
   return (
-    <Component className={`bg-slate-900/90 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm ${className}`}>
+    <Component className={`bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm ${className}`}>
       {(title || description) && (
         <div className="mb-4">
           {title && (
-            <h2 className="text-lg font-extrabold text-white tracking-tight mb-1">
+            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight mb-1">
               {title}
             </h2>
           )}
           {description && (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {description}
             </p>
           )}

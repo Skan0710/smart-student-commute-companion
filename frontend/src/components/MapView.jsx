@@ -92,26 +92,26 @@ export default function MapView({
   };
 
   return (
-    <div className="relative w-full h-[500px] lg:h-full min-h-[450px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="relative w-full h-[500px] lg:h-full min-h-[450px] rounded-3xl overflow-hidden">
       {/* Map Legend Overlay */}
-      <div className="absolute top-3 left-3 z-[1000] bg-slate-950/85 backdrop-blur-md border border-slate-800 rounded-xl px-3 py-2 text-xs space-y-1 shadow-lg">
-        <div className="font-bold text-slate-300 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
+      <div className="absolute bottom-8 left-3 z-[1000] bg-white/90 dark:bg-slate-950/85 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs space-y-1 shadow-lg">
+        <div className="font-bold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
           <span>Map Legend</span>
-          <span className="text-[10px] text-emerald-400">OpenStreetMap</span>
+          <span className="text-[10px] text-emerald-600 dark:text-emerald-400">OpenStreetMap</span>
         </div>
-        <div className="flex items-center gap-2 text-slate-300 text-[11px]">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
           <span className="w-3 h-3 rounded-full bg-emerald-500 border border-white"></span>
           <span>Starting Area</span>
         </div>
-        <div className="flex items-center gap-2 text-slate-300 text-[11px]">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
           <span className="w-3 h-3 rounded-full bg-indigo-500 border border-white"></span>
           <span>College Destination</span>
         </div>
-        <div className="flex items-center gap-2 text-slate-300 text-[11px]">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
           <span className="w-3.5 h-1 rounded-full bg-emerald-400"></span>
           <span>Selected Route</span>
         </div>
-        <div className="flex items-center gap-2 text-slate-300 text-[11px]">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
           <span className="w-3 h-3 rounded-full bg-amber-500/40 border border-amber-400"></span>
           <span>Live Community Disruption</span>
         </div>

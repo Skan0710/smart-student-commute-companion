@@ -19,56 +19,56 @@ const MODE_CONFIG = {
     label: 'Train',
     icon: Train,
     bg: 'bg-sky-500/15',
-    text: 'text-sky-300',
+    text: 'text-sky-700 dark:text-sky-300',
     border: 'border-sky-500/30'
   },
   rail: {
     label: 'Train',
     icon: Train,
     bg: 'bg-sky-500/15',
-    text: 'text-sky-300',
+    text: 'text-sky-700 dark:text-sky-300',
     border: 'border-sky-500/30'
   },
   metro: {
     label: 'Metro',
     icon: Navigation,
     bg: 'bg-purple-500/15',
-    text: 'text-purple-300',
+    text: 'text-purple-700 dark:text-purple-300',
     border: 'border-purple-500/30'
   },
   bus: {
     label: 'BEST Bus',
     icon: Bus,
     bg: 'bg-amber-500/15',
-    text: 'text-amber-300',
+    text: 'text-amber-700 dark:text-amber-300',
     border: 'border-amber-500/30'
   },
   auto: {
     label: 'Auto',
     icon: Car,
     bg: 'bg-yellow-500/15',
-    text: 'text-yellow-300',
+    text: 'text-yellow-700 dark:text-yellow-300',
     border: 'border-yellow-500/30'
   },
   walk: {
     label: 'Walk',
     icon: Footprints,
     bg: 'bg-emerald-500/15',
-    text: 'text-emerald-300',
+    text: 'text-emerald-700 dark:text-emerald-300',
     border: 'border-emerald-500/30'
   },
   shared: {
     label: 'Shared Travel',
     icon: Users,
     bg: 'bg-teal-500/15',
-    text: 'text-teal-300',
+    text: 'text-teal-700 dark:text-teal-300',
     border: 'border-teal-500/30'
   },
   transit: {
     label: 'Transit',
     icon: Train,
     bg: 'bg-slate-500/15',
-    text: 'text-slate-300',
+    text: 'text-slate-600 dark:text-slate-300',
     border: 'border-slate-500/30'
   }
 };

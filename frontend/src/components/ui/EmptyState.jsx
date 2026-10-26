@@ -35,25 +35,25 @@ export default function EmptyState({
 
   return (
     <div 
-      className={`text-center py-12 px-4 bg-slate-950/40 rounded-xl border border-dashed border-slate-800 ${className}`}
+      className={`text-center py-12 px-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 ${className}`}
       role="status"
       aria-live="polite"
     >
       <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
         {icon && (
-          <div className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700/50 flex items-center justify-center text-slate-400">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700/50 flex items-center justify-center text-slate-500 dark:text-slate-400">
             {icon}
           </div>
         )}
         
         {title && (
-          <Heading className="text-base font-semibold text-slate-200">
+          <Heading className="text-base font-semibold text-slate-800 dark:text-slate-200">
             {title}
           </Heading>
         )}
         
         {description && (
-          <p className="text-sm text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {description}
           </p>
         )}

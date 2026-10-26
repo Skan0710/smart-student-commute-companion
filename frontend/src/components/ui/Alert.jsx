@@ -38,26 +38,26 @@ export default function Alert({
     success: {
       container: 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200',
       icon: CheckCircle2,
-      iconColor: 'text-emerald-400',
-      title: 'text-emerald-300',
+      iconColor: 'text-emerald-700 dark:text-emerald-400',
+      title: 'text-emerald-700 dark:text-emerald-300',
     },
     error: {
       container: 'bg-rose-950/20 border-rose-500/30 text-rose-200',
       icon: AlertCircle,
-      iconColor: 'text-rose-400',
-      title: 'text-rose-300',
+      iconColor: 'text-rose-700 dark:text-rose-400',
+      title: 'text-rose-700 dark:text-rose-300',
     },
     warning: {
       container: 'bg-amber-950/20 border-amber-500/30 text-amber-200',
       icon: AlertTriangle,
-      iconColor: 'text-amber-400',
-      title: 'text-amber-300',
+      iconColor: 'text-amber-700 dark:text-amber-400',
+      title: 'text-amber-700 dark:text-amber-300',
     },
     info: {
       container: 'bg-sky-950/20 border-sky-500/30 text-sky-200',
       icon: Info,
-      iconColor: 'text-sky-400',
-      title: 'text-sky-300',
+      iconColor: 'text-sky-700 dark:text-sky-400',
+      title: 'text-sky-700 dark:text-sky-300',
     },
   };
   
@@ -87,7 +87,7 @@ export default function Alert({
       {dismissible && onDismiss && (
         <button
           onClick={onDismiss}
-          className="shrink-0 p-1 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="shrink-0 p-1 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Dismiss alert"
         >
           <X className="w-4 h-4" aria-hidden="true" />

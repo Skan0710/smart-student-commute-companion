@@ -10,14 +10,14 @@ import { X, SlidersHorizontal } from 'lucide-react';
  */
 export function FilterChip({ label, onRemove }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold px-2 py-1 whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold px-2 py-1 whitespace-nowrap">
       {label}
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           aria-label={`Remove filter: ${label}`}
-          className="p-1.5 -my-1 -mr-1 rounded hover:bg-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          className="p-1.5 -my-1 -mr-1 rounded hover:bg-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           <X className="w-3 h-3" aria-hidden="true" />
         </button>
@@ -61,13 +61,13 @@ export default function FilterBar({
 
   return (
     <div
-      className={`bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2.5 ${className}`}
+      className={`bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 space-y-2.5 ${className}`}
       role="search"
     >
       <div className="flex flex-col sm:flex-row sm:items-end gap-2.5">
         <div className="flex-1 flex flex-wrap items-center gap-2">
           {hasActive && (
-            <span className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold shrink-0">
+            <span className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-semibold shrink-0">
               <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden="true" />
               Active:
             </span>
@@ -79,7 +79,7 @@ export default function FilterBar({
             <button
               type="button"
               onClick={onClearAll}
-              className="text-[11px] font-semibold text-slate-400 hover:text-white underline underline-offset-2 px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline underline-offset-2 px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               Clear all
             </button>
@@ -88,7 +88,7 @@ export default function FilterBar({
 
         {typeof resultCount === 'number' && (
           <span
-            className="text-[11px] text-slate-400 font-mono shrink-0"
+            className="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0"
             aria-live="polite"
           >
             {resultCount} {resultCount === 1 ? 'result' : 'results'}

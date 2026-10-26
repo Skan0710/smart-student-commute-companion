@@ -78,7 +78,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       {/* Groups List */}
       {groups.length === 0 ? (
         <EmptyState
-          icon={<Users className="w-6 h-6 text-indigo-400" aria-hidden="true" />}
+          icon={<Users className="w-6 h-6 text-indigo-700 dark:text-indigo-400" aria-hidden="true" />}
           title="No commute groups currently active"
           description="Be the first to create a safe student auto-pool or transit travel buddy group for your college route!"
           action={
@@ -104,7 +104,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     <Badge variant="indigo" size="xs">
                       {grp.mode}
                     </Badge>
-                    <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
                       <Clock className="w-3 h-3" aria-hidden="true" />
                       {grp.departure_time}
                     </span>

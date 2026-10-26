@@ -14,17 +14,17 @@ import { AlertTriangle, Home } from 'lucide-react';
  */
 export default function NotFound({ onNavigateHome, message }) {
   return (
-    <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-8 shadow-xl backdrop-blur-sm text-center">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 shadow-xl backdrop-blur-sm text-center">
       <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
         <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <AlertTriangle className="w-8 h-8 text-amber-700 dark:text-amber-400" />
         </div>
         
         <div>
-          <h2 className="text-xl font-extrabold text-white mb-2">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">
             {message || 'Page Not Found'}
           </h2>
-          <p className="text-sm text-slate-400 mb-6">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
             The view you're looking for doesn't exist or isn't available yet.
           </p>
         </div>

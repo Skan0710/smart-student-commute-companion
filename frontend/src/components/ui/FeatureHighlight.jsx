@@ -22,13 +22,13 @@ export default function FeatureHighlight({ icon, title, description, className =
     <div className={`flex items-start gap-3 ${className}`}>
       <span
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-950 text-emerald-400"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-emerald-700 dark:text-emerald-400"
       >
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-bold text-white">{title}</p>
-        <p className="pt-0.5 text-xs leading-relaxed text-slate-400">{description}</p>
+        <p className="text-sm font-bold text-slate-900 dark:text-white">{title}</p>
+        <p className="pt-0.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
       </div>
     </div>
   );

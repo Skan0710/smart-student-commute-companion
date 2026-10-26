@@ -229,11 +229,11 @@ export default function AnalyticsPage({
     <div className="space-y-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-emerald-400 shrink-0" aria-hidden="true" />
+          <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 shrink-0" aria-hidden="true" />
             PWA Analytics
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             How this app is installed, how often it runs offline, how well the service-worker
             cache performs, and whether the worker hits any errors.
           </p>
@@ -292,13 +292,13 @@ export default function AnalyticsPage({
       {/* Recorded-log controls: time window (filters the logs below) and the
           confirmed reset action. Both belong to recorded data only. */}
       {snapshot && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-800 bg-slate-900/60 px-3.5 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-3.5 py-3">
           <div
             className="flex flex-wrap items-center gap-2"
             role="group"
             aria-label="Time window for recorded event logs"
           >
-            <span className="pr-1 text-xs font-semibold text-slate-400">
+            <span className="pr-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
               Event window
             </span>
             {TIME_WINDOWS.map((option) => {
@@ -309,7 +309,7 @@ export default function AnalyticsPage({
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => setTimeWindow(option.id)}
-                  className={`min-h-9 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
+                  className={`min-h-9 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                     isActive
                       ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
                       : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
@@ -337,7 +337,7 @@ export default function AnalyticsPage({
       )}
 
       <section aria-label="Installation tracking" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Installation tracking
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -427,7 +427,7 @@ export default function AnalyticsPage({
       </section>
 
       <section aria-label="Offline usage analytics" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Offline usage
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -464,10 +464,10 @@ export default function AnalyticsPage({
       </section>
 
       <section aria-label="Cache hit and miss rates" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Cache performance
         </h2>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3.5">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-4 py-3.5">
           <ProgressBar
             label="Static asset cache hit rate"
             value={hitRate}
@@ -509,7 +509,7 @@ export default function AnalyticsPage({
       </section>
 
       <section aria-label="Service worker error monitoring" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Service worker monitoring
         </h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -585,8 +585,8 @@ export default function AnalyticsPage({
         )}
       </section>
 
-      <p className="flex items-start gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 text-xs text-slate-400">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+      <p className="flex items-start gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 text-xs text-slate-500 dark:text-slate-400">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
         <span>
           Every metric on this screen is counted and stored on this device only. Nothing is
           uploaded to a server, and no browsing history or location leaves your browser.

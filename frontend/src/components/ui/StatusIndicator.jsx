@@ -23,37 +23,37 @@ const STATUS_CONFIG = {
     label: 'On Schedule',
     dotBg: 'bg-emerald-500',
     pulseBg: 'bg-emerald-400',
-    textColor: 'text-emerald-300'
+    textColor: 'text-emerald-700 dark:text-emerald-300'
   },
   minor_delay: {
     label: 'Minor Delay',
     dotBg: 'bg-amber-500',
     pulseBg: 'bg-amber-400',
-    textColor: 'text-amber-300'
+    textColor: 'text-amber-700 dark:text-amber-300'
   },
   major_delay: {
     label: 'Major Delay',
     dotBg: 'bg-orange-500',
     pulseBg: 'bg-orange-400',
-    textColor: 'text-orange-300'
+    textColor: 'text-orange-700 dark:text-orange-300'
   },
   suspended: {
     label: 'Suspended',
     dotBg: 'bg-rose-500',
     pulseBg: 'bg-rose-400',
-    textColor: 'text-rose-300'
+    textColor: 'text-rose-700 dark:text-rose-300'
   },
   info: {
     label: 'Advisory',
     dotBg: 'bg-sky-500',
     pulseBg: 'bg-sky-400',
-    textColor: 'text-sky-300'
+    textColor: 'text-sky-700 dark:text-sky-300'
   },
   active: {
     label: 'Active Disruption',
     dotBg: 'bg-rose-500',
     pulseBg: 'bg-rose-400',
-    textColor: 'text-rose-300'
+    textColor: 'text-rose-700 dark:text-rose-300'
   }
 };
 

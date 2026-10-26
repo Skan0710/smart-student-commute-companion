@@ -39,23 +39,23 @@ export default function ErrorState({
       aria-live="assertive"
     >
       <div className="flex flex-col items-center gap-3.5 max-w-md mx-auto">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-lg shadow-rose-500/10">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-700 dark:text-rose-400 shadow-lg shadow-rose-500/10">
           <AlertCircle className="w-6 h-6" aria-hidden="true" />
         </div>
 
         <div className="space-y-1">
-          <Heading className="text-base font-bold text-slate-100">
+          <Heading className="text-base font-bold text-slate-900 dark:text-slate-100">
             {title}
           </Heading>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {message}
           </p>
         </div>
 
         {Array.isArray(suggestions) && suggestions.length > 0 && (
-          <div className="w-full text-left bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-400 space-y-1.5 my-1">
-            <span className="font-semibold text-slate-300">Suggestions:</span>
-            <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400">
+          <div className="w-full text-left bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-xl p-3 text-xs text-slate-500 dark:text-slate-400 space-y-1.5 my-1">
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Suggestions:</span>
+            <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
               {suggestions.map((item, idx) => (
                 <li key={idx}>{item}</li>
               ))}
@@ -71,7 +71,7 @@ export default function ErrorState({
               onClick={onRetry}
               disabled={isRetrying}
               aria-busy={isRetrying}
-              className="border-rose-500/40 text-rose-300 hover:bg-rose-500/10 hover:border-rose-500"
+              className="border-rose-500/40 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10 hover:border-rose-500"
             >
               <RotateCcw className={`w-3.5 h-3.5 mr-1.5 ${isRetrying ? 'animate-spin' : ''}`} aria-hidden="true" />
               <span>{isRetrying ? 'Retrying...' : retryLabel}</span>

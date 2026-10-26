@@ -25,7 +25,7 @@ export default function ListSkeleton({ rows = 3, label = 'Loading results', clas
         {Array.from({ length: rows }).map((_, idx) => (
           <div
             key={idx}
-            className="bg-slate-900/80 border border-slate-800/80 rounded-xl p-3.5 space-y-2.5 animate-pulse"
+            className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 rounded-xl p-3.5 space-y-2.5 animate-pulse"
           >
             <div className="flex items-center justify-between gap-2">
               <Skeleton variant="rounded" className="w-24 h-5" />
@@ -33,7 +33,7 @@ export default function ListSkeleton({ rows = 3, label = 'Loading results', clas
             </div>
             <Skeleton variant="text" className="w-2/3 h-4" />
             <Skeleton variant="text" className="w-1/2 h-3" />
-            <div className="pt-2 border-t border-slate-800/60">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60">
               <Skeleton variant="text" className="w-28 h-3" />
             </div>
           </div>

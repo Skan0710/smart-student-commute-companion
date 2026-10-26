@@ -98,7 +98,7 @@ export default function AccountPage({
       : 'Signed out — browsing as a guest.';
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 max-w-3xl mx-auto w-full">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1

@@ -21,28 +21,28 @@ const TIER_CONFIG = {
     label: 'Verified Authority',
     icon: ShieldCheck,
     bg: 'bg-emerald-500/10',
-    text: 'text-emerald-400',
+    text: 'text-emerald-700 dark:text-emerald-400',
     border: 'border-emerald-500/30'
   },
   USER_REPORTED: {
     label: 'Community Reported',
     icon: Users,
     bg: 'bg-sky-500/10',
-    text: 'text-sky-400',
+    text: 'text-sky-700 dark:text-sky-400',
     border: 'border-sky-500/30'
   },
   ESTIMATED: {
     label: 'Corridor Estimate',
     icon: Calculator,
     bg: 'bg-amber-500/10',
-    text: 'text-amber-400',
+    text: 'text-amber-700 dark:text-amber-400',
     border: 'border-amber-500/30'
   },
   SYNTHETIC: {
     label: 'Simulated Model',
     icon: Sparkles,
     bg: 'bg-purple-500/10',
-    text: 'text-purple-400',
+    text: 'text-purple-700 dark:text-purple-400',
     border: 'border-purple-500/30'
   }
 };

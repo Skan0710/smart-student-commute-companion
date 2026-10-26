@@ -53,11 +53,11 @@ export default function ComparisonBars({
     return (
       <div className={`min-w-0 ${className}`}>
         {title && (
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider pb-2">
+          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-2">
             {title}
           </h4>
         )}
-        <p role="status" className="text-xs text-slate-500 bg-slate-950/60 border border-dashed border-slate-800 rounded-xl px-3 py-3">
+        <p role="status" className="text-xs text-slate-500 bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3">
           {emptyMessage}
         </p>
       </div>
@@ -69,7 +69,7 @@ export default function ComparisonBars({
   return (
     <div className={`min-w-0 ${className}`}>
       {title && (
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider pb-2">
+        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-2">
           {title}
         </h4>
       )}
@@ -85,19 +85,19 @@ export default function ComparisonBars({
           return (
             <li
               key={`${item.label}-${index}`}
-              className={`text-xs ${item.emphasis ? 'text-slate-100' : 'text-slate-400'}`}
+              className={`text-xs ${item.emphasis ? 'text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}
             >
               <div className="flex items-baseline justify-between gap-2 pb-0.5">
                 <span className={`truncate ${item.emphasis ? 'font-bold' : 'font-medium'}`}>
                   {item.label}
                 </span>
-                <span className={`shrink-0 font-mono ${item.emphasis ? 'text-emerald-300 font-bold' : 'text-slate-300'}`}>
+                <span className={`shrink-0 font-mono ${item.emphasis ? 'text-emerald-700 dark:text-emerald-300 font-bold' : 'text-slate-600 dark:text-slate-300'}`}>
                   {display}
                 </span>
               </div>
               <div
                 aria-hidden="true"
-                className="h-2 w-full rounded-full bg-slate-800/80 overflow-hidden"
+                className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden"
               >
                 <div
                   className={`h-full rounded-full transition-[width] duration-500 ${fillClass}`}

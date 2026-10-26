@@ -65,7 +65,7 @@ export default function TimeRangeInput({
       disabled={disabled}
       aria-describedby={hint ? hintId : undefined}
     >
-      <legend className="block p-0 text-xs font-semibold text-slate-300 mb-1.5">
+      <legend className="block p-0 text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
         {legend}
       </legend>
       {/* Stacked on narrow screens; two columns only once a pair of time

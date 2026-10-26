@@ -91,7 +91,7 @@ export default function TransitResults({
   const renderStops = () =>
     sortedStops.length === 0 ? (
       <EmptyState
-        icon={<MapPin className="w-6 h-6 text-emerald-400" aria-hidden="true" />}
+        icon={<MapPin className="w-6 h-6 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />}
         title="No stops matched this search"
         description="Try a station name such as Dadar, Kurla, or Versova."
         action={
@@ -99,7 +99,7 @@ export default function TransitResults({
             <button
               type="button"
               onClick={() => setActiveTab('routes')}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               View Routes &amp; Lines ({routes.length})
             </button>
@@ -130,10 +130,10 @@ export default function TransitResults({
                   )}
                 </>
               }
-              title={<span className="font-semibold text-white">{stop.stop_name}</span>}
+              title={<span className="font-semibold text-slate-900 dark:text-white">{stop.stop_name}</span>}
               footer={
                 <>
-                  <span className="text-slate-400 text-[11px] font-mono">
+                  <span className="text-slate-500 dark:text-slate-400 text-[11px] font-mono">
                     {stop.stop_id}
                   </span>
                   <button
@@ -141,7 +141,7 @@ export default function TransitResults({
                     onClick={() => toggleStopDetails(stopId)}
                     aria-expanded={isExpanded}
                     aria-controls={detailsId}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-emerald-300 px-1.5 py-0.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 px-1.5 py-0.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60"
                   >
                     <span>{isExpanded ? 'Hide details' : 'Details'}</span>
                     <ChevronDown
@@ -154,7 +154,7 @@ export default function TransitResults({
             >
               <MetaList>
                 <MetaRow
-                  icon={<Signpost className="w-3.5 h-3.5 text-emerald-400" />}
+                  icon={<Signpost className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />}
                   label="Stop coordinates"
                 >
                   {Number(stop.stop_lat).toFixed(4)}, {Number(stop.stop_lon).toFixed(4)}
@@ -165,9 +165,9 @@ export default function TransitResults({
                 <div
                   id={detailsId}
                   hidden={!isExpanded}
-                  className="mt-2.5 pt-2.5 border-t border-slate-800/70 space-y-2"
+                  className="mt-2.5 pt-2.5 border-t border-slate-200 dark:border-slate-800/70 space-y-2"
                 >
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Use this stop as the starting point or destination of a planned commute.
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -203,7 +203,7 @@ export default function TransitResults({
   const renderRoutes = () =>
     sortedRoutes.length === 0 ? (
       <EmptyState
-        icon={<Train className="w-6 h-6 text-indigo-400" aria-hidden="true" />}
+        icon={<Train className="w-6 h-6 text-indigo-700 dark:text-indigo-400" aria-hidden="true" />}
         title="No lines matched this search"
         description="Try a line name such as Western Line, Harbour Line, or Metro Line 1."
         action={
@@ -211,7 +211,7 @@ export default function TransitResults({
             <button
               type="button"
               onClick={() => setActiveTab('stops')}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               View Stops &amp; Stations ({stops.length})
             </button>
@@ -233,19 +233,19 @@ export default function TransitResults({
                 </Badge>
               }
               title={
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {route.route_long_name || route.route_short_name}
                 </span>
               }
               subtitle={
                 route.route_long_name && route.route_short_name ? (
-                  <span className="text-[11px] font-mono font-bold text-indigo-300">
+                  <span className="text-[11px] font-mono font-bold text-indigo-700 dark:text-indigo-300">
                     {route.route_short_name}
                   </span>
                 ) : null
               }
               footer={
-                <span className="text-slate-400 text-[11px] font-mono">
+                <span className="text-slate-500 dark:text-slate-400 text-[11px] font-mono">
                   {route.route_id}
                   {route.agency_id ? ` • ${route.agency_id}` : ''}
                 </span>
@@ -253,7 +253,7 @@ export default function TransitResults({
             >
               <MetaList>
                 <MetaRow
-                  icon={<TypeIcon className="w-3.5 h-3.5 text-indigo-400" />}
+                  icon={<TypeIcon className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />}
                   label="Route type"
                 >
                   {type.label}
@@ -287,7 +287,7 @@ export default function TransitResults({
             className="py-1.5 text-xs"
           />
         </div>
-        <span className="text-[11px] font-mono text-slate-400" aria-live="polite">
+        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400" aria-live="polite">
           {stops.length + routes.length} total matches
         </span>
       </div>

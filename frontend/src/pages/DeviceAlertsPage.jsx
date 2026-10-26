@@ -63,8 +63,8 @@ export default function DeviceAlertsPage({
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-extrabold tracking-tight text-white">Device Alerts</h1>
-        <p className="text-sm text-slate-400">
+        <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Device Alerts</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           OS-level notifications for live disruption reports, delivered even when the app is in the background
         </p>
       </header>
@@ -97,7 +97,7 @@ export default function DeviceAlertsPage({
       )}
 
       <section aria-label="Device alert status" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">Status</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</h2>
         <DeviceAlertPermissionCard
           permission={effectivePermission}
           action={permissionAction}
@@ -122,22 +122,22 @@ export default function DeviceAlertsPage({
       </section>
 
       <section aria-label="How device alerts work" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">How it works</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">How it works</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card title={<span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-emerald-400" aria-hidden="true" />Background delivery</span>}>
-            <p className="text-sm text-slate-400">
+          <Card title={<span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />Background delivery</span>}>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Alerts are shown by your operating system only while the app is not focused, so you hear about
               disruptions without keeping the tab open.
             </p>
           </Card>
-          <Card title={<span className="flex items-center gap-2"><BellRing className="h-4 w-4 text-sky-400" aria-hidden="true" />Live reports only</span>}>
-            <p className="text-sm text-slate-400">
+          <Card title={<span className="flex items-center gap-2"><BellRing className="h-4 w-4 text-sky-700 dark:text-sky-400" aria-hidden="true" />Live reports only</span>}>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Each alert mirrors a live disruption reported by the student community — the same updates you see
               on the Notifications screen.
             </p>
           </Card>
-          <Card title={<span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-amber-400" aria-hidden="true" />You stay in control</span>}>
-            <p className="text-sm text-slate-400">
+          <Card title={<span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-amber-700 dark:text-amber-400" aria-hidden="true" />You stay in control</span>}>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Device alerts respect your saved preference and the browser permission. Turn them off or block
               them at any time.
             </p>
@@ -146,19 +146,19 @@ export default function DeviceAlertsPage({
       </section>
 
       <section aria-label="Device alert settings" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">Settings</h2>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Settings</h2>
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 px-4 py-3">
           <Toggle
             id="device-alerts-enabled"
             checked={isEnabled}
             onChange={onToggleEnabled}
             label="Device alerts"
             description="Show OS-level notifications for new live disruption reports while the app is in the background."
-            className="border-b border-slate-800 pb-3"
+            className="border-b border-slate-200 dark:border-slate-800 pb-3"
           />
           <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-200">Send test alert</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Send test alert</p>
               <p id="device-test-hint" className="text-xs text-slate-500 leading-relaxed pt-0.5">
                 Raise a sample notification now to see how alerts appear on this device.
                 {!canSendTest && effectivePermission === 'granted' && !isEnabled
@@ -182,7 +182,7 @@ export default function DeviceAlertsPage({
         </div>
       </section>
 
-      <p className="flex items-start gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 text-xs text-slate-400">
+      <p className="flex items-start gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 text-xs text-slate-500 dark:text-slate-400">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
         <span>
           {effectivePermission === 'granted'

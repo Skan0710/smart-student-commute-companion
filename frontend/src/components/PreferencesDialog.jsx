@@ -114,7 +114,7 @@ export default function PreferencesDialog({
       isOpen={isOpen}
       onClose={onClose}
       title="Preferences"
-      icon={<SlidersHorizontal className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
+      icon={<SlidersHorizontal className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />}
       size="lg"
     >
       <div className="p-5 space-y-4">

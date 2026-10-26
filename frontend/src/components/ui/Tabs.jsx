@@ -77,7 +77,7 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`inline-flex flex-wrap gap-1 bg-slate-950/70 border border-slate-800 rounded-xl p-1 ${className}`}
+      className={`inline-flex flex-wrap gap-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-slate-800 rounded-xl p-1 ${className}`}
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -94,10 +94,10 @@ export default function Tabs({
             disabled={tab.disabled}
             data-tab-id={tab.id}
             onClick={() => !tab.disabled && onChange?.(tab.id)}
-            className={`inline-flex items-center gap-1.5 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-slate-950 disabled:opacity-40 disabled:cursor-not-allowed ${sizeClasses} ${
+            className={`inline-flex items-center gap-1.5 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-transparent disabled:opacity-40 disabled:cursor-not-allowed ${sizeClasses} ${
               isActive
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                ? 'bg-white text-blue-700 shadow-sm ring-1 ring-slate-200 dark:bg-blue-500/20 dark:text-blue-100 dark:ring-blue-400/30 dark:shadow-none'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10'
             }`}
           >
             {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
@@ -137,7 +137,7 @@ export function TabPanel({ idPrefix = 'tabs', tabId, children, className = '' })
       id={`${idPrefix}-panel-${tabId}`}
       aria-labelledby={`${idPrefix}-tab-${tabId}`}
       tabIndex={0}
-      className={`focus:outline-none focus:ring-2 focus:ring-emerald-500/40 rounded-xl ${className}`}
+      className={`focus:outline-none focus:ring-2 focus:ring-blue-500/40 rounded-xl ${className}`}
     >
       {children}
     </div>

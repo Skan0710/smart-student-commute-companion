@@ -15,7 +15,7 @@ import React from 'react';
  * @param {string} [props.valueClassName=''] - Classes for the value text
  *
  * @example
- * <MetaRow icon={<MapPin />} label="Origin" valueClassName="text-white font-semibold">
+ * <MetaRow icon={<MapPin />} label="Origin" valueClassName="text-slate-900 dark:text-white font-semibold">
  *   Andheri East
  * </MetaRow>
  */
@@ -24,7 +24,7 @@ export default function MetaRow({
   children,
   label,
   className = '',
-  valueClassName = 'text-slate-300',
+  valueClassName = 'text-slate-600 dark:text-slate-300',
 }) {
   return (
     <div

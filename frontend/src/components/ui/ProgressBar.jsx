@@ -68,11 +68,11 @@ export default function ProgressBar({
     <div className={`min-w-0 ${className}`}>
       {label && (
         <div className="flex items-baseline justify-between gap-2 pb-1">
-          <span className="text-[11px] font-semibold text-slate-400 truncate">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
             {label}
           </span>
           {showValue && (
-            <span className="text-[11px] font-bold text-slate-200 shrink-0">
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 shrink-0">
               {displayValue ??
                 (hasValue ? `${Math.round(clamped)} / ${Math.round(safeMax)}` : '—')}
             </span>
@@ -89,7 +89,7 @@ export default function ProgressBar({
           displayValue ?? (hasValue ? `${percent}%` : 'No data available')
         }
         aria-busy={!hasValue || undefined}
-        className={`w-full rounded-full bg-slate-800 overflow-hidden ${trackClass}`}
+        className={`w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden ${trackClass}`}
       >
         <div
           className={`h-full rounded-full transition-[width] duration-500 ${fillClass}`}

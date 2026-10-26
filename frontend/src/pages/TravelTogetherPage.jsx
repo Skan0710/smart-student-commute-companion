@@ -69,10 +69,10 @@ export default function TravelTogetherPage({
     <div className="space-y-5">
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Travel Together
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Safe student grouping for auto-pooling and local train buddies
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function TravelTogetherPage({
             onClick={onRefresh}
             disabled={isLoading || isRefreshing}
             aria-busy={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
@@ -155,7 +155,7 @@ export default function TravelTogetherPage({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60"
               >
                 Clear Filters
               </button>

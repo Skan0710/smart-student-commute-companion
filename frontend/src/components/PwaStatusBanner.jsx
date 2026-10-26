@@ -36,9 +36,9 @@ export default function PwaStatusBanner({ isOffline = false, updateAvailable = f
     <div className="space-y-2 pb-1" role="status" aria-live="polite">
       {isOffline && (
         <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-amber-500/40 bg-amber-950/40 text-amber-200 text-xs font-medium">
-          <WifiOff className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" aria-hidden="true" />
+          <WifiOff className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" aria-hidden="true" />
           <span>
-            <strong className="font-bold text-amber-300">You&rsquo;re offline.</strong>{' '}
+            <strong className="font-bold text-amber-700 dark:text-amber-300">You&rsquo;re offline.</strong>{' '}
             The app shell is cached, so you can keep browsing — but planning,
             live alerts, and search need a connection and will show retry
             options until you&rsquo;re back online.
@@ -48,15 +48,15 @@ export default function PwaStatusBanner({ isOffline = false, updateAvailable = f
 
       {updateAvailable && !updateDismissed && (
         <div className="flex flex-wrap items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-200 text-xs font-medium">
-          <RefreshCw className="w-4 h-4 shrink-0 text-emerald-400" aria-hidden="true" />
+          <RefreshCw className="w-4 h-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
           <span className="flex-1 min-w-[180px]">
-            <strong className="font-bold text-emerald-300">Update ready.</strong>{' '}
+            <strong className="font-bold text-emerald-700 dark:text-emerald-300">Update ready.</strong>{' '}
             A newer version of the app has been downloaded.
           </span>
           <button
             type="button"
             onClick={onRefresh}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
           >
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
             Refresh
@@ -65,7 +65,7 @@ export default function PwaStatusBanner({ isOffline = false, updateAvailable = f
             type="button"
             onClick={() => setUpdateDismissed(true)}
             aria-label="Dismiss update notification"
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <X className="w-3.5 h-3.5" aria-hidden="true" />
           </button>

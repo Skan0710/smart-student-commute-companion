@@ -100,12 +100,12 @@ export default function OfflineQueuePage({
         <div className="min-w-0">
           <h1
             id="offline-queue-title"
-            className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2"
+            className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"
           >
-            <UploadCloud className="h-5 w-5 text-emerald-400 shrink-0" aria-hidden="true" />
+            <UploadCloud className="h-5 w-5 text-emerald-700 dark:text-emerald-400 shrink-0" aria-hidden="true" />
             Offline Queue
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Reports you file while offline wait here and are broadcast to the feed as soon
             as your connection returns — a flaky signal never loses a report.
           </p>
@@ -145,7 +145,7 @@ export default function OfflineQueuePage({
 
       {/* Live queue status — always rendered */}
       <section aria-label="Queue status" className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Status
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -207,7 +207,7 @@ export default function OfflineQueuePage({
       {items.length > 0 && (
         <section aria-label="Queued reports" className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {filter === 'failed'
                 ? 'Rejected reports'
                 : pending.length > 0
@@ -227,7 +227,7 @@ export default function OfflineQueuePage({
                     type="button"
                     aria-pressed={isActive}
                     onClick={() => setFilter(option.id)}
-                    className={`min-h-9 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
+                    className={`min-h-9 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                       isActive
                         ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
                         : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
@@ -295,8 +295,8 @@ export default function OfflineQueuePage({
       )}
 
       {/* How it works / privacy note */}
-      <p className="flex items-start gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 text-xs text-slate-400">
-        <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+      <p className="flex items-start gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 text-xs text-slate-500 dark:text-slate-400">
+        <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
         <span>
           Queued reports stay in this browser until they are delivered — they are only
           submitted through the normal live-alerts endpoint, and nothing else is sent in

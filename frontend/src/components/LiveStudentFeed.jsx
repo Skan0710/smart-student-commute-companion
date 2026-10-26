@@ -91,13 +91,13 @@ export default function LiveStudentFeed({
       {/* Reports Feed */}
       {reports.length === 0 ? (
         <EmptyState
-          icon={<Radio className="w-6 h-6 text-slate-400" aria-hidden="true" />}
+          icon={<Radio className="w-6 h-6 text-slate-500 dark:text-slate-400" aria-hidden="true" />}
           title="All corridors operating smoothly"
           description="No active student disruption reports right now. When students post real-time updates, they will appear here automatically."
           action={
             <button
               onClick={onOpenCreateReport}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors"
             >
               Post a Report
             </button>
@@ -124,12 +124,12 @@ export default function LiveStudentFeed({
                       {getModeBadge(rep.mode)}
                     </div>
 
-                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-slate-400" aria-hidden="true" />
+                        <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                         {rep.ageFormatted}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                         (w: {rep.freshnessWeight?.toFixed(2) || '1.0'})
                       </span>
                     </div>
@@ -137,18 +137,18 @@ export default function LiveStudentFeed({
                 }
                 title={rep.area}
                 subtitle={
-                  <span className="text-[11px] font-normal text-slate-400">
-                    by <span className="text-indigo-300">{rep.pseudonym}</span>
+                  <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                    by <span className="text-indigo-700 dark:text-indigo-300">{rep.pseudonym}</span>
                   </span>
                 }
                 footer={
                   <>
-                    <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-                      <span className="font-semibold text-emerald-400">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px]">
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                         {rep.confirmation_count} confirmed
                       </span>
                       {rep.contradiction_count > 0 && (
-                        <span className="text-slate-400">
+                        <span className="text-slate-500 dark:text-slate-400">
                           • {rep.contradiction_count} resolved
                         </span>
                       )}

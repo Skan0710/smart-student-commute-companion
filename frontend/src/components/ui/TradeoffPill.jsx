@@ -27,10 +27,10 @@ const CATEGORY_ICONS = {
 };
 
 const TYPE_STYLES = {
-  positive: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
-  warning: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
-  danger: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
-  neutral: 'bg-slate-800/80 text-slate-300 border-slate-700/60'
+  positive: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+  warning: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30',
+  danger: 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30',
+  neutral: 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700/60'
 };
 
 export default function TradeoffPill({
