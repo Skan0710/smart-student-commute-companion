@@ -2,29 +2,20 @@ import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 
 /**
- * ThemeToggle - Accessible visual theme switcher
+ * ThemeToggle - Sliding Pill Switch with Sun & Moon
  *
- * Toggles between premium light (#F8FAFC base, #FFFFFF surfaces) and complete
- * dark (#0F172A base, #1E293B surfaces) themes.
- *
- * Accessibility & Design guidelines:
- * - Visually clear sun/moon iconography
- * - NEVER displays confusing literal "ON" or "OFF" text
- * - Touch-target comfortable (min 44px)
- * - Clear accessible name and title
- * - Smooth transition, visible keyboard focus ring
+ * Smooth sliding pill button that indicates light and dark mode with animated
+ * Sun and Moon icons and a sliding indicator thumb.
  *
  * @param {Object} props
- * @param {'light'|'dark'|'system'} props.theme - Active theme state
+ * @param {'light'|'dark'} props.theme - Active theme state
  * @param {() => void} props.onToggle - Handler called when user toggles
  * @param {string} [props.className] - Additional classes
- * @param {'button'|'icon'} [props.variant='button'] - Button presentation variant
  */
 export default function ThemeToggle({
   theme = 'light',
   onToggle,
   className = '',
-  variant = 'button',
 }) {
   const isDark = theme === 'dark';
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
@@ -32,20 +23,48 @@ export default function ThemeToggle({
   return (
     <button
       type="button"
-      onClick={onToggle}
+      role="switch"
+      aria-checked={isDark}
       aria-label={label}
       title={label}
-      className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-950 ${
+      onClick={onToggle}
+      className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-950 ${
         isDark
-          ? 'bg-slate-800/90 hover:bg-slate-700/90 border-slate-700 text-amber-300 hover:text-amber-200 shadow-sm'
-          : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700 hover:text-slate-900 shadow-sm'
+          ? 'bg-slate-800 border border-slate-700 shadow-inner'
+          : 'bg-slate-200 border border-slate-300 shadow-inner'
       } ${className}`}
     >
-      {isDark ? (
-        <Sun className="w-4 h-4 transition-transform duration-200 hover:rotate-45" aria-hidden="true" />
-      ) : (
-        <Moon className="w-4 h-4 transition-transform duration-200 hover:-rotate-12 text-slate-700" aria-hidden="true" />
-      )}
+      {/* Background Icons positioned at each end */}
+      <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none select-none">
+        <Sun
+          className={`w-3.5 h-3.5 transition-opacity duration-200 ${
+            isDark ? 'text-slate-500 opacity-60' : 'text-amber-500 opacity-90 font-bold'
+          }`}
+          aria-hidden="true"
+        />
+        <Moon
+          className={`w-3.5 h-3.5 transition-opacity duration-200 ${
+            isDark ? 'text-indigo-400 opacity-90' : 'text-slate-400 opacity-60'
+          }`}
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Sliding Pill Thumb with Active Icon */}
+      <span
+        className={`relative z-10 flex items-center justify-center w-7 h-7 rounded-full shadow-md transition-transform duration-300 ease-in-out ${
+          isDark
+            ? 'translate-x-[32px] bg-slate-900 text-amber-300 border border-slate-700'
+            : 'translate-x-0 bg-white text-amber-500 border border-slate-200'
+        }`}
+      >
+        {isDark ? (
+          <Moon className="w-3.5 h-3.5 text-indigo-300 animate-in fade-in zoom-in duration-200" aria-hidden="true" />
+        ) : (
+          <Sun className="w-3.5 h-3.5 text-amber-500 animate-in fade-in zoom-in duration-200" aria-hidden="true" />
+        )}
+      </span>
+
       <span className="sr-only">{label}</span>
     </button>
   );
