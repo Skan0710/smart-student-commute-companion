@@ -14,7 +14,7 @@ import React, { useRef } from 'react';
  *   TabPanel with the same idPrefix so the ids line up)
  *
  * @param {Object} props
- * @param {Array<{id: string, label: React.ReactNode, icon?: React.ComponentType, count?: number, disabled?: boolean}>} props.tabs
+ * @param {Array<{id: string, label: React.ReactNode, icon?: React.ComponentType, count?: number, badge?: string, disabled?: boolean}>} props.tabs
  * @param {string} props.activeTab - Id of the currently selected tab
  * @param {Function} props.onChange - Called with the new tab id
  * @param {string} [props.ariaLabel='Sections'] - Accessible tablist label
@@ -102,15 +102,15 @@ export default function Tabs({
           >
             {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
             <span>{tab.label}</span>
-            {typeof tab.count === 'number' && (
+            {(typeof tab.count === 'number' || tab.badge) && (
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                   isActive
-                    ? 'bg-slate-950/20 text-slate-950'
-                    : 'bg-slate-800 text-slate-300 border border-slate-700/70'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-100'
+                    : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:border dark:border-slate-700/70'
                 }`}
               >
-                {tab.count}
+                {typeof tab.count === 'number' ? tab.count : tab.badge}
               </span>
             )}
           </button>

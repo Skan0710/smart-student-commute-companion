@@ -43,6 +43,7 @@ export default function LiveAlertsPage({
   const [sortBy, setSortBy] = useState('newest');
   const [officialAlerts, setOfficialAlerts] = useState([]);
   const [dismissingId, setDismissingId] = useState(null);
+  const [dismissError, setDismissError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,9 +57,12 @@ export default function LiveAlertsPage({
 
   const handleDismissOfficial = async (alertId) => {
     setDismissingId(alertId);
+    setDismissError(null);
     try {
       await dismissAlert(alertId);
       setOfficialAlerts((prev) => prev.filter((a) => a.id !== alertId));
+    } catch (err) {
+      setDismissError(err?.message || 'Could not dismiss this advisory. Please try again.');
     } finally {
       setDismissingId(null);
     }
@@ -102,9 +106,9 @@ export default function LiveAlertsPage({
     <div className="space-y-5">
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Live Alerts
-          </h1>
+          </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Real-time crowd-sourced transit disruptions reported by students
           </p>
@@ -178,6 +182,11 @@ export default function LiveAlertsPage({
             </h2>
             <ProvenanceTag tier="VERIFIED" size="xs" />
           </div>
+          {dismissError && (
+            <Alert variant="error" dismissible onDismiss={() => setDismissError(null)}>
+              {dismissError}
+            </Alert>
+          )}
           <div className="space-y-2.5">
             {officialAlerts.map((alert) => {
               const isCritical = alert.severity === 'CRITICAL';
@@ -189,20 +198,20 @@ export default function LiveAlertsPage({
                   key={alert.id}
                   className={`p-3.5 rounded-xl border backdrop-blur-sm transition-all ${
                     isCritical
-                      ? 'bg-rose-950/30 border-rose-500/50 text-rose-200'
+                      ? 'bg-rose-50 border-rose-300 text-rose-900 dark:bg-rose-950/30 dark:border-rose-500/50 dark:text-rose-200'
                       : isHigh
-                      ? 'bg-amber-950/30 border-amber-500/50 text-amber-200'
-                      : 'bg-slate-900/80 border-slate-800 text-slate-200'
+                      ? 'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-950/30 dark:border-amber-500/50 dark:text-amber-200'
+                      : 'bg-white border-slate-200 text-slate-800 dark:bg-slate-900/80 dark:border-slate-800 dark:text-slate-200'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
                         isCritical
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/40'
                           : isHigh
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                          ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40'
+                          : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                       }`}>
                         {alert.severity || 'ADVISORY'}
                       </span>

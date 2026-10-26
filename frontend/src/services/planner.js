@@ -16,6 +16,111 @@
 import { planCommute, submitFeedback, fetchCommuteRecommendations } from './api';
 import { readAuthToken } from '../utils/authSession';
 
+const MODE_LABELS = {
+  train: 'Train',
+  metro: 'Metro',
+  bus: 'BEST Bus',
+  auto: 'Auto',
+  walk: 'Walk',
+  shared: 'Shared Travel',
+};
+
+/** Friendly wording for the engine's weakness/strength codes (unknown codes are title-cased). */
+const FACTOR_LABELS = {
+  HIGH_COST: 'Higher cost',
+  LOW_COST: 'Low cost',
+  LONG_WALK: 'Long walk',
+  LOW_WALKING: 'Little walking',
+  MANY_TRANSFERS: 'Several transfers',
+  FEWER_TRANSFERS: 'Few transfers',
+  LONG_DURATION: 'Longer journey',
+  FAST: 'Quick journey',
+};
+
+const titleCase = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+
+/** First finite number among the candidates, or null — never a made-up default. */
+const pickNumber = (...values) => {
+  for (const value of values) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+  }
+  return null;
+};
+
+const toText = (item) => {
+  if (typeof item === 'string') return item;
+  return item?.message || item?.detail || item?.headline || null;
+};
+
+function buildRouteTitle(route) {
+  const modes = (Array.isArray(route.modesIncluded) && route.modesIncluded.length
+    ? route.modesIncluded
+    : [route.primaryMode || route.mode]
+  ).filter(Boolean);
+  const labels = modes.map((mode) => MODE_LABELS[String(mode).toLowerCase()] || titleCase(mode));
+  return labels.length ? labels.join(' + ') : 'Recommended commute';
+}
+
+/**
+ * Map one route from the personalized engine (`/commute/recommendations`) to the
+ * shape the route cards render. Missing values stay null so the UI shows "—"
+ * instead of presenting an invented duration, fare or reliability.
+ */
+function mapPersonalizedRoute(route, index, { isPrimary = false, tradeOffs = [] } = {}) {
+  const weaknessLabels = (route.weaknesses || []).map((code) => ({
+    label: FACTOR_LABELS[code] || titleCase(code),
+    type: 'warning',
+    category: 'weakness',
+  }));
+  const strengthLabels = (route.strengths || []).map((code) => ({
+    label: FACTOR_LABELS[code] || titleCase(code),
+    type: 'positive',
+    category: 'strength',
+  }));
+  const tradeoffLabels = isPrimary
+    ? tradeOffs.map(toText).filter(Boolean).map((label) => ({ label, type: 'neutral', category: 'tradeoff' }))
+    : [];
+
+  const reliability = route.reliability;
+  return {
+    id: route.journeyId || route.id || `route-${index + 1}`,
+    title: route.title || route.summary || buildRouteTitle(route),
+    subtitle: route.subtitle || [route.origin, route.destination].filter(Boolean).join(' → '),
+    primaryMode: route.primaryMode || route.mode || 'transit',
+    durationMinutes: pickNumber(
+      route.totalTravelTimeMinutes,
+      route.totalDurationMinutes,
+      route.durationMinutes,
+      route.travelTimeMinutes
+    ),
+    estimatedDeparture: route.departureTime || route.estimatedDeparture || null,
+    estimatedArrival: route.estimatedArrivalTime || route.arrivalTime || route.estimatedArrival || null,
+    fareRupees: pickNumber(route.estimatedCostRupees, route.fareRupees, route.cost),
+    walkingDurationMinutes: pickNumber(route.walkingTimeMinutes, route.walkingDurationMinutes, route.walkingMinutes),
+    totalWalkingDistanceKm: pickNumber(route.totalWalkingDistanceKm),
+    transfers: pickNumber(route.transfers, route.transferCount),
+    sourceLabel: route.provenance?.sourceTier === 'VERIFIED' ? 'Verified GTFS Schedule' : 'Estimated Route',
+    provenanceTier: route.provenance?.sourceTier || route.provenanceTier || 'ESTIMATED',
+    // Numeric score when the engine sends one, otherwise its LOW/MEDIUM/HIGH label
+    scores: { reliability: typeof reliability === 'number' ? reliability : null },
+    reliability: typeof reliability === 'string' ? reliability : null,
+    disruptionAlerts: Array.isArray(route.disruptionAlerts) ? route.disruptionAlerts : [],
+    tradeoffs: [...tradeoffLabels, ...strengthLabels, ...weaknessLabels],
+    legs: (route.segments || route.legs || []).map((seg, idx) => ({
+      description: seg.description || seg.instruction || `${titleCase(seg.mode || 'Transit')} leg ${idx + 1}`,
+      durationMinutes: pickNumber(seg.durationMinutes, seg.travelTimeMinutes),
+      agency: seg.agency || seg.operator || null,
+      fareRupees: seg.fareRupees,
+      departureTime: seg.departureTime,
+    })),
+  };
+}
+
 /**
  * Normalizes commute planning responses from either /api/plan or /api/commute/recommendations
  * so the UI receives a unified, rich representation.
@@ -26,8 +131,14 @@ import { readAuthToken } from '../utils/authSession';
 function normalizeCommuteResponse(rawResponse) {
   if (!rawResponse) return null;
 
-  // Case 1: Already structured as /api/plan response
-  if (rawResponse.recommendation || (rawResponse.alternatives && rawResponse.alternatives.length > 0)) {
+  // Case 1: Already structured as /api/plan response. The personalized engine
+  // also returns a top-level `recommendation`, but a different object (no
+  // `route`), so detect the standard shape by what only it carries.
+  const isStandardPlan =
+    rawResponse.recommendation?.route !== undefined ||
+    rawResponse.query !== undefined ||
+    rawResponse.allCandidatesCount !== undefined;
+  if (isStandardPlan) {
     return {
       success: rawResponse.success !== false,
       ...rawResponse
@@ -37,59 +148,37 @@ function normalizeCommuteResponse(rawResponse) {
   // Case 2: Structured as /api/commute/recommendations response envelope
   const data = rawResponse.data || rawResponse;
   const primary = data.primaryRecommendedRoute || data.selectedRoute || data.primaryRecommendation || null;
-  const alternatives = data.alternativeRoutes || data.meaningfulAlternatives || data.alternatives || [];
+  const rawAlternatives = data.alternativeRoutes || data.meaningfulAlternatives || data.alternatives || [];
+  const alternatives = rawAlternatives.map((alt, idx) => mapPersonalizedRoute(alt, idx));
+  const reasonFromList = Array.isArray(data.recommendationReasons)
+    ? toText(data.recommendationReasons[0])
+    : null;
+  const warnings = [...(data.warnings || []), ...(data.dataQualityWarnings || [])]
+    .map(toText)
+    .filter(Boolean);
 
   return {
     success: data.hasFeasibleRoute !== false,
     recommendation: primary ? {
-      route: {
-        id: primary.id || primary.journeyId || 'primary-rec',
-        title: primary.title || primary.summary || 'Recommended Commute',
-        subtitle: primary.subtitle || primary.corridor || 'Fastest & Most Reliable Transit Combination',
-        primaryMode: primary.primaryMode || primary.mode || 'train',
-        durationMinutes: primary.durationMinutes || primary.totalDurationMinutes || primary.travelTimeMinutes || 35,
-        estimatedDeparture: primary.departureTime || primary.estimatedDeparture || '08:15',
-        estimatedArrival: primary.arrivalTime || primary.estimatedArrival || '08:50',
-        fareRupees: primary.fareRupees ?? primary.estimatedCostRupees ?? primary.cost ?? 20,
-        walkingDurationMinutes: primary.walkingDurationMinutes || primary.walkingMinutes || 10,
-        totalWalkingDistanceKm: primary.totalWalkingDistanceKm || 0.8,
-        transfers: primary.transfers ?? (primary.transferCount ?? 1),
-        sourceLabel: primary.provenanceTier === 'VERIFIED' ? 'Verified GTFS Schedule' : 'Estimated Route',
-        provenanceTier: primary.provenanceTier || 'VERIFIED',
-        scores: primary.scores || { reliability: primary.reliabilityScore || 90 },
-        disruptionAlerts: primary.disruptionAlerts || [],
-        tradeoffs: primary.tradeoffs || primary.majorFactors || ['Fastest travel time', 'Low transfer delay risk'],
-        legs: (primary.legs || primary.segments || []).map((seg, idx) => ({
-          description: seg.description || seg.instruction || `${seg.mode || 'Transit'} leg ${idx + 1}`,
-          durationMinutes: seg.durationMinutes || 15,
-          agency: seg.agency || seg.operator || null,
-          fareRupees: seg.fareRupees,
-          departureTime: seg.departureTime
-        }))
-      },
+      route: mapPersonalizedRoute(primary, 0, {
+        isPrimary: true,
+        tradeOffs: data.tradeOffs || data.routeTradeOffs || [],
+      }),
       aiReasoning: {
         aiProvider: data.isAiEnhanced ? 'Gemini AI Personalized' : 'Deterministic Scoring Engine',
-        confidence: data.uncertainty === 'LOW' ? 'HIGH' : (data.uncertainty === 'SEVERE' ? 'LOW' : 'MODERATE'),
-        reason: data.selectionReason || (data.recommendationReasons && data.recommendationReasons[0]) || 'Selected for lowest delay risk, on-time arrival, and student budget convenience.',
-        warnings: data.dataQualityWarnings || []
+        // Only claim a confidence level the engine actually reported
+        confidence:
+          data.uncertainty === 'LOW' ? 'HIGH'
+            : data.uncertainty === 'SEVERE' ? 'LOW'
+            : data.uncertainty ? 'MODERATE'
+            : undefined,
+        reason: data.selectionReason || data.explanation?.summary || reasonFromList || undefined,
+        warnings,
       }
     } : null,
-    alternatives: alternatives.map((alt, idx) => ({
-      id: alt.id || alt.journeyId || `alt-${idx + 1}`,
-      title: alt.title || alt.summary || `Alternative Route ${idx + 1}`,
-      subtitle: alt.subtitle || alt.strategyRationale || 'Alternative suburban corridor',
-      primaryMode: alt.primaryMode || alt.mode || 'metro',
-      durationMinutes: alt.durationMinutes || alt.totalDurationMinutes || 42,
-      estimatedDeparture: alt.departureTime || alt.estimatedDeparture || '08:10',
-      estimatedArrival: alt.arrivalTime || alt.estimatedArrival || '08:52',
-      fareRupees: alt.fareRupees ?? alt.estimatedCostRupees ?? alt.cost ?? 25,
-      walkingDurationMinutes: alt.walkingDurationMinutes || alt.walkingMinutes || 8,
-      transfers: alt.transfers ?? 1,
-      sourceLabel: alt.provenanceTier === 'VERIFIED' ? 'Verified GTFS' : 'Estimated Route',
-      provenanceTier: alt.provenanceTier || 'ESTIMATED',
-      disruptionAlerts: alt.disruptionAlerts || [],
-      tradeoffs: alt.tradeoffs || []
-    })),
+    noRouteReason: data.fallbackReason || (Array.isArray(data.fallbackGuidance) ? toText(data.fallbackGuidance[0]) : null) || null,
+    allCandidatesCount: (primary ? 1 : 0) + alternatives.length,
+    alternatives,
     weather: data.environmentalContext?.weather || null,
     scheduleContext: data.scheduleContext || null,
     departureAdvice: data.departureAdvice || null

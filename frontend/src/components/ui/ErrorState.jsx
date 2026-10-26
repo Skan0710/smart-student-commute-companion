@@ -34,7 +34,7 @@ export default function ErrorState({
   const Heading = `h${Math.min(6, Math.max(2, Number(headingLevel) || 3))}`;
   return (
     <div 
-      className={`text-center py-10 px-4 bg-rose-950/20 rounded-2xl border border-rose-900/50 shadow-xl ${className}`}
+      className={`text-center py-10 px-4 bg-rose-50/80 dark:bg-rose-950/20 rounded-2xl border border-rose-200 dark:border-rose-900/50 shadow-sm dark:shadow-xl ${className}`}
       role="alert"
       aria-live="assertive"
     >
@@ -47,7 +47,7 @@ export default function ErrorState({
           <Heading className="text-base font-bold text-slate-900 dark:text-slate-100">
             {title}
           </Heading>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             {message}
           </p>
         </div>

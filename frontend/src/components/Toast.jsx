@@ -20,10 +20,10 @@ import { AlertCircle, CheckCircle2, Info, AlertTriangle, X } from 'lucide-react'
  * @param {Function} props.onDismiss - Dismiss handler: onDismiss(id)
  */
 const STYLES = {
-  success: 'bg-emerald-950/90 border-emerald-500 text-emerald-200',
-  error: 'bg-rose-950/90 border-rose-500 text-rose-200',
-  warning: 'bg-amber-950/90 border-amber-500 text-amber-200',
-  info: 'bg-sky-950/90 border-sky-500 text-sky-200',
+  success: 'bg-emerald-50 border-emerald-500 text-emerald-900 dark:bg-emerald-950/90 dark:text-emerald-200',
+  error: 'bg-rose-50 border-rose-500 text-rose-900 dark:bg-rose-950/90 dark:text-rose-200',
+  warning: 'bg-amber-50 border-amber-500 text-amber-900 dark:bg-amber-950/90 dark:text-amber-200',
+  info: 'bg-sky-50 border-sky-500 text-sky-900 dark:bg-sky-950/90 dark:text-sky-200',
 };
 
 const ICONS = {
@@ -60,7 +60,7 @@ export default function Toast({ toasts = [], onDismiss }) {
               type="button"
               onClick={() => onDismiss?.(toast.id)}
               aria-label={`Dismiss notification: ${toast.message.slice(0, 60)}`}
-              className="shrink-0 -mr-1 -mt-0.5 p-1 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-current"
+              className="shrink-0 -mr-1 -mt-0.5 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-current"
             >
               <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>

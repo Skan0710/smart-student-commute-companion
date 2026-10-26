@@ -24,6 +24,43 @@ import {
 import { staggerRouteCards } from '../utils/motion';
 import { buildOsmDirectionsUrl } from '../utils/mapLinks';
 
+/** Honest trade-off pills computed by comparing the recommendation with its alternatives. */
+function deriveTradeoffs(route, alternatives) {
+  const pills = [];
+  const rivals = alternatives.filter(Boolean);
+  const isLowest = (key) =>
+    Number.isFinite(route[key]) &&
+    rivals.length > 0 &&
+    rivals.every((alt) => !Number.isFinite(alt[key]) || route[key] <= alt[key]);
+
+  if (isLowest('durationMinutes')) pills.push({ label: 'Fastest option', type: 'positive', category: 'fastest' });
+  if (isLowest('fareRupees')) pills.push({ label: 'Lowest fare', type: 'positive', category: 'cheapest' });
+  if (route.transfers === 0) {
+    pills.push({ label: 'Direct (0 transfers)', type: 'positive', category: 'transfers' });
+  } else if (Number.isFinite(route.transfers)) {
+    pills.push({ label: `${route.transfers} transfer${route.transfers === 1 ? '' : 's'}`, type: 'neutral', category: 'transfers' });
+  }
+  return pills;
+}
+
+/** Whole-number display for a metric the API may not supply (never invents a value). */
+const showMetric = (value) => (Number.isFinite(value) ? Math.round(value) : '—');
+
+/**
+ * Reliability arrives as a 0–100 score from the standard planner and as a
+ * LOW / MEDIUM / HIGH label from the personalized engine; show whichever the
+ * backend sent and "—" when it sent neither.
+ */
+function formatReliability(route) {
+  const value = route?.scores?.reliability ?? route?.reliability;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${Math.round(value)}%`;
+  if (typeof value === 'string' && value.trim()) {
+    const label = value.trim().toLowerCase();
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+  return '—';
+}
+
 export default function RouteResults({
   planResult,
   selectedRouteId,
@@ -67,7 +104,7 @@ export default function RouteResults({
     return (
       <ErrorState
         title="No Routes Match Filter Settings"
-        message={aiReasoning?.reason || 'No transit options were found within your selected modes and budget.'}
+        message={aiReasoning?.reason || planResult.noRouteReason || 'No transit options were found within your selected modes and budget.'}
         suggestions={[
           'Enable more Allowed Modes (e.g., BEST Bus or Metro).',
           'Increase your Max Budget using the budget slider or quick presets.',
@@ -77,14 +114,9 @@ export default function RouteResults({
     );
   }
 
-  // Deduce trade-offs for recommended route
-  const recTradeoffs = recRoute.tradeoffs || [
-    { label: 'Fastest arrival', type: 'positive', category: 'fastest' },
-    { label: `₹${recRoute.fareRupees} student fare`, type: 'positive', category: 'cheapest' },
-    recRoute.transfers === 0
-      ? { label: 'Direct (0 transfers)', type: 'positive', category: 'transfers' }
-      : { label: `${recRoute.transfers} transfer`, type: 'neutral', category: 'transfers' }
-  ];
+  // Trade-offs the backend did not label are derived from the actual numbers,
+  // so a pill like "Fastest arrival" is only shown when it is true.
+  const recTradeoffs = recRoute.tradeoffs || deriveTradeoffs(recRoute, alternatives);
 
   return (
     <div ref={containerRef} className="space-y-5 animate-fade-in">
@@ -193,9 +225,11 @@ export default function RouteResults({
             <span className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
               {aiReasoning?.aiProvider || 'Optimal Route Intelligence'}
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 ml-auto font-medium">
-              Confidence: {aiReasoning?.confidence?.toUpperCase() || 'HIGH'}
-            </span>
+            {aiReasoning?.confidence && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 ml-auto font-medium">
+                Confidence: {String(aiReasoning.confidence).toUpperCase()}
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
             {aiReasoning?.reason || aiReasoning?.summary || 'Calculated as the optimal route for travel time, transfers, and fare economy.'}
@@ -222,9 +256,9 @@ export default function RouteResults({
               Duration
             </div>
             <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
-              {recRoute.durationMinutes} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
+              {showMetric(recRoute.durationMinutes)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Arr: {recRoute.estimatedArrival}</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Arr: {recRoute.estimatedArrival || '—'}</div>
           </div>
 
           <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
@@ -233,10 +267,10 @@ export default function RouteResults({
               Est. Fare
             </div>
             <div className="text-base font-extrabold text-amber-700 dark:text-amber-300 mt-0.5">
-              ₹{recRoute.fareRupees}
+              {Number.isFinite(recRoute.fareRupees) ? `₹${recRoute.fareRupees}` : '—'}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              {recRoute.fareRupees <= 15 ? 'Student Saver' : 'Standard Fare'}
+              {Number.isFinite(recRoute.fareRupees) ? (recRoute.fareRupees <= 15 ? 'Student Saver' : 'Standard Fare') : 'Fare unavailable'}
             </div>
           </div>
 
@@ -246,10 +280,10 @@ export default function RouteResults({
               Walking
             </div>
             <div className="text-base font-extrabold text-teal-700 dark:text-teal-300 mt-0.5">
-              {recRoute.walkingDurationMinutes} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
+              {showMetric(recRoute.walkingDurationMinutes)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              {recRoute.totalWalkingDistanceKm} km
+              {Number.isFinite(recRoute.totalWalkingDistanceKm) ? `${recRoute.totalWalkingDistanceKm} km` : 'On foot'}
             </div>
           </div>
 
@@ -259,16 +293,16 @@ export default function RouteResults({
               Reliability
             </div>
             <div className="text-base font-extrabold text-indigo-700 dark:text-indigo-300 mt-0.5">
-              {recRoute.scores?.reliability || 88}%
+              {formatReliability(recRoute)}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              {recRoute.transfers === 0 ? 'Direct Route' : `${recRoute.transfers} Transfer`}
+              {recRoute.transfers === 0 ? 'Direct Route' : Number.isFinite(recRoute.transfers) ? `${recRoute.transfers} Transfer${recRoute.transfers === 1 ? '' : 's'}` : 'Transfers unknown'}
             </div>
           </div>
         </div>
 
         {/* Budget usage vs student limit */}
-        {Number.isFinite(maxBudgetRupees) && maxBudgetRupees > 0 && (
+        {Number.isFinite(maxBudgetRupees) && maxBudgetRupees > 0 && Number.isFinite(recRoute.fareRupees) && (
           <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 mb-4">
             <ProgressBar
               label="Fare vs configured budget"
@@ -314,7 +348,7 @@ export default function RouteResults({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs gap-2">
                   <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{leg.description}</span>
-                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">{leg.durationMinutes} mins</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">{Number.isFinite(leg.durationMinutes) ? `${leg.durationMinutes} mins` : '—'}</span>
                 </div>
                 {leg.agency && (
                   <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
@@ -322,7 +356,7 @@ export default function RouteResults({
                       {leg.agency}
                     </span>
                     {leg.fareRupees !== undefined && (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">₹{leg.fareRupees}</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-medium">₹{leg.fareRupees}</span>
                     )}
                     {leg.departureTime && (
                       <span className="font-mono">Dep: {leg.departureTime}</span>
@@ -376,7 +410,7 @@ export default function RouteResults({
           />
           <ComparisonBars
             title="Fare across your options"
-            valueUnit="min"
+            valueUnit="₹"
             items={[
               {
                 label: `Recommended — ${recRoute.title}`,
@@ -472,15 +506,15 @@ export default function RouteResults({
                   <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
                       <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      {alt.durationMinutes}m
+                      {Number.isFinite(alt.durationMinutes) ? `${alt.durationMinutes}m` : '—'}
                     </span>
                     <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
                       <IndianRupee className="w-3.5 h-3.5" />
-                      ₹{alt.fareRupees}
+                      {Number.isFinite(alt.fareRupees) ? `₹${alt.fareRupees}` : '—'}
                     </span>
                     <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
                       <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                      {alt.walkingDurationMinutes}m
+                      {Number.isFinite(alt.walkingDurationMinutes) ? `${alt.walkingDurationMinutes}m` : '—'}
                     </span>
                     <span className="font-mono text-slate-500 dark:text-slate-400 ml-auto text-[10px]">
                       {alt.estimatedDeparture} → {alt.estimatedArrival}

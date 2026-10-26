@@ -198,6 +198,13 @@ p {
   background: var(--color-surface-elevated) !important;
 }
 
+/* Dim and invert the OSM raster tiles in dark mode so the map does not glare
+   against the dark UI. Only the tile pane is filtered: markers, routes and
+   popups keep their own colors. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.7);
+}
+
 /* Attribution links meet the 24px minimum target size (WCAG 2.5.8) */
 .leaflet-control-attribution {
   padding: 4px 6px !important;

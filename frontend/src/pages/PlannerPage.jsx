@@ -13,6 +13,7 @@ import RouteResults from '../components/RouteResults';
 import MyCommutesPage from './MyCommutesPage';
 import TransitSearchPage from './TransitSearchPage';
 import LiveAlertsPage from './LiveAlertsPage';
+import { Tabs, TabPanel } from '../components/ui';
 
 /**
  * PlannerPage - Plan Route Hub with nested subpages
@@ -70,15 +71,24 @@ export default function PlannerPage({
   onUseAsDestination,
   isConnectionLost = false,
   onReconnect,
-  initialSubTab = 'planner'
+  initialSubTab = 'planner',
+  // Controlled mode: the app owns the sub-tab so deep links and hand-offs
+  // (e.g. a recent-search chip → Transit Search) can switch it.
+  subTab: controlledSubTab,
+  onSubTabChange
 }) {
-  const [subTab, setSubTab] = useState(initialSubTab);
+  const [localSubTab, setLocalSubTab] = useState(initialSubTab);
+  const subTab = controlledSubTab ?? localSubTab;
+  const setSubTab = (next) => {
+    setLocalSubTab(next);
+    onSubTabChange?.(next);
+  };
 
   const subPages = [
     { id: 'planner', label: 'Route Planner', icon: Compass },
-    { id: 'mycommutes', label: 'My Commutes', icon: Bookmark, badge: savedCommutesCount },
+    { id: 'mycommutes', label: 'My Commutes', icon: Bookmark, count: savedCommutesCount > 0 ? savedCommutesCount : undefined },
     { id: 'transit', label: 'Transit Search', icon: TrainFront },
-    { id: 'alerts', label: 'Live Alerts', icon: AlertTriangle, badge: reports.length },
+    { id: 'alerts', label: 'Live Alerts', icon: AlertTriangle, count: reports.length > 0 ? reports.length : undefined },
   ];
 
   return (
@@ -121,37 +131,18 @@ export default function PlannerPage({
       </header>
 
       {/* Subpage Navigation Tabs within Plan Route */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80">
-        {subPages.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = subTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setSubTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                isActive
-                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-              {typeof tab.badge === 'number' && tab.badge > 0 && (
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                  isActive ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                }`}>
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <Tabs
+        idPrefix="planner"
+        ariaLabel="Plan Route sections"
+        tabs={subPages}
+        activeTab={subTab}
+        onChange={setSubTab}
+        className="w-full sm:w-auto"
+      />
 
       {/* Subpage 1: Main Route Planner Form & Results */}
       {subTab === 'planner' && (
-        <div className="space-y-6">
+        <TabPanel idPrefix="planner" tabId="planner" className="space-y-6">
           {showDashboardOverview && (
             <DashboardOverview
               savedCommutesCount={savedCommutesCount}
@@ -187,18 +178,17 @@ export default function PlannerPage({
             <RouteResults
               planResult={planResult}
               selectedRouteId={selectedRouteId}
-              onSelectRoute={setSelectedRouteId}
-              isPlanning={isPlanning}
+              setSelectedRouteId={setSelectedRouteId}
               onOpenFeedback={onOpenFeedback}
-              onSaveCommute={onSaveCommute}
-              isCommuteSaved={isCommuteSaved}
+              maxBudgetRupees={formData.maxBudgetRupees}
             />
           </section>
-        </div>
+        </TabPanel>
       )}
 
       {/* Subpage 2: My Commutes */}
       {subTab === 'mycommutes' && (
+        <TabPanel idPrefix="planner" tabId="mycommutes">
         <MyCommutesPage
           commutes={savedCommutes}
           isLoading={savedCommutesLoading}
@@ -215,10 +205,12 @@ export default function PlannerPage({
           activeSignature={activeSignature}
           onNavigateToPlanner={() => setSubTab('planner')}
         />
+        </TabPanel>
       )}
 
       {/* Subpage 3: Transit Search */}
       {subTab === 'transit' && (
+        <TabPanel idPrefix="planner" tabId="transit">
         <TransitSearchPage
           query={transitQuery}
           onQueryChange={onTransitQueryChange}
@@ -240,10 +232,12 @@ export default function PlannerPage({
             setSubTab('planner');
           }}
         />
+        </TabPanel>
       )}
 
       {/* Subpage 4: Live Alerts */}
       {subTab === 'alerts' && (
+        <TabPanel idPrefix="planner" tabId="alerts">
         <LiveAlertsPage
           reports={reports}
           onConfirm={onConfirm}
@@ -258,6 +252,7 @@ export default function PlannerPage({
           isRefreshing={isRefreshing}
           onRefresh={onRefresh}
         />
+        </TabPanel>
       )}
     </div>
   );

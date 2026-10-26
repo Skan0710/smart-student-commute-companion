@@ -649,7 +649,11 @@ export default function App() {
         setSelectedRouteId(bestRoute?.id || null);
         if (!isInitial) {
           if (bestRoute) {
-            showToast(`Found ${data.allCandidatesCount} options! Best route: ${bestRoute.title} (₹${bestRoute.fareRupees})`);
+            const optionCount = Number.isFinite(data.allCandidatesCount)
+              ? data.allCandidatesCount
+              : 1 + (data.alternatives?.length || 0);
+            const fareNote = Number.isFinite(bestRoute.fareRupees) ? ` (₹${bestRoute.fareRupees})` : '';
+            showToast(`Found ${optionCount} option${optionCount === 1 ? '' : 's'}! Best route: ${bestRoute.title}${fareNote}`);
           } else {
             showToast('No routes matched your selected modes and budget.', 'warning');
           }

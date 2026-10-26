@@ -36,28 +36,28 @@ export default function Alert({
   // Variant configurations
   const variants = {
     success: {
-      container: 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200',
+      container: 'bg-emerald-50 border-emerald-300 text-emerald-900 dark:bg-emerald-950/20 dark:border-emerald-500/30 dark:text-emerald-200',
       icon: CheckCircle2,
       iconColor: 'text-emerald-700 dark:text-emerald-400',
-      title: 'text-emerald-700 dark:text-emerald-300',
+      title: 'text-emerald-800 dark:text-emerald-300',
     },
     error: {
-      container: 'bg-rose-950/20 border-rose-500/30 text-rose-200',
+      container: 'bg-rose-50 border-rose-300 text-rose-900 dark:bg-rose-950/20 dark:border-rose-500/30 dark:text-rose-200',
       icon: AlertCircle,
       iconColor: 'text-rose-700 dark:text-rose-400',
-      title: 'text-rose-700 dark:text-rose-300',
+      title: 'text-rose-800 dark:text-rose-300',
     },
     warning: {
-      container: 'bg-amber-950/20 border-amber-500/30 text-amber-200',
+      container: 'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-950/20 dark:border-amber-500/30 dark:text-amber-200',
       icon: AlertTriangle,
       iconColor: 'text-amber-700 dark:text-amber-400',
-      title: 'text-amber-700 dark:text-amber-300',
+      title: 'text-amber-800 dark:text-amber-300',
     },
     info: {
-      container: 'bg-sky-950/20 border-sky-500/30 text-sky-200',
+      container: 'bg-sky-50 border-sky-300 text-sky-900 dark:bg-sky-950/20 dark:border-sky-500/30 dark:text-sky-200',
       icon: Info,
       iconColor: 'text-sky-700 dark:text-sky-400',
-      title: 'text-sky-700 dark:text-sky-300',
+      title: 'text-sky-800 dark:text-sky-300',
     },
   };
   
@@ -87,7 +87,7 @@ export default function Alert({
       {dismissible && onDismiss && (
         <button
           onClick={onDismiss}
-          className="shrink-0 p-1 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="shrink-0 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Dismiss alert"
         >
           <X className="w-4 h-4" aria-hidden="true" />
