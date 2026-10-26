@@ -12,7 +12,7 @@
  */
 
 const { geocodeArea } = require('./geocodingService');
-const { getOsrmRoute } = require('./routingService');
+const { getOsrmRoute, getOsrmRouteThroughWaypoints } = require('./routingService');
 const { getMumbaiWeather } = require('./weatherService');
 const { findTransitCandidates } = require('./gtfsService');
 const { getActiveReports, evaluateRouteDisruptions } = require('./disruptionService');
@@ -63,7 +63,7 @@ class CommutePlanService {
     const withinBudgetCandidates = rawCandidates.filter(c => c.fareRupees <= maxBudgetRupees);
     const candidates = withinBudgetCandidates.length > 0 ? withinBudgetCandidates : rawCandidates;
 
-    // 4. Enrich candidates with road/walking geometry from OSRM
+    // 4. Enrich candidates with road/walking geometry from OSRM following physical streets & tracks
     const enrichedCandidates = await Promise.all(
       candidates.map(async (cand) => {
         // If auto route or pure walk, fetch full road geometry
@@ -76,30 +76,79 @@ class CommutePlanService {
           };
         }
 
-        // For transit routes, build geometry: origin -> first stop -> dest stop -> destination
+        // For bus routes, follow actual road geometry through all stops
+        if (cand.primaryMode === 'bus' && cand.transitStations && cand.transitStations.length >= 2) {
+          const allWaypoints = [
+            originGeo,
+            ...cand.transitStations,
+            destGeo
+          ];
+          const roadGeom = await getOsrmRouteThroughWaypoints(allWaypoints, 'driving');
+          if (roadGeom && roadGeom.coordinates && roadGeom.coordinates.length > 1) {
+            return {
+              ...cand,
+              geometry: roadGeom,
+              osrmSource: 'OSRM Bus Road Network'
+            };
+          }
+        }
+
+        // For rail and metro routes, follow walking street networks to/from stations + track stops
         if (cand.transitStations && cand.transitStations.length >= 2) {
-          const station1 = cand.transitStations[0];
+          const stationFirst = cand.transitStations[0];
           const stationLast = cand.transitStations[cand.transitStations.length - 1];
 
-          // Build GeoJSON coordinate array
-          const coordinates = [
-            [originGeo.lon, originGeo.lat],
-            [station1.lon, station1.lat],
-            ...cand.transitStations.slice(1, -1).map(s => [s.lon, s.lat]),
-            [stationLast.lon, stationLast.lat],
-            [destGeo.lon, destGeo.lat]
-          ];
+          // Fetch first-mile street walking geometry (origin -> boarding station)
+          // and last-mile street walking geometry (alighting station -> destination)
+          const [firstMileGeom, lastMileGeom] = await Promise.all([
+            getOsrmRoute(originGeo, stationFirst, 'walking').then(r => r.geometry).catch(() => null),
+            getOsrmRoute(stationLast, destGeo, 'walking').then(r => r.geometry).catch(() => null)
+          ]);
+
+          const combinedCoords = [];
+
+          // 1. Add first-mile street walking route
+          if (firstMileGeom && firstMileGeom.coordinates && firstMileGeom.coordinates.length > 0) {
+            combinedCoords.push(...firstMileGeom.coordinates);
+          } else {
+            combinedCoords.push([originGeo.lon, originGeo.lat]);
+          }
+
+          // 2. Add sequential railway / metro corridor track stops
+          cand.transitStations.forEach(s => {
+            combinedCoords.push([s.lon, s.lat]);
+          });
+
+          // 3. Add last-mile street walking route
+          if (lastMileGeom && lastMileGeom.coordinates && lastMileGeom.coordinates.length > 0) {
+            combinedCoords.push(...lastMileGeom.coordinates);
+          } else {
+            combinedCoords.push([destGeo.lon, destGeo.lat]);
+          }
+
+          // Filter out duplicate consecutive coordinates
+          const filteredCoords = combinedCoords.filter((coord, idx, arr) => {
+            if (idx === 0) return true;
+            const prev = arr[idx - 1];
+            return Math.abs(coord[0] - prev[0]) > 0.00001 || Math.abs(coord[1] - prev[1]) > 0.00001;
+          });
 
           return {
             ...cand,
             geometry: {
               type: 'LineString',
-              coordinates
+              coordinates: filteredCoords
             }
           };
         }
 
-        return cand;
+        // Fallback for any other candidate: fetch driving road route
+        const fallbackRoad = await getOsrmRoute(originGeo, destGeo, 'driving');
+        return {
+          ...cand,
+          geometry: fallbackRoad.geometry,
+          osrmSource: fallbackRoad.source
+        };
       })
     );
 

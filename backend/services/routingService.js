@@ -89,8 +89,31 @@ async function getOsrmRoute(origin, destination, mode = 'driving') {
   };
 }
 
+/**
+ * Fetches road/street geometry following actual road networks through multiple waypoints.
+ * points: Array of { lat, lon }
+ * mode: 'driving' or 'walking'
+ */
+async function getOsrmRouteThroughWaypoints(points, mode = 'driving') {
+  if (!points || points.length < 2) return null;
+  const profile = mode === 'walking' ? 'walking' : 'driving';
+  const coordsStr = points.map(p => `${p.lon},${p.lat}`).join(';');
+  const url = `https://router.project-osrm.org/route/v1/${profile}/${coordsStr}?overview=full&geometries=geojson&steps=false`;
+
+  try {
+    const response = await axios.get(url, { timeout: 6000 });
+    if (response.data && response.data.routes && response.data.routes.length > 0) {
+      return response.data.routes[0].geometry;
+    }
+  } catch (err) {
+    console.warn(`OSRM multi-waypoint ${mode} failed: ${err.message}`);
+  }
+  return null;
+}
+
 module.exports = {
   getOsrmRoute,
+  getOsrmRouteThroughWaypoints,
   haversineDistance,
   generateFallbackGeometry
 };

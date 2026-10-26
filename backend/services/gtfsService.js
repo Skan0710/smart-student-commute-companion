@@ -251,6 +251,24 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
       }
     ];
 
+    // Retrieve all intermediate transit stops along this trip segment to form the track
+    const minSeq = Math.min(trip.orig_seq, trip.dest_seq);
+    const maxSeq = Math.max(trip.orig_seq, trip.dest_seq);
+    const intermediateStops = db.prepare(`
+      SELECT s.stop_name as name, s.stop_lat as lat, s.stop_lon as lon
+      FROM gtfs_stop_times st
+      JOIN gtfs_stops s ON st.stop_id = s.stop_id
+      WHERE st.trip_id = ? AND st.stop_sequence BETWEEN ? AND ?
+      ORDER BY st.stop_sequence ASC
+    `).all(trip.trip_id, minSeq, maxSeq);
+
+    const tripStations = intermediateStops.length >= 2
+      ? (trip.orig_seq <= trip.dest_seq ? intermediateStops : intermediateStops.reverse())
+      : [
+          { name: trip.orig_stop_name, lat: trip.orig_stop_lat, lon: trip.orig_stop_lon },
+          { name: trip.dest_stop_name, lat: trip.dest_stop_lat, lon: trip.dest_stop_lon }
+        ];
+
     candidates.push({
       id: `route-gtfs-${trip.route_id}-${idx + 1}`,
       title: `${trip.route_short_name} + Walking`,
@@ -266,10 +284,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
       estimatedArrival: minutesToTime(estArrMin),
       legs: routeLegs,
       stopsCount: Math.abs(trip.dest_seq - trip.orig_seq) + 1,
-      transitStations: [
-        { name: trip.orig_stop_name, lat: trip.orig_stop_lat, lon: trip.orig_stop_lon },
-        { name: trip.dest_stop_name, lat: trip.dest_stop_lat, lon: trip.dest_stop_lon }
-      ],
+      transitStations: tripStations,
       sourceLabel: 'Verified GTFS Schedule'
     });
   });
