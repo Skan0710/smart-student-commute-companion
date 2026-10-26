@@ -1,48 +1,26 @@
-import React from 'react';
-import { RefreshCw, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  RefreshCw, 
+  Plus, 
+  Compass, 
+  Bookmark, 
+  TrainFront, 
+  AlertTriangle 
+} from 'lucide-react';
 import PlannerForm from '../components/PlannerForm';
 import DashboardOverview from '../components/DashboardOverview';
 import RouteResults from '../components/RouteResults';
-import LiveStudentFeed from '../components/LiveStudentFeed';
-import { LoadingState, ErrorState } from '../components/ui';
+import MyCommutesPage from './MyCommutesPage';
+import TransitSearchPage from './TransitSearchPage';
+import LiveAlertsPage from './LiveAlertsPage';
 
 /**
- * PlannerPage - Core "Plan Route" feature page structure
- *
- * Composes the planner feature areas from a single semantic page:
- * - Page heading (h1) for document outline
- * - Commute planner form
- * - Route recommendations with a loading placeholder
- * - Embedded live student feed with loading/error placeholders
- *
- * This is a presentation container: all business logic and API
- * communication live outside the page and arrive via props.
- *
- * @param {Object} props
- * @param {Object} props.formData - Planner form values
- * @param {Function} props.setFormData - Form updater
- * @param {Function} props.onPlan - Submit the commute plan request
- * @param {boolean} props.isPlanning - Whether a plan request is in flight
- * @param {Object|null} props.planResult - Latest plan result
- * @param {string|null} props.selectedRouteId - Currently selected route
- * @param {Function} props.setSelectedRouteId - Route selection updater
- * @param {Function} props.onSaveCommute - Save the current setup to My Commutes
- * @param {boolean} props.isCommuteSaved - Whether the current setup is saved
- * @param {Function} props.onOpenFeedback - Open feedback dialog for a recommendation
- * @param {Array} props.reports - Live disruption reports
- * @param {Function} props.onConfirm - Confirm a report
- * @param {Function} props.onContradict - Contradict a report
- * @param {Function} props.onOpenCreateReport - Open the report dialog
- * @param {boolean} props.isConnected - Live socket connection status
- * @param {boolean} props.isLoadingInitial - Whether initial data is loading
- * @param {string|null} props.loadError - User-friendly initial load error
- * @param {Function} props.onRetryLoad - Retry the initial data load
- * @param {number} props.savedCommutesCount - Commutes saved on this device
- * @param {number} props.groupsCount - Active ride groups
- * @param {string[]} props.recentSearches - Recent transit search queries
- * @param {Function} props.onSelectRecent - Re-run a recent transit search
- * @param {Function} props.onNavigate - Navigate to another screen (tab id)
- * @param {boolean} props.showDashboardOverview - User preference: show the dashboard summary
+ * PlannerPage - Plan Route Hub with nested subpages
+ * Subpages:
+ * - 'planner': Multimodal AI transit recommendations & map routing
+ * - 'mycommutes': Saved commute setups
+ * - 'transit': Station & GTFS lookup
+ * - 'alerts': Real-time crowd-sourced live transit alerts
  */
 export default function PlannerPage({
   formData,
@@ -53,7 +31,7 @@ export default function PlannerPage({
   selectedRouteId,
   setSelectedRouteId,
   onSaveCommute,
-  isCommuteSaved = false,
+  isCommuteSaved,
   onOpenFeedback,
   reports = [],
   onConfirm,
@@ -71,20 +49,52 @@ export default function PlannerPage({
   onSelectRecent,
   onNavigate,
   showDashboardOverview = true,
+  // Props for nested subpages
+  savedCommutes = [],
+  savedCommutesLoading = false,
+  savedCommutesError = null,
+  onRefreshSavedCommutes,
+  onPlanCommute,
+  onRemoveCommute,
+  activeSignature,
+  transitQuery = '',
+  onTransitQueryChange,
+  onTransitSearch,
+  transitStatus,
+  transitResult,
+  transitError,
+  onTransitRetry,
+  onTransitRefresh,
+  onClearRecentSearches,
+  onUseAsOrigin,
+  onUseAsDestination,
+  isConnectionLost = false,
+  onReconnect,
+  initialSubTab = 'planner'
 }) {
+  const [subTab, setSubTab] = useState(initialSubTab);
+
+  const subPages = [
+    { id: 'planner', label: 'Route Planner', icon: Compass },
+    { id: 'mycommutes', label: 'My Commutes', icon: Bookmark, badge: savedCommutesCount },
+    { id: 'transit', label: 'Transit Search', icon: TrainFront },
+    { id: 'alerts', label: 'Live Alerts', icon: AlertTriangle, badge: reports.length },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Page heading — establishes the h1 for this view */}
-      <header className="pb-2 flex flex-wrap items-start justify-between gap-4">
+    <div className="space-y-6 font-sans">
+      {/* Header with Title, Actions (Refresh & Post a disruption right next to it) and Sub-nav */}
+      <header className="pb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-sans">
-            Plan Your Commute
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Plan Your Route &amp; Transit
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-sans">
-            Multimodal AI transit recommendations across Mumbai campuses
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Multimodal transit routing across Mumbai local trains, metro lines, buses and student alerts
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+
+        <div className="flex items-center gap-2.5 shrink-0">
           {onRefresh && (
             <button
               type="button"
@@ -110,74 +120,145 @@ export default function PlannerPage({
         </div>
       </header>
 
-      {/* Student dashboard summary — hidden when the user turns it off in Preferences */}
-      {showDashboardOverview && (
-        <DashboardOverview
-          savedCommutesCount={savedCommutesCount}
-          groupsCount={groupsCount}
-          reportsCount={reports.length}
-          isConnected={isConnected}
-          isLoading={isLoadingInitial}
-          loadError={loadError}
-          onRetryLoad={onRetryLoad}
-          recentSearches={recentSearches}
-          onSelectRecent={onSelectRecent}
-          onNavigate={onNavigate}
-          onOpenCreateReport={onOpenCreateReport}
+      {/* Subpage Navigation Tabs within Plan Route */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80">
+        {subPages.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = subTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSubTab(tab.id)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                isActive
+                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+              {typeof tab.badge === 'number' && tab.badge > 0 && (
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                  isActive ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                }`}>
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Subpage 1: Main Route Planner Form & Results */}
+      {subTab === 'planner' && (
+        <div className="space-y-6">
+          {showDashboardOverview && (
+            <DashboardOverview
+              savedCommutesCount={savedCommutesCount}
+              groupsCount={groupsCount}
+              reportsCount={reports.length}
+              isConnected={isConnected}
+              isLoading={isLoadingInitial}
+              loadError={loadError}
+              onRetryLoad={onRetryLoad}
+              recentSearches={recentSearches}
+              onSelectRecent={onSelectRecent}
+              onNavigate={(dest) => {
+                if (['mycommutes', 'transit', 'alerts'].includes(dest)) {
+                  setSubTab(dest);
+                } else if (onNavigate) {
+                  onNavigate(dest);
+                }
+              }}
+              onOpenCreateReport={onOpenCreateReport}
+            />
+          )}
+
+          <PlannerForm
+            formData={formData}
+            setFormData={setFormData}
+            onPlan={onPlan}
+            isLoading={isPlanning}
+            onSaveCommute={onSaveCommute}
+            isCommuteSaved={isCommuteSaved}
+          />
+
+          <section aria-label="Route recommendations" aria-busy={isPlanning}>
+            <RouteResults
+              planResult={planResult}
+              selectedRouteId={selectedRouteId}
+              onSelectRoute={setSelectedRouteId}
+              isPlanning={isPlanning}
+              onOpenFeedback={onOpenFeedback}
+              onSaveCommute={onSaveCommute}
+              isCommuteSaved={isCommuteSaved}
+            />
+          </section>
+        </div>
+      )}
+
+      {/* Subpage 2: My Commutes */}
+      {subTab === 'mycommutes' && (
+        <MyCommutesPage
+          commutes={savedCommutes}
+          isLoading={savedCommutesLoading}
+          loadError={savedCommutesError}
+          onRetryLoad={onRefreshSavedCommutes}
+          isRefreshing={isRefreshing}
+          onRefresh={onRefreshSavedCommutes}
+          onPlanCommute={(commute) => {
+            onPlanCommute?.(commute);
+            setSubTab('planner');
+          }}
+          onRemoveCommute={onRemoveCommute}
+          isPlanning={isPlanning}
+          activeSignature={activeSignature}
+          onNavigateToPlanner={() => setSubTab('planner')}
         />
       )}
 
-      <PlannerForm
-        formData={formData}
-        setFormData={setFormData}
-        onPlan={onPlan}
-        isLoading={isPlanning}
-        onSaveCommute={onSaveCommute}
-        isCommuteSaved={isCommuteSaved}
-      />
+      {/* Subpage 3: Transit Search */}
+      {subTab === 'transit' && (
+        <TransitSearchPage
+          query={transitQuery}
+          onQueryChange={onTransitQueryChange}
+          onSearch={onTransitSearch}
+          status={transitStatus}
+          result={transitResult}
+          error={transitError}
+          onRetry={onTransitRetry}
+          onRefresh={onTransitRefresh}
+          recentSearches={recentSearches}
+          onSelectRecent={onSelectRecent}
+          onClearRecent={onClearRecentSearches}
+          onUseAsOrigin={(val) => {
+            onUseAsOrigin?.(val);
+            setSubTab('planner');
+          }}
+          onUseAsDestination={(val) => {
+            onUseAsDestination?.(val);
+            setSubTab('planner');
+          }}
+        />
+      )}
 
-      {/* Route recommendations */}
-      <section aria-label="Route recommendations" aria-busy={isPlanning}>
-        {isPlanning && !planResult ? (
-          <LoadingState
-            title="Calculating best routes..."
-            description="Scoring transit options for travel time, reliability, budget, and weather."
-          />
-        ) : (
-          <RouteResults
-            planResult={planResult}
-            selectedRouteId={selectedRouteId}
-            setSelectedRouteId={setSelectedRouteId}
-            onOpenFeedback={onOpenFeedback}
-            maxBudgetRupees={formData?.maxBudgetRupees}
-          />
-        )}
-      </section>
-
-      {/* Live student feed (embedded) */}
-      <section aria-label="Live student updates" aria-busy={isLoadingInitial}>
-        {isLoadingInitial ? (
-          <LoadingState
-            title="Loading live student updates..."
-            description="Fetching the latest crowd-sourced disruption reports."
-          />
-        ) : loadError ? (
-          <ErrorState
-            title="Live updates unavailable"
-            message={loadError}
-            onRetry={onRetryLoad}
-            retryLabel="Reload Updates"
-          />
-        ) : (
-          <LiveStudentFeed
-            reports={reports}
-            onConfirm={onConfirm}
-            onContradict={onContradict}
-            onOpenCreateReport={onOpenCreateReport}
-            isConnected={isConnected}
-          />
-        )}
-      </section>
+      {/* Subpage 4: Live Alerts */}
+      {subTab === 'alerts' && (
+        <LiveAlertsPage
+          reports={reports}
+          onConfirm={onConfirm}
+          onContradict={onContradict}
+          onOpenCreateReport={onOpenCreateReport}
+          isConnected={isConnected}
+          isConnectionLost={isConnectionLost}
+          onReconnect={onReconnect}
+          isLoading={isLoadingInitial}
+          loadError={loadError}
+          onRetryLoad={onRetryLoad}
+          isRefreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
+      )}
     </div>
   );
 }
