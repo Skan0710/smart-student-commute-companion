@@ -337,10 +337,10 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                 <div>
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     <span className="flex items-center gap-1.5">
-                      <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      <Footprints className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
                       Max Walking
                     </span>
-                    <span className="text-teal-600 dark:text-teal-400 font-bold">{formData.walkingToleranceMinutes} mins</span>
+                    <span className="text-teal-700 dark:text-teal-400 font-bold">{formData.walkingToleranceMinutes} mins</span>
                   </div>
                   <input
                     type="range"
@@ -364,7 +364,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                       Max Budget
                     </label>
                     <div className="flex items-center gap-1">
-                      <span className="text-amber-600 dark:text-amber-400 text-xs font-mono font-bold">₹</span>
+                      <span className="text-amber-700 dark:text-amber-400 text-xs font-mono font-bold">₹</span>
                       <input
                         id="planner-budget"
                         type="number"
@@ -379,7 +379,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                           setFormData({ ...formData, maxBudgetRupees: isNaN(val) ? 0 : val });
                           clearError('maxBudgetRupees');
                         }}
-                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-600 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
+                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-700 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -466,7 +466,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           >
             {isCommuteSaved ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                <Check className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                 <span className="text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-lg px-2 py-0.5">
                   Saved
                 </span>

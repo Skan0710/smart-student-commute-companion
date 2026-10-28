@@ -239,7 +239,7 @@ export default function AccountProfileCard({
               College
             </dt>
             <dd className="text-slate-900 dark:text-slate-200 font-medium truncate flex items-center gap-1.5 mt-0.5">
-              <GraduationCap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+              <GraduationCap className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" aria-hidden="true" />
               {user.college_name || 'Not provided'}
             </dd>
           </div>

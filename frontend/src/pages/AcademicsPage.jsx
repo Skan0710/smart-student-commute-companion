@@ -554,7 +554,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                           <li key={item.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                               <CheckCircle2
-                                className={`w-4 h-4 shrink-0 ${item.status === 'completed' ? 'text-emerald-600' : 'text-slate-400'}`}
+                                className={`w-4 h-4 shrink-0 ${item.status === 'completed' ? 'text-emerald-700' : 'text-slate-400'}`}
                                 aria-hidden="true"
                               />
                               <div className="min-w-0">

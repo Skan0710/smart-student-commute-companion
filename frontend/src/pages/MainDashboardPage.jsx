@@ -329,7 +329,7 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <CheckCircle2
-                      className={`w-4 h-4 shrink-0 ${task.status === 'completed' ? 'text-emerald-600' : 'text-slate-400 dark:text-slate-600'}`}
+                      className={`w-4 h-4 shrink-0 ${task.status === 'completed' ? 'text-emerald-700' : 'text-slate-400 dark:text-slate-600'}`}
                       aria-hidden="true"
                     />
                     <div className="min-w-0">

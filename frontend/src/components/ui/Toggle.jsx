@@ -35,7 +35,7 @@ export default function Toggle({
         <label
           htmlFor={id}
           className={`block text-sm font-semibold cursor-pointer ${
-            disabled ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'
+            disabled ? 'text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-slate-100'
           }`}
         >
           {label}

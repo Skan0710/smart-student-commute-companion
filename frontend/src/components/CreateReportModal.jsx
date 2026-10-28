@@ -122,7 +122,7 @@ export default function CreateReportModal({
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate className="p-5 space-y-4">
           <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 rounded-xl p-3 text-xs text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
             <span>
               Anonymous &amp; privacy-safe. Reports automatically decay over 120 minutes.
             </span>

@@ -64,7 +64,7 @@ export default function StatTile({
           {label}
         </div>
         {hint && (
-          <div className="text-[11px] text-slate-400 dark:text-slate-500 leading-snug font-sans">{hint}</div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug font-sans">{hint}</div>
         )}
       </div>
     </div>

@@ -103,12 +103,12 @@ function JourneyCard({ journey, badge, children }) {
             <span>From: <strong>{journey.origin}</strong></span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
+            <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" aria-hidden="true" />
             <span>To: <strong>{journey.destination}</strong></span>
           </div>
           {(journey.departureTime || journey.departureDate) && (
             <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" aria-hidden="true" />
+              <Clock className="w-3.5 h-3.5 text-amber-700 shrink-0" aria-hidden="true" />
               <span>Departure: {[journey.departureDate, journey.departureTime].filter(Boolean).join(' · ')}</span>
             </div>
           )}
@@ -611,7 +611,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
               {(isSampleTravel || sharingEnabled) && travel.meetingPoints.length > 0 && (
                 <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Safe campus meeting points">
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+                    <MapPin className="w-4 h-4 text-emerald-700" aria-hidden="true" />
                     <span>Suggested public meeting points</span>
                   </h3>
                   <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 list-none">

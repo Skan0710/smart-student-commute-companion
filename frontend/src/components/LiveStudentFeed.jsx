@@ -81,7 +81,7 @@ export default function LiveStudentFeed({
       {/* Connection Indicator Bar */}
       <div className="flex items-center justify-between text-[11px] px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
         <span className="text-slate-500 dark:text-slate-400">
-          Sync Status: <strong className={isConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isConnected ? 'Live Socket Stream Active' : 'Connecting to Stream...'}</strong>
+          Sync Status: <strong className={isConnected ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isConnected ? 'Live Socket Stream Active' : 'Connecting to Stream...'}</strong>
         </span>
         <span className="text-slate-500 dark:text-slate-400">
           Decay window: <strong>120 min max</strong>
@@ -162,7 +162,7 @@ export default function LiveStudentFeed({
                       className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-250 dark:border-slate-750 hover:border-emerald-500/50 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                       title="Vote: Disruption is still active"
                     >
-                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                      <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
                       <span>Still happening</span>
                     </button>
 

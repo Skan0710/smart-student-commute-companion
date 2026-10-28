@@ -25,7 +25,7 @@ export default function FaqList({ items }) {
               <span>{item.question}</span>
             </span>
             <ChevronDown
-              className="w-5 h-5 shrink-0 text-slate-400 dark:text-slate-500 transition-transform duration-200 group-open:rotate-180 group-open:text-blue-600 dark:group-open:text-blue-400"
+              className="w-5 h-5 shrink-0 text-slate-500 dark:text-slate-400 transition-transform duration-200 group-open:rotate-180 group-open:text-blue-600 dark:group-open:text-blue-400"
               aria-hidden="true"
             />
           </summary>

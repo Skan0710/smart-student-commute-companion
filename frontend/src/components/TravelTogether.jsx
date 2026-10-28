@@ -42,7 +42,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       </div>
 
       <div className="bg-emerald-50/70 dark:bg-slate-950/70 border border-emerald-200 dark:border-emerald-500/30 rounded-xl p-3.5 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+        <ShieldCheck className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <p className="font-semibold text-emerald-800 dark:text-emerald-300">
             Privacy-Preserving &amp; Consent-Grounded
@@ -68,7 +68,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
               key={pt}
               className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
             >
-              <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
+              <Check className="w-2.5 h-2.5 text-emerald-700 dark:text-emerald-400" />
               {pt}
             </span>
           ))}
@@ -120,7 +120,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className={`text-[11px] font-semibold ${isFull ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      <span className={`text-[11px] font-semibold ${isFull ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                         {grp.current_members} / {grp.max_members} joined
                       </span>
 
@@ -130,7 +130,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                         aria-label={isFull ? 'Group is full' : `Join group from ${grp.origin_area}`}
                         className={`touch-target px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                           isFull
-                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                             : 'bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 shadow-sm'
                         }`}
                       >
@@ -149,7 +149,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
               >
                 <MetaList>
                   <MetaRow
-                    icon={<MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                    icon={<MapPin className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />}
                     label="Origin"
                     valueClassName="text-slate-900 dark:text-white font-semibold"
                   >
@@ -163,7 +163,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     {grp.destination_college}
                   </MetaRow>
                   <MetaRow
-                    icon={<ShieldCheck className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />}
+                    icon={<ShieldCheck className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />}
                     label="Meeting Hub"
                     valueClassName="text-slate-700 dark:text-slate-300 font-medium text-xs"
                   >

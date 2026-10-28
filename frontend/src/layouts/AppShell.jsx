@@ -96,7 +96,7 @@ export default function AppShell({
               <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
               <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Mumbai Student Transit AI</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-400 dark:text-slate-500">
+            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
               <span>OpenStreetMap &amp; Leaflet</span>
               <span>•</span>
               <span>OSRM Multi-modal</span>
@@ -111,7 +111,7 @@ export default function AppShell({
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="font-medium text-slate-600 dark:text-slate-300 underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300"
+                      className="inline-flex items-center min-h-6 py-1 font-medium text-slate-600 dark:text-slate-300 underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300"
                     >
                       {link.label}
                     </a>

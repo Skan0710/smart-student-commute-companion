@@ -124,7 +124,7 @@ export default function RouteResults({
       {weather && (
         <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400">
+            <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <CloudRain className="w-5 h-5" />
             </div>
             <div>
@@ -276,7 +276,7 @@ export default function RouteResults({
 
           <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
             <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
-              <Footprints className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+              <Footprints className="w-3 h-3 text-teal-700 dark:text-teal-400" />
               Walking
             </div>
             <div className="text-base font-extrabold text-teal-700 dark:text-teal-300 mt-0.5">
@@ -513,7 +513,7 @@ export default function RouteResults({
                       {Number.isFinite(alt.fareRupees) ? `₹${alt.fareRupees}` : '—'}
                     </span>
                     <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                      <Footprints className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                      <Footprints className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
                       {Number.isFinite(alt.walkingDurationMinutes) ? `${alt.walkingDurationMinutes}m` : '—'}
                     </span>
                     <span className="font-mono text-slate-500 dark:text-slate-400 ml-auto text-[10px]">
