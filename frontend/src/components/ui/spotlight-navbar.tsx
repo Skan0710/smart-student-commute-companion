@@ -11,6 +11,8 @@ export interface NavItem {
     badge?: number;
     /** Accessible name override (e.g. "Notifications, 6 unread notifications"). */
     ariaLabel?: string;
+    /** Shorter text shown below the xl breakpoint to keep the bar on one line. */
+    compactLabel?: string;
     icon?: React.ComponentType<{ className?: string }>;
 }
 
@@ -165,7 +167,14 @@ export function SpotlightNavbar({
                                 )}
                             >
                                 {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0", "aria-hidden": true } as React.ComponentProps<"svg">)}
-                                <span>{item.label}</span>
+                                {item.compactLabel ? (
+                                    <>
+                                        <span className="xl:hidden">{item.compactLabel}</span>
+                                        <span className="hidden xl:inline">{item.label}</span>
+                                    </>
+                                ) : (
+                                    <span>{item.label}</span>
+                                )}
                                 {item.badge !== undefined && item.badge > 0 && (
                                     <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                                         {item.badge}

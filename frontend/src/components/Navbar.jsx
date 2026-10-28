@@ -331,6 +331,7 @@ export default function Navbar({
     id: item.id,
     label: item.label,
     shortLabel: item.shortLabel,
+    compactLabel: item.id === 'community' ? 'Community' : undefined,
     href: `#${item.id}`,
     icon: item.icon,
     ...(item.id === 'notifications'
@@ -373,11 +374,11 @@ export default function Navbar({
           <button
             type="button"
             onClick={() => handleSelectTab('dashboard')}
-            className="flex items-center gap-3 text-left select-none group min-w-0 flex-1 lg:flex-none rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex items-center gap-3 text-left select-none group min-w-0 flex-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Smart Student Companion — go to dashboard"
           >
             <Logo />
-            <div className="min-w-0">
+            <div className="min-w-0 lg:max-[1179px]:hidden">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="font-display font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
@@ -393,7 +394,7 @@ export default function Navbar({
           </button>
 
           {/* Desktop Primary Navigation with Spotlight Navbar */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
             <SpotlightNavbar
               items={spotlightNavItems}
               activeIndex={currentSpotlightIndex >= 0 ? currentSpotlightIndex : -1}
@@ -419,7 +420,7 @@ export default function Navbar({
               onClick={() => handleSelectTab('account')}
               aria-label="Open student account and profile"
               aria-current={activeTab === 'account' ? 'page' : undefined}
-              className={`flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 rounded-full text-xs font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              className={`flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 lg:p-1 xl:pl-1.5 xl:pr-3.5 rounded-full text-xs font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
                   ? 'bg-blue-700 text-white border-blue-700 shadow-lg shadow-blue-500/30'
                   : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
@@ -428,7 +429,7 @@ export default function Navbar({
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center text-white shrink-0">
                 <UserRound className="w-3.5 h-3.5" aria-hidden="true" />
               </div>
-              <span className="hidden sm:inline">Profile</span>
+              <span className="hidden sm:inline lg:hidden xl:inline">Profile</span>
             </button>
 
             {/* Mobile Hamburger Toggle Button */}

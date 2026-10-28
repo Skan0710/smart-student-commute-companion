@@ -2288,7 +2288,7 @@ if (
 // Responsive navigation locks: the header must shrink instead of overflowing a phone
 if (
   navContent &&
-  navContent.includes('min-w-0 flex-1 lg:flex-none') &&
+  navContent.includes('min-w-0 flex-1 rounded-2xl') &&
   navContent.includes('hidden 2xl:inline') &&
   navContent.includes('aria-current')
 ) {
