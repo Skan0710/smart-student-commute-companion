@@ -67,7 +67,7 @@ export default function InstallShareHubPage({
     if (typeof navigator.share !== 'function' || !appUrl) return false;
     try {
       await navigator.share({
-        title: 'Smart Student Commute Companion',
+        title: 'Smart Student Companion',
         text: 'Plan your college commute with me:',
         url: appUrl,
       });
@@ -83,7 +83,7 @@ export default function InstallShareHubPage({
     if (typeof navigator.share !== 'function' || !appUrl) return false;
     try {
       await navigator.share({
-        title: `Smart Student Commute Companion — ${screen.label}`,
+        title: `Smart Student Companion — ${screen.label}`,
         text: `Open the ${screen.label} screen:`,
         url: `${appUrl}/?tab=${screen.id}`,
       });
@@ -191,7 +191,7 @@ export default function InstallShareHubPage({
           label="App link"
           value={appUrl || 'App link unavailable'}
           description="Send classmates the address of this app so they can plan the same commute."
-          shareTitle="Smart Student Commute Companion"
+          shareTitle="Smart Student Companion"
           onShare={isWebShareSupported && appUrl ? shareApp : undefined}
         />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -75,7 +75,7 @@ export function getPrivacyPolicy({ analyticsEnabled = false, contactEmail = '' }
   return {
     updated: PRIVACY_LAST_UPDATED,
     intro:
-      'This policy explains what Smart Student Commute Companion stores and shares when you plan a commute, use the community features or create an account. It describes how the software behaves; the organisation operating a particular deployment has not been named here because no operator details have been provided.',
+      'This policy explains what Smart Student Companion stores and shares when you plan a commute, use the community features or create an account. It describes how the software behaves; the organisation operating a particular deployment has not been named here because no operator details have been provided.',
     sections: [
       {
         id: 'summary',

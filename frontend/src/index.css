@@ -11,8 +11,8 @@
   color-scheme: light;
   
   /* Typography Scale */
-  --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family-display: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Spacing Scale (consistent with Tailwind defaults) */
   --spacing-1: 0.25rem;   /* 4px */
@@ -113,6 +113,11 @@
    BASE STYLES
    ============================================================ */
 
+html {
+  font-size: 17px;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -201,8 +206,9 @@ p {
 /* Dim and invert the OSM raster tiles in dark mode so the map does not glare
    against the dark UI. Only the tile pane is filtered: markers, routes and
    popups keep their own colors. */
+/* Map theme does not change in dark mode */
 .dark .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.7);
+  filter: none;
 }
 
 /* Attribution links meet the 24px minimum target size (WCAG 2.5.8) */
@@ -642,16 +648,32 @@ html.lenis, html.lenis body {
 .app-backdrop {
   background-color: #f6f8fc;
   background-image:
+    radial-gradient(rgba(0, 0, 0, 0.08) 1.25px, transparent 1.25px),
     radial-gradient(900px 480px at 8% -8%, rgba(99, 102, 241, 0.10), transparent 60%),
     radial-gradient(760px 420px at 98% 2%, rgba(14, 165, 233, 0.09), transparent 60%);
+  background-size: 24px 24px, auto, auto;
   background-attachment: fixed;
 }
 .dark .app-backdrop {
   background-color: #070b18;
   background-image:
+    radial-gradient(rgba(255, 255, 255, 0.16) 1.25px, transparent 1.25px),
     radial-gradient(900px 520px at 8% -10%, rgba(99, 102, 241, 0.20), transparent 60%),
     radial-gradient(760px 460px at 98% 0%, rgba(14, 165, 233, 0.13), transparent 60%);
+  background-size: 24px 24px, auto, auto;
+  background-attachment: fixed;
 }
+/* Suppress accidental focus border/ring on mouse click while preserving keyboard focus */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible),
+[role="tab"]:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

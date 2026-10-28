@@ -1,4 +1,4 @@
-# Crawling rules for the Smart Student Commute Companion web app.
+# Crawling rules for the Smart Student Companion web app.
 # robots.txt only asks well-behaved crawlers to stay away; it is NOT access
 # control. Private data is protected by authentication on the API.
 #

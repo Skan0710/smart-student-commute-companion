@@ -1,6 +1,7 @@
 import React from 'react';
 import { FOOTER_LINKS } from '../content/siteContent.js';
 import { AnalyticsSettingsButton } from '../components/ConsentBanner.jsx';
+import DarkModeCursorSpotlight from '../components/ui/DarkModeCursorSpotlight';
 
 /**
  * AppShell - Master application shell layout
@@ -46,6 +47,7 @@ export default function AppShell({
       >
         Skip to main content
       </a>
+      <DarkModeCursorSpotlight />
 
       {/* Header Slot */}
       {header && (
@@ -92,7 +94,7 @@ export default function AppShell({
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-              <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Commute Companion</span>
+              <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Companion</span>
               <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
               <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Mumbai Student Transit AI</span>
             </div>

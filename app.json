@@ -1,9 +1,9 @@
 {
-  "name": "Smart Student Commute Companion",
+  "name": "Smart Student Companion",
   "slug": "smart-student-commute-companion",
   "category": "productivity",
   "tagline": "AI-assisted student commute planner for Mumbai college journeys",
-  "description": "Smart Student Commute Companion helps students plan daily college travel, compare practical multimodal routes (local trains, metro, buses, autos), stay ahead of transit disruptions with transparent provenance, and coordinate consent-based travel.",
+  "description": "Smart Student Companion helps students plan daily college travel, compare practical multimodal routes (local trains, metro, buses, autos), stay ahead of transit disruptions with transparent provenance, and coordinate consent-based travel.",
   "pricing": {
     "model": "free"
   },

@@ -4,6 +4,8 @@ import { Badge } from './ui';
 import { formatAge } from '../utils/formatters';
 
 export default function NotificationItem({ report, isRead = false, onToggleRead }) {
+  const modeLabel = report?.mode ? report.mode.charAt(0).toUpperCase() + report.mode.slice(1) : '';
+
   return (
     <article className={`flex min-w-0 gap-3 p-3 sm:p-4 ${isRead ? 'opacity-70' : 'bg-blue-500/[0.05]'}`}>
       <span className="mt-0.5 self-start shrink-0 rounded-full bg-amber-500/10 p-2 text-amber-800 dark:text-amber-300" aria-hidden="true">
@@ -11,21 +13,26 @@ export default function NotificationItem({ report, isRead = false, onToggleRead 
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{report.area || 'Commute update'}</h2>
-          <time dateTime={report.created_at || undefined} className="text-xs text-slate-500 dark:text-slate-400">{formatAge(report?.ageMinutes)}</time>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+            {report.area || 'Commute update'}
+            {modeLabel ? ` (${modeLabel})` : ''}
+          </h2>
+          <time dateTime={report.created_at || undefined} className="text-xs text-slate-500 dark:text-slate-400">
+            {formatAge(report?.ageMinutes)}
+          </time>
         </div>
         <p className="mt-1 break-words text-sm leading-relaxed text-slate-600 dark:text-slate-300">{report.message}</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {!isRead && <Badge variant="emerald" size="xs">Unread</Badge>}
-          {report.mode && <p className="text-xs font-medium text-blue-700 dark:text-blue-300 capitalize">{report.mode}</p>}
+          {modeLabel && <p className="text-xs font-medium text-blue-700 dark:text-blue-300">{modeLabel}</p>}
           {onToggleRead && (
             <button
               type="button"
               onClick={() => onToggleRead(report.id)}
               aria-pressed={isRead}
-              className="min-h-8 rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+              className="min-h-8 rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-slate-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              {isRead ? 'Mark unread' : 'Mark read'}
+              {isRead ? 'Mark as Unread' : 'Mark as Read' /* Mark read */}
             </button>
           )}
         </div>

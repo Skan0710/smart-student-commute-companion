@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useId } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -9,9 +9,6 @@ import {
   BarChart3,
   Bookmark,
   Download,
-  LayoutGrid,
-  ChevronDown,
-  ShieldCheck,
   TrainFront,
   UploadCloud,
   UserRound,
@@ -25,12 +22,13 @@ import SpotlightNavbar from './ui/spotlight-navbar';
 import Logo from './Logo';
 
 /**
- * 5 Core Tabs as requested:
+ * 5 Core Tabs:
  * 1st: Main Dashboard ('dashboard')
- * 2nd: Academics Hub ('academics') -> Courses, Calendar, Resources, AI Study Plans
- * 3rd: Plan Route ('planner') -> Commute routing and nested subpages
- * 4th: Community & Goals ('community') -> Goals & Milestones + Shared Travel
- * 5th: Notifications ('notifications') -> Real-time alerts & notices
+ * 2nd: Academics Hub ('academics')
+ * 3rd: Plan Route ('planner')
+ * 4th: Community & Goals ('community')
+ * 5th: Travel Together ('together')
+ * + Notifications (bell button top-right)
  * + Account/Profile in top-right
  */
 export const NAV_ITEMS = [
@@ -60,7 +58,14 @@ export const NAV_ITEMS = [
     label: 'Community & Goals',
     shortLabel: 'Community',
     icon: Users,
-    description: 'Student goals, milestones & shared travel'
+    description: 'Student goals, milestones & campus collaboration'
+  },
+  {
+    id: 'together',
+    label: 'Travel Together',
+    shortLabel: 'Together',
+    icon: Users,
+    description: 'Student ride groups, carpools & shared commutes'
   },
   {
     id: 'notifications',
@@ -79,15 +84,12 @@ export const NAV_ITEMS = [
   }
 ];
 
-export const PRIMARY_NAV_IDS = ['dashboard', 'academics', 'planner', 'community', 'notifications'];
+// PRIMARY_NAV_IDS = ['dashboard', 'academics', 'planner', 'community', 'notifications']
+// const MoreMenu = null;
+export const PRIMARY_NAV_IDS = ['dashboard', 'academics', 'planner', 'community', 'together'];
 
 /**
- * Secondary screens that live outside the five core tabs.
- *
- * Every entry is deep-linkable through `/?tab=<id>` (public About links, the PWA
- * manifest shortcut and the Install & Share hub's share links all rely on it).
- * Entries that carry a `route.subTab` are hosted inside the Plan Route tab; the
- * rest render as their own screen and are reachable from the "More" menu.
+ * Secondary screens that live outside the core tabs for deep linking.
  */
 export const SECONDARY_SCREENS = [
   {
@@ -156,121 +158,6 @@ export const SECONDARY_SCREENS = [
   }
 ];
 
-/** Secondary screens that get their own entry in the "More" menu. */
-const MORE_MENU_ITEMS = SECONDARY_SCREENS.filter((item) => !item.route.subTab);
-
-/**
- * MoreMenu - disclosure popover for secondary screens + preferences.
- * Closes on Escape (returning focus to the trigger), outside click and selection.
- */
-function MoreMenu({ activeTab, onSelect, onOpenPreferences }) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
-  const buttonRef = useRef(null);
-  const menuId = useId();
-  const isActive = MORE_MENU_ITEMS.some((item) => item.id === activeTab);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const handlePointerDown = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setOpen(false);
-        buttonRef.current?.focus();
-      }
-    };
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open]);
-
-  const choose = (action) => {
-    setOpen(false);
-    action();
-  };
-
-  return (
-    <div ref={containerRef} className="relative hidden lg:block">
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        aria-label="More screens and settings"
-        className={`flex items-center gap-1.5 h-10 px-3 rounded-full text-xs font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-          isActive || open
-            ? 'bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-400/40 text-blue-700 dark:text-blue-200'
-            : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
-        }`}
-      >
-        <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-        <span className="hidden 2xl:inline">More</span>
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
-      </button>
-
-      {open && (
-        <div
-          id={menuId}
-          role="group"
-          aria-label="More screens and settings"
-          className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 p-2 animate-fade-in"
-        >
-          <ul className="space-y-0.5">
-            {MORE_MENU_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const current = activeTab === item.id;
-              return (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => choose(() => onSelect(item.id))}
-                    aria-current={current ? 'page' : undefined}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                      current
-                        ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-200'
-                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <span className="shrink-0 p-1.5 rounded-lg bg-slate-100 dark:bg-white/10">
-                      <Icon className="w-4 h-4" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold leading-tight">{item.label}</span>
-                      <span className="block text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{item.description}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {onOpenPreferences && (
-            <div className="mt-1.5 pt-1.5 border-t border-slate-200 dark:border-white/10">
-              <button
-                type="button"
-                onClick={() => choose(onOpenPreferences)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                <span className="shrink-0 p-1.5 rounded-lg bg-slate-100 dark:bg-white/10">
-                  <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
-                </span>
-                <span className="text-sm font-semibold">Preferences &amp; settings</span>
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Navbar({
   onResetDemo,
   isResetting,
@@ -317,32 +204,14 @@ export default function Navbar({
     }
   };
 
-  // Secondary screens may resolve to a tab + sub-tab (App owns that mapping)
-  const handleSelectScreen = (screenId) => {
-    (onNavigateScreen || setActiveTab)(screenId);
-    if (mobileMenuOpen) {
-      setMobileMenuOpen(false);
-      menuButtonRef.current?.focus();
-    }
-  };
-
   // 5 core spotlight navigation items
   const spotlightNavItems = NAV_ITEMS.filter((item) => PRIMARY_NAV_IDS.includes(item.id)).map((item) => ({
     id: item.id,
     label: item.label,
     shortLabel: item.shortLabel,
-    compactLabel: item.id === 'community' ? 'Community' : undefined,
+    compactLabel: item.id === 'community' ? 'Community' : (item.id === 'together' ? 'Together' : undefined),
     href: `#${item.id}`,
     icon: item.icon,
-    ...(item.id === 'notifications'
-      ? {
-          badge: unreadNotificationsCount,
-          ariaLabel:
-            unreadNotificationsCount > 0
-              ? `Notifications, ${unreadNotificationsCount} unread notifications`
-              : 'Notifications'
-        }
-      : {})
   }));
 
   const currentSpotlightIndex = spotlightNavItems.findIndex((item) => item.id === activeTab);
@@ -350,27 +219,10 @@ export default function Navbar({
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl backdrop-saturate-150 border-b border-slate-200/70 dark:border-white/10 transition-colors duration-150 font-sans">
-        {/* Top Privacy & Verified Banner (desktop/tablet only) */}
-        <div className="hidden sm:flex bg-gradient-to-r from-blue-600/[0.06] via-indigo-500/[0.05] to-violet-500/[0.06] dark:from-blue-500/10 dark:via-indigo-500/10 dark:to-violet-500/10 border-b border-slate-200/60 dark:border-white/5 px-4 py-1.5 text-xs text-slate-600 dark:text-slate-300 items-center justify-between gap-3 min-w-0 transition-colors">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
-            <span className="truncate min-w-0 font-medium">
-              <strong className="text-blue-700 dark:text-blue-300 font-semibold">Smart Student Companion:</strong> Integrated Academics, Multimodal Transit &amp; Campus Collaboration.
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-slate-500 dark:text-slate-400 shrink-0 text-[11px] font-medium">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-              Mumbai GTFS &amp; Academic Engine
-            </span>
-            <span>OSRM Multimodal</span>
-          </div>
-        </div>
-
         {/* Main Navbar Bar */}
         <div className="max-w-[1650px] mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 sm:gap-4">
 
-          {/* Brand Logo & Title */}
+          {/* Brand Logo & Title on the Top Left */}
           <button
             type="button"
             onClick={() => handleSelectTab('dashboard')}
@@ -378,9 +230,9 @@ export default function Navbar({
             aria-label="Smart Student Companion — go to dashboard"
           >
             <Logo />
-            <div className="min-w-0 lg:max-[1179px]:hidden">
+            <div className="min-w-0">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="font-display font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
+                <span className="font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
                 </span>
                 <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
@@ -388,7 +240,7 @@ export default function Navbar({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden xl:block truncate font-medium">
-                Academic Hub • AI Scheduling • Route Planning • Safety Pools
+                Academic Hub • Route Planning • Safety Pools • Campus Life
               </p>
             </div>
           </button>
@@ -405,16 +257,32 @@ export default function Navbar({
 
           {/* Top Right Controls */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <MoreMenu
-              activeTab={activeTab}
-              onSelect={handleSelectScreen}
-              onOpenPreferences={onOpenPreferences}
-            />
-
             {onToggleTheme && (
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             )}
 
+            {/* Notifications Tab - Bell icon button immediately to the left of Profile tab */}
+            <button
+              type="button"
+              onClick={() => handleSelectTab('notifications')}
+              aria-label={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
+              aria-current={activeTab === 'notifications' ? 'page' : undefined}
+              title={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
+              className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                activeTab === 'notifications'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25'
+                  : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
+              }`}
+            >
+              <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" aria-hidden="true" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 border-2 border-white dark:border-slate-950">
+                  {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                </span>
+              )}
+            </button>
+
+            {/* Profile Tab */}
             <button
               type="button"
               onClick={() => handleSelectTab('account')}
@@ -461,7 +329,7 @@ export default function Navbar({
             aria-label="Mobile navigation menu"
           >
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
-              Main Menu
+              Menu
             </div>
 
             <div className="space-y-1.5">
@@ -501,35 +369,6 @@ export default function Navbar({
               })}
             </div>
 
-            {/* Secondary screens */}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-1.5">
-              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
-                More
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {MORE_MENU_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleSelectScreen(item.id)}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                        isActive
-                          ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-200'
-                          : 'bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
-                      <span className="min-w-0 leading-tight">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Mobile Preferences Control */}
             {onOpenPreferences && (
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
@@ -550,7 +389,7 @@ export default function Navbar({
         )}
       </header>
 
-      {/* Mobile Bottom Fixed Navigation Bar (5 Items) */}
+      {/* Mobile Bottom Fixed Navigation Bar (5 Core Items) */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800/90 px-1 pb-safe flex items-center justify-around shadow-2xl transition-colors font-sans"
         role="navigation"
@@ -564,7 +403,7 @@ export default function Navbar({
               key={item.id}
               onClick={() => handleSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.ariaLabel || item.label}
+              aria-label={item.label}
               className={`flex-1 min-w-0 flex flex-col items-center justify-center px-0.5 py-2 min-h-[52px] rounded-xl transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 isActive
                   ? 'text-blue-700 dark:text-blue-300 font-bold'
@@ -573,13 +412,6 @@ export default function Navbar({
             >
               <div className="relative">
                 <Icon className={`w-5 h-5 transition-transform ${isActive ? 'text-blue-700 dark:text-blue-300 scale-110' : ''}`} aria-hidden="true" />
-                {item.id === 'notifications' && unreadNotificationsCount > 0 && (
-                  <UnreadCountBadge
-                    count={unreadNotificationsCount}
-                    srLabel="unread"
-                    className="absolute -top-1 -right-2 border-white dark:border-slate-950"
-                  />
-                )}
               </div>
               <span className="text-[10px] mt-1 tracking-tight max-w-full truncate" aria-hidden="true">
                 {item.shortLabel || item.label}

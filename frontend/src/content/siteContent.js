@@ -8,14 +8,14 @@
  * they are real and can be substantiated.
  */
 
-export const SITE_NAME = 'Smart Student Commute Companion';
+export const SITE_NAME = 'Smart Student Companion';
 
 /** Social/preview image (PNG: most link scrapers reject SVG). */
 export const SOCIAL_IMAGE = {
   path: '/icons/icon-maskable-512x512.png',
   width: 512,
   height: 512,
-  alt: 'Smart Student Commute Companion logo: stacked route layers on a green background',
+  alt: 'Smart Student Companion logo: stacked route layers on a green background',
 };
 
 /**
@@ -26,30 +26,30 @@ export const PAGES = {
   home: {
     id: 'home',
     path: '/',
-    title: 'Mumbai Student Commute Planner | Smart Student Commute Companion',
+    title: 'Mumbai Student Commute Planner | Smart Student Companion',
     description:
       'Plan your Mumbai college commute across local trains, metro and buses. Compare routes with weather and live student reports, using area names only.',
   },
   about: {
     id: 'about',
     path: '/about',
-    title: 'How It Works | Smart Student Commute Companion',
+    title: 'How It Works | Smart Student Companion',
     description:
-      'See how Smart Student Commute Companion compares Mumbai train, metro and bus routes for college students using schedules, OpenStreetMap routing, weather and reports.',
+      'See how Smart Student Companion compares Mumbai train, metro and bus routes for college students using schedules, OpenStreetMap routing, weather and reports.',
     breadcrumb: 'How it works',
   },
   privacy: {
     id: 'privacy',
     path: '/privacy',
-    title: 'Privacy Policy | Smart Student Commute Companion',
+    title: 'Privacy Policy | Smart Student Companion',
     description:
-      'How Smart Student Commute Companion handles account details, commute inputs, community reports and third-party services, and the choices you have over your data.',
+      'How Smart Student Companion handles account details, commute inputs, community reports and third-party services, and the choices you have over your data.',
     breadcrumb: 'Privacy policy',
   },
   notFound: {
     id: 'notfound',
     path: null,
-    title: 'Page Not Found | Smart Student Commute Companion',
+    title: 'Page Not Found | Smart Student Companion',
     description: 'The page you requested does not exist. Head back to the Mumbai student commute planner.',
     noindex: true,
   },

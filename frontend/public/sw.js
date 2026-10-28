@@ -1,5 +1,5 @@
 /**
- * Service Worker - Smart Student Commute Companion
+ * Service Worker - Smart Student Companion
  * 
  * Basic PWA service worker with safe caching strategy.
  * Caches static assets only. Does NOT cache:

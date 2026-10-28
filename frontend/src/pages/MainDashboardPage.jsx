@@ -9,7 +9,9 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
-  Zap
+  Zap,
+  Download,
+  Share2
 } from 'lucide-react';
 import { loadAcademicSnapshot } from '../services/academics';
 import { loadCommunitySnapshot } from '../services/communityGoals';
@@ -105,6 +107,37 @@ function RowSkeleton({ rows = 3 }) {
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} className="h-[58px] rounded-2xl bg-slate-100 dark:bg-slate-800/60" />
       ))}
+      {/* Install and Share - Last line on Dashboard */}
+      <div className="pt-6 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <Download className="w-4 h-4" aria-hidden="true" />
+          </div>
+          <div>
+            <span className="font-bold text-slate-900 dark:text-white block sm:inline">Install Smart Student Companion</span>
+            <span className="hidden sm:inline text-slate-400 dark:text-slate-500 mx-1.5">•</span>
+            <span className="text-slate-500 dark:text-slate-400">Install to your home screen or share with classmates</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleInstall}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>{isInstalled ? 'Installed App' : 'Install App'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -128,7 +161,35 @@ function EmptyNote({ children }) {
  *
  * Signed-in students see their own data; guests see labelled sample data.
  */
-export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
+export default function MainDashboardPage({
+  onNavigate,
+  reportsCount = 0,
+  onInstallApp,
+  canInstall = false,
+  isInstalled = false,
+  onShare,
+}) {
+  const handleInstall = () => {
+    if (onInstallApp) {
+      onInstallApp();
+    } else {
+      onNavigate?.('install');
+    }
+  };
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare();
+    } else if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({
+        title: 'Smart Student Companion',
+        text: 'All-in-one student platform for Mumbai academics, commute routes, and peer travel.',
+        url: window.location.origin,
+      }).catch(() => {});
+    } else {
+      onNavigate?.('install');
+    }
+  };
   const academic = useAsyncResource(loadAcademicSnapshot, {
     errorMessage: 'Unable to load your academic summary. Please check your connection and try again.',
   });
@@ -175,10 +236,6 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
         <div aria-hidden="true" className="pointer-events-none absolute right-24 -bottom-32 w-72 h-72 rounded-full bg-sky-400/20 blur-3xl"></div>
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]"></div>
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-blue-50">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" aria-hidden="true" />
-            <span>{firstName ? `Welcome back, ${firstName}` : 'Welcome to Smart Student Companion'}</span>
-          </div>
           <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-white leading-[1.1]">
             Your Complete Student Platform
           </h1>
@@ -432,6 +489,38 @@ export default function MainDashboardPage({ onNavigate, reportsCount = 0 }) {
             </ul>
           )}
         </Panel>
+      </div>
+
+      {/* Install and Share - Last line on Dashboard */}
+      <div className="pt-6 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <Download className="w-4 h-4" aria-hidden="true" />
+          </div>
+          <div>
+            <span className="font-bold text-slate-900 dark:text-white block sm:inline">Install Smart Student Companion</span>
+            <span className="hidden sm:inline text-slate-400 dark:text-slate-500 mx-1.5">•</span>
+            <span className="text-slate-500 dark:text-slate-400">Install to your home screen or share with classmates</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleInstall}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>{isInstalled ? 'Installed App' : 'Install App'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Share</span>
+          </button>
+        </div>
       </div>
     </div>
   );

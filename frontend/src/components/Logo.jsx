@@ -2,44 +2,95 @@ import React from 'react';
 
 /**
  * Modern geometric logo for Smart Student Companion
- * Featuring an interconnected graduation cap + compass navigation node
- * with vibrant gradients.
+ * Featuring an interconnected academic graduation apex and dynamic transit nexus
+ * with vibrant gradients and glowing modern tech aesthetics.
  */
 export default function Logo({ className = 'w-9 h-9 sm:w-10 sm:h-10' }) {
   return (
-    <div className={`${className} rounded-2xl bg-gradient-to-tr from-blue-500 via-indigo-500 to-violet-500 p-0.5 shadow-lg shadow-indigo-500/30 ring-1 ring-white/40 shrink-0 group-hover:scale-105 transition-all duration-300`}>
-      <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden relative">
+    <div
+      className={`${className} rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 p-0.5 shadow-lg shadow-indigo-600/30 ring-1 ring-white/30 dark:ring-white/20 shrink-0 group-hover:scale-105 transition-all duration-300`}
+    >
+      <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden relative">
         <svg
-          viewBox="0 0 40 40"
+          viewBox="0 0 44 44"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-sm"
+          className="w-full h-full drop-shadow-md"
         >
-          {/* Subtle background glowing accent */}
-          <circle cx="20" cy="20" r="16" className="fill-blue-500/10 dark:fill-blue-400/10" />
+          {/* Ambient radial glow inside */}
+          <circle cx="22" cy="22" r="18" fill="url(#logo-radial-glow)" />
 
-          {/* Academic Cap / Apex Node */}
+          {/* Academic Mortarboard Diamond / Apex */}
           <path
-            d="M20 7L32 13.5L20 20L8 13.5L20 7Z"
-            className="fill-blue-600 dark:fill-blue-400 stroke-blue-700 dark:stroke-blue-300"
-            strokeWidth="1.2"
+            d="M22 6L37 14L22 22L7 14L22 6Z"
+            fill="url(#logo-grad-primary)"
+            stroke="#93C5FD"
+            strokeWidth="1.5"
             strokeLinejoin="round"
           />
 
-          {/* Compass Star / Core Path Network */}
+          {/* Modern Transit Arrow / Interconnected Path */}
           <path
-            d="M20 18V33M13 23L27 27M27 23L13 27"
-            className="stroke-indigo-600 dark:stroke-violet-400"
-            strokeWidth="2"
+            d="M13 18.5V28C13 32.5 17 36 22 36C27 36 31 32.5 31 28V18.5"
+            stroke="url(#logo-grad-accent)"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {/* Orbiting Milestone Nodes */}
-          <circle cx="20" cy="20" r="2.5" className="fill-white dark:fill-slate-950 stroke-blue-600 dark:stroke-blue-400" strokeWidth="2" />
-          <circle cx="20" cy="33" r="2" className="fill-indigo-600 dark:fill-blue-400" />
-          <circle cx="13" cy="23" r="1.5" className="fill-violet-600 dark:fill-indigo-400" />
-          <circle cx="27" cy="23" r="1.5" className="fill-violet-600 dark:fill-indigo-400" />
+          {/* Central Mobility Pulse Node */}
+          <path
+            d="M22 17V33"
+            stroke="#38BDF8"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+
+          <circle cx="22" cy="22" r="3" fill="#FFFFFF" />
+          <circle cx="22" cy="22" r="1.5" fill="#2563EB" />
+
+          {/* Milestone Node Dots */}
+          <circle cx="13" cy="28" r="2" fill="#38BDF8" />
+          <circle cx="31" cy="28" r="2" fill="#818CF8" />
+          <circle cx="22" cy="36" r="2.2" fill="#A78BFA" />
+
+          {/* Gradient definitions */}
+          <defs>
+            <radialGradient
+              id="logo-radial-glow"
+              cx="0"
+              cy="0"
+              r="1"
+              gradientUnits="userSpaceOnUse"
+              gradientTransform="translate(22 22) rotate(90) scale(18)"
+            >
+              <stop stopColor="#3B82F6" stopOpacity="0.35" />
+              <stop offset="1" stopColor="#1E1B4B" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient
+              id="logo-grad-primary"
+              x1="7"
+              y1="6"
+              x2="37"
+              y2="22"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#3B82F6" />
+              <stop offset="1" stopColor="#6366F1" />
+            </linearGradient>
+            <linearGradient
+              id="logo-grad-accent"
+              x1="13"
+              y1="18.5"
+              x2="31"
+              y2="36"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#38BDF8" />
+              <stop offset="0.5" stopColor="#818CF8" />
+              <stop offset="1" stopColor="#C084FC" />
+            </linearGradient>
+          </defs>
         </svg>
       </div>
     </div>

@@ -42,7 +42,7 @@ export const SOCKET_URL = getEnv('VITE_SOCKET_URL', '/');
 export const GOOGLE_CLIENT_ID = getEnv('VITE_GOOGLE_CLIENT_ID', '');
 
 // App Metadata
-export const APP_TITLE = getEnv('VITE_APP_TITLE', 'Smart Student Commute Companion');
+export const APP_TITLE = getEnv('VITE_APP_TITLE', 'Smart Student Companion');
 export const APP_DESCRIPTION = getEnv(
   'VITE_APP_DESCRIPTION',
   'AI-powered student mobility assistant for Mumbai college commutes'

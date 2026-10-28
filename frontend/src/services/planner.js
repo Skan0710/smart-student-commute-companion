@@ -118,6 +118,8 @@ function mapPersonalizedRoute(route, index, { isPrimary = false, tradeOffs = [] 
       fareRupees: seg.fareRupees,
       departureTime: seg.departureTime,
     })),
+    geometry: route.geometry || null,
+    transitStations: route.transitStations || route.stations || [],
   };
 }
 
@@ -185,7 +187,8 @@ function normalizeCommuteResponse(rawResponse) {
     alternatives,
     weather: data.environmentalContext?.weather || null,
     scheduleContext: data.scheduleContext || null,
-    departureAdvice: data.departureAdvice || null
+    departureAdvice: data.departureAdvice || null,
+    query: rawResponse.query || data.query || (data.origin ? { origin: data.origin, destination: data.destination } : null),
   };
 }
 

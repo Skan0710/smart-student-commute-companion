@@ -1093,6 +1093,21 @@ export default function App() {
           <MainDashboardPage
             onNavigate={navigateToScreen}
             reportsCount={reports.length}
+            onInstallApp={handleInstallApp}
+            canInstall={canInstall}
+            isInstalled={isInstalled}
+            onShare={() => {
+              if (typeof navigator !== 'undefined' && navigator.share) {
+                navigator.share({
+                  title: 'Smart Student Companion',
+                  text: 'All-in-one student platform for Mumbai academics, commute routes, and peer travel.',
+                  url: window.location.origin
+                }).catch(() => {});
+              } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.origin);
+                showToast('Link copied to clipboard!');
+              }
+            }}
           />
         );
 

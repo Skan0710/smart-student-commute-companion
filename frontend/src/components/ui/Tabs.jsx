@@ -1,17 +1,17 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { animate } from 'framer-motion';
 
 /**
- * Tabs - Reusable accessible tab / segmented control
+ * Tabs - Spotlight Reusable Tab Strip
  *
- * Presentation-only tab strip used to switch between related views of the
- * same data. State (which tab is active) is owned by the caller.
+ * Implements the spotlight navbar design across every secondary navbar
+ * and tab navigation strip throughout the entire application.
  *
- * Accessibility:
- * - role="tablist" / role="tab" with aria-selected
- * - Roving tabindex: only the active tab is in the tab order
- * - Arrow keys / Home / End move focus between tabs and activate them
- * - Each tab links to its panel via aria-controls (use the exported
- *   TabPanel with the same idPrefix so the ids line up)
+ * Features:
+ * - Dynamic spotlight following cursor position
+ * - Spring-animated ambience light tracking the active tab
+ * - Accessible keyboard roving tabindex and arrow-key navigation
+ * - Rounded pill container with glass border and backdrop blur
  *
  * @param {Object} props
  * @param {Array<{id: string, label: React.ReactNode, icon?: React.ComponentType, count?: number, badge?: string, disabled?: boolean}>} props.tabs
@@ -21,15 +21,6 @@ import React, { useRef } from 'react';
  * @param {string} [props.idPrefix='tabs'] - Prefix used for tab/panel ids
  * @param {'sm'|'md'} [props.size='md'] - Control size
  * @param {string} [props.className=''] - Additional wrapper classes
- *
- * @example
- * <Tabs
- *   idPrefix="transit-results"
- *   ariaLabel="Transit result type"
- *   tabs={[{ id: 'stops', label: 'Stops', count: 12 }]}
- *   activeTab={activeTab}
- *   onChange={setActiveTab}
- * />
  */
 export default function Tabs({
   tabs = [],
@@ -41,6 +32,75 @@ export default function Tabs({
   className = '',
 }) {
   const listRef = useRef(null);
+  const [hoverX, setHoverX] = useState(null);
+
+  const spotlightX = useRef(0);
+  const ambienceX = useRef(0);
+
+  // Mouse move listener for spotlight effect
+  useEffect(() => {
+    const nav = listRef.current;
+    if (!nav) return undefined;
+
+    const handleMouseMove = (e) => {
+      const rect = nav.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      setHoverX(x);
+      spotlightX.current = x;
+      nav.style.setProperty('--tab-spotlight-x', `${x}px`);
+    };
+
+    const handleMouseLeave = () => {
+      setHoverX(null);
+      const activeEl = nav.querySelector(`[data-tab-id="${activeTab}"]`);
+      if (activeEl) {
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = activeEl.getBoundingClientRect();
+        const targetX = itemRect.left - navRect.left + itemRect.width / 2;
+
+        animate(spotlightX.current, targetX, {
+          type: 'spring',
+          stiffness: 220,
+          damping: 22,
+          onUpdate: (v) => {
+            spotlightX.current = v;
+            nav.style.setProperty('--tab-spotlight-x', `${v}px`);
+          },
+        });
+      }
+    };
+
+    nav.addEventListener('mousemove', handleMouseMove);
+    nav.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      nav.removeEventListener('mousemove', handleMouseMove);
+      nav.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [activeTab]);
+
+  // Ambience active position tracking
+  useEffect(() => {
+    const nav = listRef.current;
+    if (!nav) return;
+
+    const activeEl = nav.querySelector(`[data-tab-id="${activeTab}"]`);
+    if (activeEl) {
+      const navRect = nav.getBoundingClientRect();
+      const itemRect = activeEl.getBoundingClientRect();
+      const targetX = itemRect.left - navRect.left + itemRect.width / 2;
+
+      animate(ambienceX.current, targetX, {
+        type: 'spring',
+        stiffness: 240,
+        damping: 24,
+        onUpdate: (v) => {
+          ambienceX.current = v;
+          nav.style.setProperty('--tab-ambience-x', `${v}px`);
+        },
+      });
+    }
+  }, [activeTab]);
 
   const handleKeyDown = (e) => {
     const enabled = tabs.filter((t) => !t.disabled);
@@ -68,8 +128,10 @@ export default function Tabs({
     nextButton?.focus();
   };
 
-  const sizeClasses =
-    size === 'sm' ? 'px-2.5 py-1 text-[11px]' : 'px-3 py-1.5 text-xs';
+  const isSmall = size === 'sm';
+  const sizeClasses = isSmall
+    ? 'px-3 py-1.5 text-xs'
+    : 'px-4 py-2 text-xs sm:text-sm';
 
   return (
     <div
@@ -77,8 +139,32 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`inline-flex flex-wrap gap-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-slate-800 rounded-xl p-1 ${className}`}
+      className={`relative inline-flex flex-wrap items-center gap-1 rounded-full p-1.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-lg shadow-slate-900/5 dark:shadow-black/30 overflow-hidden font-sans transition-all ${className}`}
+      style={{
+        '--tab-spotlight-color': 'rgba(59, 130, 246, 0.12)',
+        '--tab-ambience-color': 'rgba(59, 130, 246, 0.9)',
+      }}
     >
+      {/* 1. Mouse-following Spotlight Glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300"
+        style={{
+          opacity: hoverX !== null ? 1 : 0,
+          background: `radial-gradient(110px circle at var(--tab-spotlight-x, 50%) 100%, var(--tab-spotlight-color, rgba(59, 130, 246, 0.15)) 0%, transparent 60%)`,
+        }}
+      />
+
+      {/* 2. Active Ambience Underglow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 w-full h-[2.5px] z-[1]"
+        style={{
+          background: `radial-gradient(65px circle at var(--tab-ambience-x, 50%) 0%, var(--tab-ambience-color, rgba(59, 130, 246, 1)) 0%, transparent 100%)`,
+        }}
+      />
+
+      {/* Tab Buttons */}
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = tab.id === activeTab;
@@ -94,20 +180,20 @@ export default function Tabs({
             disabled={tab.disabled}
             data-tab-id={tab.id}
             onClick={() => !tab.disabled && onChange?.(tab.id)}
-            className={`inline-flex items-center gap-1.5 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-transparent disabled:opacity-40 disabled:cursor-not-allowed ${sizeClasses} ${
+            className={`relative z-10 inline-flex items-center gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sizeClasses} ${
               isActive
-                ? 'bg-white text-blue-700 shadow-sm ring-1 ring-slate-200 dark:bg-blue-500/20 dark:text-blue-100 dark:ring-blue-400/30 dark:shadow-none'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 dark:bg-white dark:text-slate-950 dark:shadow-white/20'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5'
             }`}
           >
-            {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
-            <span>{tab.label}</span>
+            {Icon && <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
+            <span className="whitespace-nowrap">{tab.label}</span>
             {(typeof tab.count === 'number' || tab.badge) && (
               <span
-                className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                   isActive
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-100'
-                    : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:border dark:border-slate-700/70'
+                    ? 'bg-white/20 text-white dark:bg-black/10 dark:text-slate-950'
+                    : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                 }`}
               >
                 {typeof tab.count === 'number' ? tab.count : tab.badge}
@@ -123,12 +209,6 @@ export default function Tabs({
 /**
  * TabPanel - Panel that pairs with a Tabs instance.
  * Renders the active panel only and wires aria-labelledby correctly.
- *
- * @param {Object} props
- * @param {string} props.idPrefix - Same prefix passed to Tabs
- * @param {string} props.tabId - Id of the tab that owns this panel
- * @param {React.ReactNode} props.children - Panel content
- * @param {string} [props.className=''] - Additional wrapper classes
  */
 export function TabPanel({ idPrefix = 'tabs', tabId, children, className = '' }) {
   return (
@@ -137,7 +217,7 @@ export function TabPanel({ idPrefix = 'tabs', tabId, children, className = '' })
       id={`${idPrefix}-panel-${tabId}`}
       aria-labelledby={`${idPrefix}-tab-${tabId}`}
       tabIndex={0}
-      className={`focus:outline-none focus:ring-2 focus:ring-blue-500/40 rounded-xl ${className}`}
+      className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded-xl ${className}`}
     >
       {children}
     </div>

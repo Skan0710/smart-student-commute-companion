@@ -90,7 +90,7 @@ export default function NotificationsPage({
               disabled={!hasUnread}
               className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
-              Mark all as read
+              Mark all as Read{/* Mark all as read */}
             </button>
           )}
           {onRefresh && (

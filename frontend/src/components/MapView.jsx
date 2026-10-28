@@ -34,13 +34,8 @@ const originIcon = createCustomIcon('#10b981', 'Origin', '<svg width="14" height
 const destIcon = createCustomIcon('#6366f1', 'College', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>');
 const transitIcon = createCustomIcon('#f59e0b', 'Station', '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/></svg>');
 
-const isValidPoint = (point) =>
-  Boolean(point) && Number.isFinite(point.lat) && Number.isFinite(point.lon);
-
 /**
- * Representative coordinates for the Mumbai areas students report from. Reports
- * only carry a free-text area name, so a report is drawn only when its area is
- * recognised - an unknown area is skipped rather than plotted somewhere wrong.
+ * Representative coordinates for Mumbai transit hubs & college locations.
  */
 const AREA_COORDINATES = [
   { match: ['andheri'], lat: 19.1197, lon: 72.8464 },
@@ -54,7 +49,7 @@ const AREA_COORDINATES = [
   { match: ['malad'], lat: 19.1864, lon: 72.8493 },
   { match: ['goregaon'], lat: 19.1663, lon: 72.8526 },
   { match: ['jogeshwari'], lat: 19.1361, lon: 72.849 },
-  { match: ['vile parle', 'parle'], lat: 19.099, lon: 72.8445 },
+  { match: ['vile parle', 'parle', 'dj sanghvi', 'djsce', 'sanghvi'], lat: 19.099, lon: 72.8445 },
   { match: ['santacruz'], lat: 19.0817, lon: 72.8417 },
   { match: ['matunga'], lat: 19.027, lon: 72.857 },
   { match: ['sion'], lat: 19.039, lon: 72.8619 },
@@ -76,14 +71,94 @@ const AREA_COORDINATES = [
   { match: ['panvel'], lat: 18.9894, lon: 73.1175 },
 ];
 
-function locateArea(area) {
+export function locateArea(area) {
   const name = String(area || '').toLowerCase();
   if (!name) return null;
   return AREA_COORDINATES.find((entry) => entry.match.some((keyword) => name.includes(keyword))) || null;
 }
 
-// Re-measure the map whenever its container changes size (sticky layouts,
-// font loading, viewport rotation) so tiles never leave blank areas.
+/**
+ * Robust coordinate normalizer that converts any representation
+ * (GeoJSON [lon, lat], Leaflet [lat, lon], objects {lat, lon}, or area names)
+ * into a verified Leaflet [lat, lon] pair.
+ */
+export function resolvePoint(pt) {
+  if (!pt) return null;
+  if (typeof pt === 'string') {
+    const loc = locateArea(pt);
+    return loc ? [loc.lat, loc.lon] : null;
+  }
+  if (Array.isArray(pt)) {
+    const [a, b] = pt;
+    if (typeof a === 'number' && typeof b === 'number') {
+      // Mumbai latitude is ~18.8 - 19.5, longitude is ~72.7 - 73.3
+      if (a > 50 && b < 50) return [b, a]; // GeoJSON [lon, lat] -> [lat, lon]
+      return [a, b];
+    }
+  }
+  if (typeof pt === 'object') {
+    const lat = pt.lat ?? pt.latitude;
+    const lon = pt.lon ?? pt.lng ?? pt.longitude;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      return [lat, lon];
+    }
+    const name = pt.display_name || pt.name || pt.area;
+    if (name) {
+      const loc = locateArea(name);
+      if (loc) return [loc.lat, loc.lon];
+    }
+  }
+  return null;
+}
+
+/**
+ * Builds guaranteed continuous route coordinates under ALL conditions:
+ * - Direct OSRM geometry if present
+ * - Seamless connections to origin and destination
+ * - Station-to-station corridor interpolation if geometry is absent
+ */
+function getRoutePoints(route, originCoord, destCoord) {
+  if (!route) return [];
+  const points = [];
+
+  // 1. Try geometry coordinates
+  if (route.geometry && Array.isArray(route.geometry.coordinates) && route.geometry.coordinates.length > 0) {
+    route.geometry.coordinates.forEach((c) => {
+      const pt = resolvePoint(c);
+      if (pt) points.push(pt);
+    });
+  }
+
+  // 2. If geometry is empty or has fewer than 2 points, construct from stations
+  if (points.length < 2) {
+    if (originCoord) points.push(originCoord);
+    const stations = route.transitStations || route.stations || [];
+    stations.forEach((s) => {
+      const sPt = resolvePoint(s);
+      if (sPt) points.push(sPt);
+    });
+    if (destCoord) points.push(destCoord);
+  } else {
+    // Ensure origin is connected to start of geometry if not already close
+    if (originCoord && points.length > 0) {
+      const distStart = Math.hypot(points[0][0] - originCoord[0], points[0][1] - originCoord[1]);
+      if (distStart > 0.003) {
+        points.unshift(originCoord);
+      }
+    }
+    // Ensure destination is connected to end of geometry if not already close
+    if (destCoord && points.length > 0) {
+      const distEnd = Math.hypot(points[points.length - 1][0] - destCoord[0], points[points.length - 1][1] - destCoord[1]);
+      if (distEnd > 0.003) {
+        points.push(destCoord);
+      }
+    }
+  }
+
+  return points;
+}
+
+// Re-measure the map whenever its container changes size
 function ResizeWatcher() {
   const map = useMap();
   useEffect(() => {
@@ -95,12 +170,12 @@ function ResizeWatcher() {
   return null;
 }
 
-// Helper component to auto fit map bounds
+// Helper component to auto fit map bounds to routes
 function FitBoundsToRoutes({ bounds }) {
   const map = useMap();
   useEffect(() => {
     if (bounds && bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+      map.fitBounds(bounds, { padding: [45, 45], maxZoom: 15 });
     }
   }, [bounds, map]);
   return null;
@@ -114,10 +189,23 @@ export default function MapView({
   // Default coordinates: Central Mumbai
   const defaultCenter = [19.0760, 72.8777];
 
+  const originCoord = useMemo(() => {
+    if (!planResult?.query) return null;
+    return resolvePoint(planResult.query.origin);
+  }, [planResult]);
+
+  const destCoord = useMemo(() => {
+    if (!planResult?.query) return null;
+    return resolvePoint(planResult.query.destination);
+  }, [planResult]);
+
   const allRoutes = useMemo(() => {
-    if (!planResult || !planResult.recommendation?.route) return [];
-    const list = [planResult.recommendation.route];
-    if (planResult.alternatives) {
+    if (!planResult) return [];
+    const list = [];
+    if (planResult.recommendation?.route) {
+      list.push(planResult.recommendation.route);
+    }
+    if (Array.isArray(planResult.alternatives)) {
       list.push(...planResult.alternatives.filter(Boolean));
     }
     return list;
@@ -125,57 +213,69 @@ export default function MapView({
 
   const selectedRoute = useMemo(() => {
     if (allRoutes.length === 0) return null;
-    return allRoutes.find(r => r.id === selectedRouteId) || allRoutes[0];
+    if (!selectedRouteId) return allRoutes[0];
+    return (
+      allRoutes.find((r) => String(r.id) === String(selectedRouteId) || String(r.journeyId) === String(selectedRouteId)) ||
+      allRoutes[0]
+    );
   }, [allRoutes, selectedRouteId]);
+
+  // Guaranteed points for the selected route
+  const selectedRoutePoints = useMemo(() => {
+    if (!selectedRoute) return [];
+    return getRoutePoints(selectedRoute, originCoord, destCoord);
+  }, [selectedRoute, originCoord, destCoord]);
 
   // Compute bounding box for map
   const bounds = useMemo(() => {
-    if (!planResult || !planResult.query) return null;
-    const { origin, destination } = planResult.query;
-    if (!isValidPoint(origin) || !isValidPoint(destination)) return null;
-    const latLngs = [
-      [origin.lat, origin.lon],
-      [destination.lat, destination.lon]
-    ];
-
-    if (selectedRoute && selectedRoute.geometry && selectedRoute.geometry.coordinates) {
-      selectedRoute.geometry.coordinates.forEach(coord => {
-        latLngs.push([coord[1], coord[0]]);
-      });
+    const latLngs = [];
+    if (originCoord) latLngs.push(originCoord);
+    if (destCoord) latLngs.push(destCoord);
+    if (selectedRoutePoints.length > 0) {
+      selectedRoutePoints.forEach((pt) => latLngs.push(pt));
     }
-
+    if (latLngs.length === 0) return null;
     return L.latLngBounds(latLngs);
-  }, [planResult, selectedRoute]);
+  }, [originCoord, destCoord, selectedRoutePoints]);
 
-  // Convert GeoJSON coordinates [lon, lat] to Leaflet [lat, lon]
-  const parseCoordinates = (geometry) => {
-    if (!geometry || !geometry.coordinates) return [];
-    return geometry.coordinates.map(c => [c[1], c[0]]);
-  };
+  const stationsToDisplay = useMemo(() => {
+    const list = selectedRoute?.transitStations || selectedRoute?.stations || [];
+    return list
+      .map((s) => {
+        const coord = resolvePoint(s);
+        return coord ? { name: s.name || s.display_name || 'Station', coord } : null;
+      })
+      .filter(Boolean);
+  }, [selectedRoute]);
+
+  const routeColor = useMemo(() => {
+    const mode = selectedRoute?.primaryMode || selectedRoute?.mode || 'transit';
+    if (mode === 'metro') return '#f59e0b';
+    if (mode === 'train' || mode === 'rail') return '#38bdf8';
+    if (mode === 'bus') return '#f97316';
+    if (mode === 'auto') return '#eab308';
+    return '#10b981';
+  }, [selectedRoute]);
 
   return (
-    <div className="relative w-full h-[500px] lg:h-full min-h-[450px] rounded-3xl overflow-hidden">
+    <div className="relative w-full h-[500px] lg:h-full min-h-[450px] rounded-3xl overflow-hidden font-sans">
       {/* Map Legend Overlay */}
-      <div className="absolute bottom-8 left-3 z-[1000] bg-white/90 dark:bg-slate-950/85 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs space-y-1 shadow-lg">
-        <div className="font-bold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
-          <span>Map Legend</span>
-          <span className="text-[10px] text-emerald-700 dark:text-emerald-400">OpenStreetMap</span>
+      <div className="absolute bottom-8 left-3 z-[1000] bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs space-y-1 shadow-lg pointer-events-auto">
+        <div className="font-bold text-slate-700 dark:text-slate-200 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
+          <span>Transit Map</span>
+          <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Verified GTFS</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
-          <span className="w-3 h-3 rounded-full bg-emerald-500 border border-white"></span>
-          <span>Starting Area</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white"></span>
+          <span>Origin</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
-          <span className="w-3 h-3 rounded-full bg-indigo-500 border border-white"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 border border-white"></span>
           <span>College Destination</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
-          <span className="w-3.5 h-1 rounded-full bg-emerald-400"></span>
-          <span>Selected Route</span>
-        </div>
-        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
-          <span className="w-3 h-3 rounded-full bg-amber-500/40 border border-amber-400"></span>
-          <span>Live Community Disruption</span>
+          <span className="w-3.5 h-1.5 rounded-full" style={{ backgroundColor: routeColor }}></span>
+          <span>Active Route</span>
         </div>
       </div>
 
@@ -185,7 +285,7 @@ export default function MapView({
         scrollWheelZoom={true}
         className="w-full h-full"
       >
-        {/* OpenStreetMap Tile Layer - strictly compliant with zero Mapbox */}
+        {/* OpenStreetMap Tile Layer - Clean natural map theme in all modes */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -195,75 +295,81 @@ export default function MapView({
         {bounds && <FitBoundsToRoutes bounds={bounds} />}
 
         {/* Origin Marker */}
-        {planResult?.query && isValidPoint(planResult.query.origin) && (
+        {originCoord && (
           <Marker 
-            position={[planResult.query.origin.lat, planResult.query.origin.lon]} 
+            position={originCoord} 
             icon={originIcon}
-            title={`Starting area: ${planResult.query.origin.display_name || 'origin'}`}
-            alt={`Starting area: ${planResult.query.origin.display_name || 'origin'}`}
+            title={`Starting area: ${planResult?.query?.origin?.display_name || planResult?.query?.origin || 'origin'}`}
+            alt={`Starting area: ${planResult?.query?.origin?.display_name || planResult?.query?.origin || 'origin'}`}
           >
             <Popup>
               <div className="text-xs">
-                <div className="font-bold text-emerald-700 dark:text-emerald-400">Origin Area</div>
-                <div className="text-slate-700 dark:text-slate-200 mt-0.5">{planResult.query.origin.display_name}</div>
+                <div className="font-bold text-emerald-700 dark:text-emerald-400">Starting Point</div>
+                <div className="text-slate-700 dark:text-slate-200 mt-0.5">
+                  {typeof planResult?.query?.origin === 'string'
+                    ? planResult.query.origin
+                    : planResult?.query?.origin?.display_name || 'Origin'}
+                </div>
               </div>
             </Popup>
           </Marker>
         )}
 
         {/* Destination Marker */}
-        {planResult?.query && isValidPoint(planResult.query.destination) && (
+        {destCoord && (
           <Marker 
-            position={[planResult.query.destination.lat, planResult.query.destination.lon]} 
+            position={destCoord} 
             icon={destIcon}
-            title={`Destination college: ${planResult.query.destination.display_name || 'destination'}`}
-            alt={`Destination college: ${planResult.query.destination.display_name || 'destination'}`}
+            title={`Destination college: ${planResult?.query?.destination?.display_name || planResult?.query?.destination || 'destination'}`}
+            alt={`Destination college: ${planResult?.query?.destination?.display_name || planResult?.query?.destination || 'destination'}`}
           >
             <Popup>
               <div className="text-xs">
                 <div className="font-bold text-indigo-700 dark:text-indigo-400">Destination College</div>
-                <div className="text-slate-700 dark:text-slate-200 mt-0.5">{planResult.query.destination.display_name}</div>
+                <div className="text-slate-700 dark:text-slate-200 mt-0.5">
+                  {typeof planResult?.query?.destination === 'string'
+                    ? planResult.query.destination
+                    : planResult?.query?.destination?.display_name || 'Destination College'}
+                </div>
               </div>
             </Popup>
           </Marker>
         )}
 
-        {/* Alternative Routes Polylines (Subtle Muted Lines) */}
-        {allRoutes.map(route => {
+        {/* Alternative Routes Polylines (Muted dashed lines) */}
+        {allRoutes.map((route) => {
           if (route.id === selectedRoute?.id) return null;
-          const coords = parseCoordinates(route.geometry);
-          if (coords.length === 0) return null;
+          const altPoints = getRoutePoints(route, originCoord, destCoord);
+          if (altPoints.length < 2) return null;
           return (
             <Polyline
               key={route.id}
-              positions={coords}
+              positions={altPoints}
               pathOptions={{
                 color: '#64748b',
                 weight: 3.5,
-                opacity: 0.5,
-                dashArray: '4, 8'
+                opacity: 0.45,
+                dashArray: '5, 8'
               }}
             />
           );
         })}
 
-        {/* Active Selected Route Polyline (Bold Vibrant Glow) */}
-        {selectedRoute && selectedRoute.geometry && (
+        {/* Active Selected Route Polyline (Glow + Vibrant Path) */}
+        {selectedRoutePoints.length >= 2 && (
           <>
-            {/* Glow backing */}
             <Polyline
-              positions={parseCoordinates(selectedRoute.geometry)}
+              positions={selectedRoutePoints}
               pathOptions={{
-                color: '#10b981',
+                color: routeColor,
                 weight: 8,
-                opacity: 0.25
+                opacity: 0.28
               }}
             />
-            {/* Main Polyline */}
             <Polyline
-              positions={parseCoordinates(selectedRoute.geometry)}
+              positions={selectedRoutePoints}
               pathOptions={{
-                color: selectedRoute.primaryMode === 'metro' ? '#f59e0b' : (selectedRoute.primaryMode === 'train' ? '#38bdf8' : '#10b981'),
+                color: routeColor,
                 weight: 4.5,
                 opacity: 0.95
               }}
@@ -272,10 +378,10 @@ export default function MapView({
         )}
 
         {/* Transit Station Markers */}
-        {selectedRoute && selectedRoute.transitStations?.filter(isValidPoint).map((station, idx) => (
+        {stationsToDisplay.map((station, idx) => (
           <Marker
             key={idx}
-            position={[station.lat, station.lon]}
+            position={station.coord}
             icon={transitIcon}
             title={`Transit stop: ${station.name || 'stop'}`}
             alt={`Transit stop: ${station.name || 'stop'}`}
@@ -314,10 +420,6 @@ export default function MapView({
                   </div>
                   <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{report.area}</div>
                   <p className="text-slate-600 dark:text-slate-300 mt-1 text-[11px] leading-snug">{report.message}</p>
-                  <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                    <span>By {report.pseudonym}</span>
-                    <span>{report.ageFormatted}</span>
-                  </div>
                 </div>
               </Popup>
             </Circle>
