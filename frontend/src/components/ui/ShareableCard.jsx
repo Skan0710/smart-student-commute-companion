@@ -99,7 +99,7 @@ export default function ShareableCard({
       <p className="mt-2 break-all rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
         {value}
       </p>
-      {description && <p className="mt-2 text-xs text-slate-500">{description}</p>}
+      {description && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{description}</p>}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"

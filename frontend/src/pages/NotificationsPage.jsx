@@ -74,7 +74,7 @@ export default function NotificationsPage({
             id="notifications-summary"
             role="status"
             aria-live="polite"
-            className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500"
+            className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"
           >
             <UnreadCountBadge count={unread} srLabel="unread notifications" />
             <span>
@@ -176,7 +176,7 @@ export default function NotificationsPage({
                 ]}
               />
             </div>
-            <p role="status" aria-live="polite" className="mt-3 text-xs text-slate-500">
+            <p role="status" aria-live="polite" className="mt-3 text-xs text-slate-500 dark:text-slate-400">
               Showing {visibleReports.length} of {reports.length} notifications
             </p>
             {visibleReports.length === 0 ? (

@@ -255,7 +255,7 @@ export default function AnalyticsPage({
             <p
               role="status"
               aria-live="polite"
-              className="min-h-[1rem] text-xs text-slate-500"
+              className="min-h-[1rem] text-xs text-slate-500 dark:text-slate-400"
             >
               {refreshStatus}
             </p>
@@ -373,7 +373,7 @@ export default function AnalyticsPage({
           )}
         </div>
         {snapshot && installData.installedAt && (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Installed on {formatDate(installData.installedAt)}.
           </p>
         )}
@@ -385,7 +385,7 @@ export default function AnalyticsPage({
               emptyMessage="No install events in this window."
             />
             {installEvents.length > 0 && (
-              <p role="status" aria-live="polite" className="px-1 text-xs text-slate-500">
+              <p role="status" aria-live="polite" className="px-1 text-xs text-slate-500 dark:text-slate-400">
                 Showing {Math.min(visibleInstallRows, installEvents.length)} of{' '}
                 {installEvents.length} install {installEvents.length === 1 ? 'event' : 'events'}{' '}
                 ({activeWindowLabel}).
@@ -545,7 +545,7 @@ export default function AnalyticsPage({
               emptyMessage="No service worker errors in this window — the worker has run cleanly."
             />
             {workerErrorEvents.length > 0 && (
-              <p role="status" aria-live="polite" className="px-1 text-xs text-slate-500">
+              <p role="status" aria-live="polite" className="px-1 text-xs text-slate-500 dark:text-slate-400">
                 Showing {Math.min(visibleErrorRows, workerErrorEvents.length)} of{' '}
                 {workerErrorEvents.length} worker{' '}
                 {workerErrorEvents.length === 1 ? 'error' : 'errors'} ({activeWindowLabel}).

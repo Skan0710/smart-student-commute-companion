@@ -50,7 +50,7 @@ export default function Alert({
     warning: {
       container: 'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-950/20 dark:border-amber-500/30 dark:text-amber-200',
       icon: AlertTriangle,
-      iconColor: 'text-amber-700 dark:text-amber-400',
+      iconColor: 'text-amber-800 dark:text-amber-400',
       title: 'text-amber-800 dark:text-amber-300',
     },
     info: {

@@ -116,7 +116,7 @@ export default function OfflineQueuePage({
             id="offline-queue-status"
             role="status"
             aria-live="polite"
-            className="min-h-[1rem] text-xs text-slate-500"
+            className="min-h-[1rem] text-xs text-slate-500 dark:text-slate-400"
           >
             {isSyncing
               ? 'Sending queued reports…'
@@ -285,7 +285,7 @@ export default function OfflineQueuePage({
               ))}
             </ol>
           ) : (
-            <p role="status" className="px-1 text-xs text-slate-500">
+            <p role="status" className="px-1 text-xs text-slate-500 dark:text-slate-400">
               {filter === 'failed'
                 ? 'No rejected reports — everything either went out or is still waiting.'
                 : 'No reports waiting to send.'}

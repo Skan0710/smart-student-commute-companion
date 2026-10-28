@@ -86,7 +86,7 @@ export default function SavedCommutes({
                       {isActive ? 'Loaded in planner' : 'Saved commute'}
                     </Badge>
                     {savedLabel && (
-                      <span className="text-[11px] text-slate-500">Saved {savedLabel}</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Saved {savedLabel}</span>
                     )}
                   </>
                 }

@@ -97,10 +97,10 @@ export default function ProgressBar({
         />
       </div>
       {!hasValue && (
-        <p className="text-[10px] text-slate-500 pt-0.5">No data yet</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 pt-0.5">No data yet</p>
       )}
       {hint && hasValue && (
-        <p className="text-[10px] text-slate-500 pt-0.5 truncate">{hint}</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 pt-0.5 truncate">{hint}</p>
       )}
     </div>
   );

@@ -116,7 +116,7 @@ export default function CreateReportModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Post a Student Commute Report"
-      icon={<AlertTriangle className="w-5 h-5 text-amber-700 dark:text-amber-400" />}
+      icon={<AlertTriangle className="w-5 h-5 text-amber-800 dark:text-amber-400" />}
       size="lg"
     >
         {/* Form */}

@@ -2289,7 +2289,7 @@ if (
 if (
   navContent &&
   navContent.includes('min-w-0 flex-1 lg:flex-none') &&
-  navContent.includes('hidden xl:inline') &&
+  navContent.includes('hidden 2xl:inline') &&
   navContent.includes('aria-current')
 ) {
   pass('Header brand shrinks on narrow screens and the active nav item exposes aria-current');

@@ -57,7 +57,7 @@ export default function ComparisonBars({
             {title}
           </h4>
         )}
-        <p role="status" className="text-xs text-slate-500 bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3">
+        <p role="status" className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3">
           {emptyMessage}
         </p>
       </div>

@@ -155,7 +155,7 @@ export default function InstallShareHubPage({
                   : 'Browser not offering the one-tap install? Show manual steps.'}
               </span>
               <ChevronDown
-                className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${isManualGuideOpen ? 'rotate-180' : ''}`}
+                className={`h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400 transition-transform ${isManualGuideOpen ? 'rotate-180' : ''}`}
                 aria-hidden="true"
               />
             </button>
@@ -206,7 +206,7 @@ export default function InstallShareHubPage({
           ))}
         </div>
         {!isWebShareSupported && (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Native sharing is not available in this browser — every card still offers one-tap copy.
           </p>
         )}
@@ -264,7 +264,7 @@ export default function InstallShareHubPage({
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 text-center">
             <Share2 className="mx-auto h-6 w-6 text-slate-600" aria-hidden="true" />
             <p className="pt-2 text-sm font-semibold text-slate-600 dark:text-slate-300">Nothing shared here yet</p>
-            <p className="mx-auto max-w-md pt-1 text-xs leading-relaxed text-slate-500">
+            <p className="mx-auto max-w-md pt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
               When your device&rsquo;s share sheet targets this app, shared links or text land here and can be
               turned into a live disruption report in one tap.
             </p>
@@ -285,7 +285,7 @@ export default function InstallShareHubPage({
               Long-press the app icon for quick shortcuts straight to route planning and the live feed.
             </p>
           </Card>
-          <Card title={<span className="flex items-center gap-2"><BellRing className="h-4 w-4 text-amber-700 dark:text-amber-400" aria-hidden="true" />Pairs with alerts</span>}>
+          <Card title={<span className="flex items-center gap-2"><BellRing className="h-4 w-4 text-amber-800 dark:text-amber-400" aria-hidden="true" />Pairs with alerts</span>}>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Installed apps can raise device alerts in the background — set those up on the Device Alerts screen.
             </p>
@@ -294,7 +294,7 @@ export default function InstallShareHubPage({
       </section>
 
       <p className="flex items-start gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 text-xs text-slate-500 dark:text-slate-400">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <span>
           Installation and sharing are handled entirely by your browser and device — no account, download
           server, or personal data is involved.

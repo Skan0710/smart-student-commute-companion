@@ -364,7 +364,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                       Max Budget
                     </label>
                     <div className="flex items-center gap-1">
-                      <span className="text-amber-700 dark:text-amber-400 text-xs font-mono font-bold">₹</span>
+                      <span className="text-amber-800 dark:text-amber-400 text-xs font-mono font-bold">₹</span>
                       <input
                         id="planner-budget"
                         type="number"
@@ -379,7 +379,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                           setFormData({ ...formData, maxBudgetRupees: isNaN(val) ? 0 : val });
                           clearError('maxBudgetRupees');
                         }}
-                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-700 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
+                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-800 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -448,7 +448,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
 
         {/* Save this commute → "My Commutes" (persisted on this device) */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <p className="text-[11px] text-slate-500 leading-snug">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
             Keep this setup for one-tap planning from{' '}
             <strong className="text-slate-700 dark:text-slate-300">My Commutes</strong>.
           </p>

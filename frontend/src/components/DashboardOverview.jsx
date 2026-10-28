@@ -71,7 +71,7 @@ export default function DashboardOverview({
           className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border font-sans ${
             isConnected
               ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+              : 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800'
           }`}
         >
           {isConnected ? (
@@ -183,7 +183,7 @@ export default function DashboardOverview({
             </div>
           </div>
           <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-200/80 dark:border-slate-800/60 flex items-start gap-2.5">
-            <Clock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
+            <Clock className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
             <div>
               {suggestedDeparture ? (
                 <>

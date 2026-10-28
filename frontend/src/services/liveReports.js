@@ -14,6 +14,7 @@
  * All functions resolve with parsed JSON and reject with FrontendApiError
  * carrying user-friendly messages (never stack traces).
  */
+import { readAuthToken } from '../utils/authSession';
 import {
   fetchLiveReports,
   postLiveReport,
@@ -86,6 +87,8 @@ import {
  * @returns {Promise<Array>}
  */
 export async function listCommuteAlerts(filters = {}) {
+  // Official advisories are per-student; guests have none, so skip the guaranteed 401.
+  if (!readAuthToken()) return [];
   try {
     const res = await fetchCommuteAlerts(filters);
     const data = res?.data || res;

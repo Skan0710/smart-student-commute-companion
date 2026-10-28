@@ -91,7 +91,7 @@ export default function TimeRangeInput({
         />
       </div>
       {hint && (
-        <p id={hintId} className="mt-1.5 text-xs text-slate-500 leading-relaxed break-words">
+        <p id={hintId} className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed break-words">
           {hint}
         </p>
       )}

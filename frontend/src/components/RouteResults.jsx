@@ -144,7 +144,7 @@ export default function RouteResults({
               </div>
             </div>
           </div>
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hidden sm:inline">
+          <span className="text-[10px] text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hidden sm:inline">
             Open-Meteo Verified
           </span>
         </div>
@@ -266,7 +266,7 @@ export default function RouteResults({
               <IndianRupee className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               Est. Fare
             </div>
-            <div className="text-base font-extrabold text-amber-700 dark:text-amber-300 mt-0.5">
+            <div className="text-base font-extrabold text-amber-800 dark:text-amber-300 mt-0.5">
               {Number.isFinite(recRoute.fareRupees) ? `₹${recRoute.fareRupees}` : '—'}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -338,7 +338,7 @@ export default function RouteResults({
         <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
           <div className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
             <span>Route Stages &amp; Transfers ({recRoute.legs?.length || 0})</span>
-            <span className="text-[11px] text-slate-500 font-normal">Sequential transit legs</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Sequential transit legs</span>
           </div>
           {recRoute.legs?.map((leg, idx) => (
             <div key={idx} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800/60">
@@ -508,7 +508,7 @@ export default function RouteResults({
                       <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       {Number.isFinite(alt.durationMinutes) ? `${alt.durationMinutes}m` : '—'}
                     </span>
-                    <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
+                    <span className="flex items-center gap-1 text-amber-800 dark:text-amber-300 font-semibold">
                       <IndianRupee className="w-3.5 h-3.5" />
                       {Number.isFinite(alt.fareRupees) ? `₹${alt.fareRupees}` : '—'}
                     </span>
@@ -523,7 +523,7 @@ export default function RouteResults({
 
                   {/* Disruption indicator on alternative */}
                   {alt.disruptionAlerts && alt.disruptionAlerts.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                       <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
                       <span className="truncate">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
                     </div>

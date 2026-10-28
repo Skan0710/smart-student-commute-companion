@@ -136,7 +136,7 @@ export default function DeviceAlertsPage({
               on the Notifications screen.
             </p>
           </Card>
-          <Card title={<span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-amber-700 dark:text-amber-400" aria-hidden="true" />You stay in control</span>}>
+          <Card title={<span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-amber-800 dark:text-amber-400" aria-hidden="true" />You stay in control</span>}>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Device alerts respect your saved preference and the browser permission. Turn them off or block
               them at any time.
@@ -159,7 +159,7 @@ export default function DeviceAlertsPage({
           <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Send test alert</p>
-              <p id="device-test-hint" className="text-xs text-slate-500 leading-relaxed pt-0.5">
+              <p id="device-test-hint" className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pt-0.5">
                 Raise a sample notification now to see how alerts appear on this device.
                 {!canSendTest && effectivePermission === 'granted' && !isEnabled
                   ? ' Turn device alerts on first.'
@@ -183,7 +183,7 @@ export default function DeviceAlertsPage({
       </section>
 
       <p className="flex items-start gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 text-xs text-slate-500 dark:text-slate-400">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <span>
           {effectivePermission === 'granted'
             ? quietHoursEnabled && quietActive

@@ -17,7 +17,7 @@ export default function NotFound({ onNavigateHome, message }) {
     <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 shadow-xl backdrop-blur-sm text-center">
       <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
         <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8 text-amber-700 dark:text-amber-400" />
+          <AlertTriangle className="w-8 h-8 text-amber-800 dark:text-amber-400" />
         </div>
         
         <div>

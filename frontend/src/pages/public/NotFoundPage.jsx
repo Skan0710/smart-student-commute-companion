@@ -15,7 +15,7 @@ export default function NotFoundPage() {
   return (
     <section aria-labelledby="notfound-heading" className="max-w-2xl mx-auto text-center py-8 sm:py-16">
       <span
-        className="mx-auto w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center"
+        className="mx-auto w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 flex items-center justify-center"
         aria-hidden="true"
       >
         <Compass className="w-7 h-7" />

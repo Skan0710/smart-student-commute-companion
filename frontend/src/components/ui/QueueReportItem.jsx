@@ -38,7 +38,7 @@ import { Clock } from 'lucide-react';
 const STATUS_STYLES = {
   pending: {
     label: 'Waiting',
-    className: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    className: 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30',
   },
   sending: {
     label: 'Sending',
@@ -74,7 +74,7 @@ export default function QueueReportItem({
         </span>
         <span className="min-w-0 text-sm text-slate-800 dark:text-slate-200 break-words">{title}</span>
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
         {queuedAt && (
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" aria-hidden="true" />

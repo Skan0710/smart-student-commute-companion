@@ -120,7 +120,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className={`text-[11px] font-semibold ${isFull ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                      <span className={`text-[11px] font-semibold ${isFull ? 'text-amber-800 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                         {grp.current_members} / {grp.max_members} joined
                       </span>
 

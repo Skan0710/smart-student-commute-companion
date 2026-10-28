@@ -29,7 +29,7 @@ const STATUS_CONFIG = {
     label: 'Minor Delay',
     dotBg: 'bg-amber-500',
     pulseBg: 'bg-amber-400',
-    textColor: 'text-amber-700 dark:text-amber-300'
+    textColor: 'text-amber-800 dark:text-amber-300'
   },
   major_delay: {
     label: 'Major Delay',

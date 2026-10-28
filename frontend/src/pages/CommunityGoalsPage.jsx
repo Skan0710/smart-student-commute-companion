@@ -108,7 +108,7 @@ function JourneyCard({ journey, badge, children }) {
           </div>
           {(journey.departureTime || journey.departureDate) && (
             <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-amber-700 shrink-0" aria-hidden="true" />
+              <Clock className="w-3.5 h-3.5 text-amber-800 shrink-0" aria-hidden="true" />
               <span>Departure: {[journey.departureDate, journey.departureTime].filter(Boolean).join(' · ')}</span>
             </div>
           )}

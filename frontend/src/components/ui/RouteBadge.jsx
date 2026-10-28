@@ -40,7 +40,7 @@ const MODE_CONFIG = {
     label: 'BEST Bus',
     icon: Bus,
     bg: 'bg-amber-500/15',
-    text: 'text-amber-700 dark:text-amber-300',
+    text: 'text-amber-800 dark:text-amber-300',
     border: 'border-amber-500/30'
   },
   auto: {

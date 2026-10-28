@@ -35,7 +35,7 @@ const TIER_CONFIG = {
     label: 'Corridor Estimate',
     icon: Calculator,
     bg: 'bg-amber-500/10',
-    text: 'text-amber-700 dark:text-amber-400',
+    text: 'text-amber-800 dark:text-amber-400',
     border: 'border-amber-500/30'
   },
   SYNTHETIC: {

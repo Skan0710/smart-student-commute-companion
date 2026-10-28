@@ -36,9 +36,9 @@ export default function PwaStatusBanner({ isOffline = false, updateAvailable = f
     <div className="space-y-2 pb-1" role="status" aria-live="polite">
       {isOffline && (
         <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-amber-400 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs font-medium">
-          <WifiOff className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" aria-hidden="true" />
+          <WifiOff className="w-4 h-4 shrink-0 mt-0.5 text-amber-800 dark:text-amber-400" aria-hidden="true" />
           <span>
-            <strong className="font-bold text-amber-700 dark:text-amber-300">You&rsquo;re offline.</strong>{' '}
+            <strong className="font-bold text-amber-800 dark:text-amber-300">You&rsquo;re offline.</strong>{' '}
             The app shell is cached, so you can keep browsing — but planning,
             live alerts, and search need a connection and will show retry
             options until you&rsquo;re back online.

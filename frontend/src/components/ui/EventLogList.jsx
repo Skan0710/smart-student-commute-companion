@@ -53,7 +53,7 @@ export default function EventLogList({
 }) {
   if (!items.length) {
     return (
-      <p className={`px-1 text-xs text-slate-500 ${className}`} role="status">
+      <p className={`px-1 text-xs text-slate-500 dark:text-slate-400 ${className}`} role="status">
         {emptyMessage}
       </p>
     );
@@ -89,7 +89,7 @@ export default function EventLogList({
             {item.at && (
               <time
                 dateTime={item.at}
-                className="whitespace-nowrap text-[10px] text-slate-500"
+                className="whitespace-nowrap text-[10px] text-slate-500 dark:text-slate-400"
               >
                 {formatRelativeTime(item.at)}
               </time>

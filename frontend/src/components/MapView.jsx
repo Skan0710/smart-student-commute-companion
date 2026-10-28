@@ -282,7 +282,7 @@ export default function MapView({
           >
             <Popup>
               <div className="text-xs">
-                <div className="font-bold text-amber-700 dark:text-amber-400">Transit Stop</div>
+                <div className="font-bold text-amber-800 dark:text-amber-400">Transit Stop</div>
                 <div className="text-slate-700 dark:text-slate-200">{station.name}</div>
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Verified Mumbai GTFS Stop</div>
               </div>
@@ -309,7 +309,7 @@ export default function MapView({
             >
               <Popup>
                 <div className="text-xs max-w-[200px]">
-                  <div className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                  <div className="font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1">
                     <span>⚠ Community Disruption</span>
                   </div>
                   <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{report.area}</div>

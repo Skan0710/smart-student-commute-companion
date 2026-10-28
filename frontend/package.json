@@ -10,7 +10,8 @@
     "verify": "node verify-frontend.js",
     "test": "node verify-frontend.js",
     "icons": "node scripts/generate-icons.js",
-    "icons:png": "node scripts/rasterize-icons.js"
+    "icons:png": "node scripts/rasterize-icons.js",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "clsx": "^2.1.1",

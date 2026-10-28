@@ -177,7 +177,7 @@ export default function LiveAlertsPage({
         <section aria-label="Official transit corridor advisories" className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400" />
               <span>Official Corridor Advisories ({officialAlerts.length})</span>
             </h2>
             <ProvenanceTag tier="VERIFIED" size="xs" />
@@ -241,7 +241,7 @@ export default function LiveAlertsPage({
                         </span>
                       )}
                       {alert.estimatedDelayMinutes > 0 && (
-                        <span className="text-amber-700 dark:text-amber-400 font-mono text-[11px] ml-auto">
+                        <span className="text-amber-800 dark:text-amber-400 font-mono text-[11px] ml-auto">
                           +{alert.estimatedDelayMinutes}m delay
                         </span>
                       )}

@@ -212,7 +212,7 @@ function MoreMenu({ activeTab, onSelect, onOpenPreferences }) {
         }`}
       >
         <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-        <span className="hidden xl:inline">More</span>
+        <span className="hidden 2xl:inline">More</span>
         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
 
@@ -382,7 +382,7 @@ export default function Navbar({
                 <span className="font-display font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
                 </span>
-                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
+                <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
                   MUMBAI
                 </span>
               </div>
