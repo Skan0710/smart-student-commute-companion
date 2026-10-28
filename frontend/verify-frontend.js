@@ -1136,10 +1136,16 @@ if (
 } else {
   fail('Navigation is missing the analytics tab entry');
 }
-if (navContent && navContent.includes('min-[2600px]') && navContent.includes('min-[1840px]')) {
-  pass('Eleven desktop nav labels scale to prevent header overflow');
+// The primary nav is five tabs; every other screen lives behind the "More" menu.
+if (
+  navContent &&
+  navContent.includes("PRIMARY_NAV_IDS = ['dashboard', 'academics', 'planner', 'community', 'notifications']") &&
+  navContent.includes('SECONDARY_SCREENS') &&
+  navContent.includes('MoreMenu')
+) {
+  pass('Five primary tabs stay compact; secondary screens are reachable from the More menu');
 } else {
-  fail('Desktop nav labels have no overflow-safe scaling breakpoint');
+  fail('Navigation is missing the five-tab primary set or the More menu for secondary screens');
 }
 
 const eventLogList = readFile('src/components/ui/EventLogList.jsx');
@@ -2279,16 +2285,16 @@ if (
   fail('Session expiry happens silently');
 }
 
-// Responsive navigation locks for the eleventh tab
+// Responsive navigation locks: the header must shrink instead of overflowing a phone
 if (
   navContent &&
-  navContent.includes('min-[1840px]') &&
-  navContent.includes('min-[2600px]') &&
-  navContent.includes('min-w-10')
+  navContent.includes('min-w-0 flex-1 lg:flex-none') &&
+  navContent.includes('hidden xl:inline') &&
+  navContent.includes('aria-current')
 ) {
-  pass('Eleven-tab navigation keeps overflow-safe label tiers and a full-width-safe brand');
+  pass('Header brand shrinks on narrow screens and the active nav item exposes aria-current');
 } else {
-  fail('Navigation label tiers or brand sizing were not adjusted for the eleventh tab');
+  fail('Header brand is not shrink-safe or the active nav item lacks aria-current');
 }
 
 // ============================================================

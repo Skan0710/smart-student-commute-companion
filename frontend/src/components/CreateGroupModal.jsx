@@ -88,7 +88,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit, isSubmitti
       size="lg"
     >
         <form onSubmit={handleSubmit} noValidate className="p-5 space-y-4">
-          <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-xl p-3 text-xs text-indigo-700 dark:text-indigo-300 flex items-start gap-2">
+          <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-3 text-xs text-indigo-900 dark:text-indigo-300 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0 mt-0.5" aria-hidden="true" />
             <span>
               Safe Area-Level meeting points only. Exact residential addresses are never displayed.

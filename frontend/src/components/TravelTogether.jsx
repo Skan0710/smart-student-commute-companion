@@ -104,7 +104,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     <Badge variant="indigo" size="xs">
                       {grp.mode}
                     </Badge>
-                    <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-500/20">
                       <Clock className="w-3 h-3" aria-hidden="true" />
                       {grp.departure_time}
                     </span>
