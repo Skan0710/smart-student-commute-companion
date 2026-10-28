@@ -141,7 +141,7 @@ export function SpotlightNavbar({
                 ref={navRef}
                 className={cn(
                     "spotlight-nav spotlight-nav-bg glass-border spotlight-nav-shadow",
-                    "relative h-11 rounded-full transition-all duration-300 overflow-hidden"
+                    "relative h-12 rounded-full transition-all duration-300 overflow-hidden"
                 )}
             >
                 {/* Content */}
@@ -158,7 +158,7 @@ export function SpotlightNavbar({
                                     handleItemClick(item, idx);
                                 }}
                                 className={cn(
-                                    "px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-colors duration-200 rounded-full flex items-center gap-1.5 whitespace-nowrap",
+                                    "px-4 py-2 text-sm sm:text-[15px] font-semibold transition-colors duration-200 rounded-full flex items-center gap-2 whitespace-nowrap",
                                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-white/30",
                                     // Active vs Inactive Text
                                     activeIndex === idx
@@ -196,9 +196,7 @@ export function SpotlightNavbar({
                         opacity: hoverX !== null ? 1 : 0,
                         background: `
               radial-gradient(
-                120px circle at var(--spotlight-x) 100%, 
-                var(--spotlight-color, rgba(0,0,0,0.1)) 0%, 
-                transparent 50%
+                90px circle at var(--spotlight-x) 100%, var(--spotlight-color, rgba(0,0,0,0.12)) 0%, transparent 60%
               )
             `
                     }}
@@ -210,9 +208,7 @@ export function SpotlightNavbar({
                     style={{
                         background: `
                   radial-gradient(
-                    60px circle at var(--ambience-x) 0%, 
-                    var(--ambience-color, rgba(0,0,0,1)) 0%, 
-                    transparent 100%
+                    50px circle at var(--ambience-x) 0%, var(--ambience-color, rgba(0,0,0,1)) 0%, transparent 100%
                   )
                 `
                     }}
@@ -232,7 +228,7 @@ export function SpotlightNavbar({
         }
         .dark nav {
           /* Dark Mode Colors: White lights */
-          --spotlight-color: rgba(255,255,255,0.15);
+          --spotlight-color: rgba(255,255,255,0.30);
           --ambience-color: rgba(255,255,255,1);
         }
       `}</style>

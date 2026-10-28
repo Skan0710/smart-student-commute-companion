@@ -116,7 +116,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
   };
 
   return (
-    <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm transition-colors space-y-5 font-sans">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm transition-colors space-y-5 font-sans">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5 font-sans">
           <Navigation className="w-5 h-5 text-blue-600 dark:text-blue-400" />

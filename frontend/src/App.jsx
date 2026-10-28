@@ -1309,7 +1309,11 @@ export default function App() {
     unreadNotificationsCount,
     onOpenPreferences: () => setIsPreferencesOpen(true),
     theme,
-    onToggleTheme: handleToggleTheme
+    onToggleTheme: handleToggleTheme,
+    notifications: reports,
+    notificationReadIds,
+    onToggleNotificationRead: handleToggleNotificationRead,
+    onMarkAllNotificationsRead: handleMarkAllNotificationsRead,
   };
 
   return (

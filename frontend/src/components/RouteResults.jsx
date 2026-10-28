@@ -122,7 +122,7 @@ export default function RouteResults({
     <div ref={containerRef} className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
-        <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <CloudRain className="w-5 h-5" />
@@ -198,7 +198,7 @@ export default function RouteResults({
         <div className="mb-4">
           <div className="flex items-center gap-2.5 flex-wrap">
             <RouteBadge mode={recRoute.primaryMode} size="md" />
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
               {recRoute.title}
             </h3>
           </div>
@@ -249,24 +249,24 @@ export default function RouteResults({
         </div>
 
         {/* Multi-Criteria Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 text-center">
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
               <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               Duration
             </div>
-            <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
               {showMetric(recRoute.durationMinutes)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Arr: {recRoute.estimatedArrival || '—'}</div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 text-center">
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
               <IndianRupee className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               Est. Fare
             </div>
-            <div className="text-base font-extrabold text-amber-800 dark:text-amber-300 mt-0.5">
+            <div className="text-xl sm:text-2xl font-extrabold text-amber-800 dark:text-amber-300 mt-1">
               {Number.isFinite(recRoute.fareRupees) ? `₹${recRoute.fareRupees}` : '—'}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -274,12 +274,12 @@ export default function RouteResults({
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 text-center">
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
               <Footprints className="w-3 h-3 text-teal-700 dark:text-teal-400" />
               Walking
             </div>
-            <div className="text-base font-extrabold text-teal-700 dark:text-teal-300 mt-0.5">
+            <div className="text-xl sm:text-2xl font-extrabold text-teal-700 dark:text-teal-300 mt-1">
               {showMetric(recRoute.walkingDurationMinutes)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">mins</span>
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -287,12 +287,12 @@ export default function RouteResults({
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-2.5 text-center">
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 text-center">
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
               <Zap className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
               Reliability
             </div>
-            <div className="text-base font-extrabold text-indigo-700 dark:text-indigo-300 mt-0.5">
+            <div className="text-xl sm:text-2xl font-extrabold text-indigo-700 dark:text-indigo-300 mt-1">
               {formatReliability(recRoute)}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -390,7 +390,7 @@ export default function RouteResults({
 
       {/* OPTION COMPARISON (Visual comparison of travel time and fares) */}
       {alternatives.length > 0 && (
-        <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-xl p-4 space-y-4 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-7 space-y-6 shadow-sm">
           <ComparisonBars
             title="Travel time across your options"
             valueUnit="min"
@@ -434,7 +434,7 @@ export default function RouteResults({
       {/* PRACTICAL ALTERNATIVES (Law 1: Closure and 32% next-card preview carousel) */}
       <div role="region" aria-label="Alternative routes">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
             <span>Practical Alternatives ({alternatives.length})</span>
             <span className="text-[11px] normal-case font-normal text-slate-500 dark:text-slate-400 hidden sm:inline">
               · Swipe or use controls to compare
@@ -476,7 +476,7 @@ export default function RouteResults({
               <div
                 key={alt.id}
                 onClick={() => setSelectedRouteId(alt.id)}
-                className={`route-card-animate flex-shrink-0 w-[calc(68%-0.5rem)] sm:w-[calc(48%-0.5rem)] md:w-[320px] snap-start bg-white dark:bg-slate-900 border rounded-xl p-4 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs flex flex-col justify-between ${
+                className={`route-card-animate flex-shrink-0 w-[85%] sm:w-[380px] md:w-[420px] snap-start bg-white dark:bg-slate-900 border rounded-2xl p-5 sm:p-6 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs flex flex-col justify-between ${
                   isSelected
                     ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
                     : 'border-slate-200 dark:border-slate-800'
@@ -486,7 +486,7 @@ export default function RouteResults({
                   <div className="flex flex-col gap-2 mb-2">
                     <div className="flex items-center gap-2 min-w-0 flex-wrap">
                       <RouteBadge mode={alt.primaryMode} size="sm" />
-                      <span className="text-sm font-bold text-slate-900 dark:text-white break-words min-w-0">{alt.title}</span>
+                      <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white break-words min-w-0">{alt.title}</span>
                     </div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
@@ -503,7 +503,7 @@ export default function RouteResults({
 
                 <div>
                   {/* Quick stats row */}
-                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-wrap items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200 pt-3 border-t border-slate-100 dark:border-slate-800 gap-3">
                     <span className="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
                       <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       {Number.isFinite(alt.durationMinutes) ? `${alt.durationMinutes}m` : '—'}

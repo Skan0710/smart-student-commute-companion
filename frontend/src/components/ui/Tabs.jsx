@@ -139,10 +139,10 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex flex-wrap items-center gap-1 rounded-full p-1.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-lg shadow-slate-900/5 dark:shadow-black/30 overflow-hidden font-sans transition-all ${className}`}
+      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 shadow-lg shadow-slate-900/5 dark:shadow-black/30 overflow-x-auto max-w-full font-sans transition-all ${className}`}
       style={{
-        '--tab-spotlight-color': 'rgba(59, 130, 246, 0.12)',
-        '--tab-ambience-color': 'rgba(59, 130, 246, 0.9)',
+        '--tab-spotlight-color': 'rgba(59, 130, 246, 0.28)',
+        '--tab-ambience-color': 'rgba(59, 130, 246, 1)',
       }}
     >
       {/* 1. Mouse-following Spotlight Glow */}
@@ -151,7 +151,7 @@ export default function Tabs({
         className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300"
         style={{
           opacity: hoverX !== null ? 1 : 0,
-          background: `radial-gradient(110px circle at var(--tab-spotlight-x, 50%) 100%, var(--tab-spotlight-color, rgba(59, 130, 246, 0.15)) 0%, transparent 60%)`,
+          background: `radial-gradient(85px circle at var(--tab-spotlight-x, 50%) 100%, var(--tab-spotlight-color, rgba(59, 130, 246, 0.30)) 0%, transparent 60%)`,
         }}
       />
 
@@ -180,7 +180,7 @@ export default function Tabs({
             disabled={tab.disabled}
             data-tab-id={tab.id}
             onClick={() => !tab.disabled && onChange?.(tab.id)}
-            className={`relative z-10 inline-flex items-center gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sizeClasses} ${
+            className={`relative z-10 inline-flex items-center shrink-0 whitespace-nowrap gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sizeClasses} ${
               isActive
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 dark:bg-white dark:text-slate-950 dark:shadow-white/20'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5'

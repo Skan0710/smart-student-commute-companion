@@ -30,13 +30,6 @@ const BAR_VARIANTS = {
  * @param {string} [props.valueUnit] - Unit suffix used when computing display text
  * @param {string} [props.emptyMessage='No data to compare yet'] - Empty-state copy
  * @param {string} [props.className=''] - Additional wrapper classes
- *
- * @example
- * <ComparisonBars
- *   title="Travel time across options"
- *   items={[{ label: 'Recommended', value: 42, emphasis: true }, { label: 'Alternative', value: 55 }]}
- *   valueUnit="min"
- * />
  */
 export default function ComparisonBars({
   items = [],
@@ -53,11 +46,11 @@ export default function ComparisonBars({
     return (
       <div className={`min-w-0 ${className}`}>
         {title && (
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-2">
+          <h4 className="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider pb-3">
             {title}
           </h4>
         )}
-        <p role="status" className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3">
+        <p role="status" className="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
           {emptyMessage}
         </p>
       </div>
@@ -69,13 +62,13 @@ export default function ComparisonBars({
   return (
     <div className={`min-w-0 ${className}`}>
       {title && (
-        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-2">
+        <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider pb-3">
           {title}
         </h4>
       )}
-      <ul className="space-y-2 list-none">
+      <ul className="space-y-4 list-none">
         {valid.map((item, index) => {
-          const width = Math.max(4, Math.round((item.value / scaleMax) * 100));
+          const width = Math.max(5, Math.round((item.value / scaleMax) * 100));
           const fillClass =
             BAR_VARIANTS[item.variant] ||
             (item.emphasis ? BAR_VARIANTS.emerald : BAR_VARIANTS.slate);
@@ -85,19 +78,19 @@ export default function ComparisonBars({
           return (
             <li
               key={`${item.label}-${index}`}
-              className={`text-xs ${item.emphasis ? 'text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}
+              className={`${item.emphasis ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
             >
-              <div className="flex items-baseline justify-between gap-2 pb-0.5">
-                <span className={`truncate ${item.emphasis ? 'font-bold' : 'font-medium'}`}>
+              <div className="flex items-baseline justify-between gap-3 pb-1.5">
+                <span className={`truncate text-sm sm:text-base ${item.emphasis ? 'font-bold text-slate-900 dark:text-white' : 'font-medium'}`}>
                   {item.label}
                 </span>
-                <span className={`shrink-0 font-mono ${item.emphasis ? 'text-emerald-700 dark:text-emerald-300 font-bold' : 'text-slate-600 dark:text-slate-300'}`}>
+                <span className={`shrink-0 font-mono text-sm sm:text-base ${item.emphasis ? 'text-emerald-700 dark:text-emerald-300 font-bold text-base sm:text-lg' : 'text-slate-700 dark:text-slate-300 font-semibold'}`}>
                   {display}
                 </span>
               </div>
               <div
                 aria-hidden="true"
-                className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden"
+                className="h-3.5 sm:h-4 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden shadow-inner"
               >
                 <div
                   className={`h-full rounded-full transition-[width] duration-500 ${fillClass}`}

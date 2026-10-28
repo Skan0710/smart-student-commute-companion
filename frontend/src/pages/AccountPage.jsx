@@ -164,7 +164,7 @@ export default function AccountPage({
       {!isHydrating && !user && !hydrateError && (
         <section
           aria-labelledby="account-auth-heading"
-          className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm"
+          className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm"
         >
           <div className="mb-4 p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 flex items-start gap-3">
             <UserRound className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />

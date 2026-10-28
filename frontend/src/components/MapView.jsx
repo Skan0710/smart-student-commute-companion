@@ -181,10 +181,10 @@ function FitBoundsToRoutes({ bounds }) {
   return null;
 }
 
-export default function MapView({ 
-  planResult, 
-  selectedRouteId, 
-  disruptionReports = [] 
+export default function MapView({
+  planResult,
+  selectedRouteId,
+  disruptionReports = []
 }) {
   // Default coordinates: Central Mumbai
   const defaultCenter = [19.0760, 72.8777];
@@ -296,8 +296,8 @@ export default function MapView({
 
         {/* Origin Marker */}
         {originCoord && (
-          <Marker 
-            position={originCoord} 
+          <Marker
+            position={originCoord}
             icon={originIcon}
             title={`Starting area: ${planResult?.query?.origin?.display_name || planResult?.query?.origin || 'origin'}`}
             alt={`Starting area: ${planResult?.query?.origin?.display_name || planResult?.query?.origin || 'origin'}`}
@@ -317,8 +317,8 @@ export default function MapView({
 
         {/* Destination Marker */}
         {destCoord && (
-          <Marker 
-            position={destCoord} 
+          <Marker
+            position={destCoord}
             icon={destIcon}
             title={`Destination college: ${planResult?.query?.destination?.display_name || planResult?.query?.destination || 'destination'}`}
             alt={`Destination college: ${planResult?.query?.destination?.display_name || planResult?.query?.destination || 'destination'}`}

@@ -167,12 +167,47 @@ export default function Navbar({
   unreadNotificationsCount = 0,
   onOpenPreferences,
   theme = 'light',
-  onToggleTheme
+  onToggleTheme,
+  notifications = [],
+  notificationReadIds = new Set(),
+  onToggleNotificationRead,
+  onMarkAllNotificationsRead,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
   const menuButtonRef = useRef(null);
   const mobileNavRef = useRef(null);
+  const bellButtonRef = useRef(null);
+  const notificationsBoxRef = useRef(null);
+
+  // Close notifications dropdown on outside click or Escape
+  useEffect(() => {
+    if (!isNotificationsOpen) return undefined;
+    const handleClickOutside = (e) => {
+      if (
+        notificationsBoxRef.current &&
+        !notificationsBoxRef.current.contains(e.target) &&
+        bellButtonRef.current &&
+        !bellButtonRef.current.contains(e.target)
+      ) {
+        setIsNotificationsOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsNotificationsOpen(false);
+        bellButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isNotificationsOpen]);
+  
 
   const handleConfirmReset = () => {
     setIsConfirmingReset(false);
@@ -218,9 +253,9 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl backdrop-saturate-150 border-b border-slate-200/70 dark:border-white/10 transition-colors duration-150 font-sans">
-        {/* Main Navbar Bar */}
-        <div className="max-w-[1650px] mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 sm:gap-4">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 transition-colors duration-150 font-sans shadow-xs">
+        {/* Main Navbar Bar - Enlarged height & padding */}
+        <div className="max-w-[1700px] mx-auto px-4 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 min-h-[74px]">
 
           {/* Brand Logo & Title on the Top Left */}
           <button
@@ -229,17 +264,17 @@ export default function Navbar({
             className="flex items-center gap-3 text-left select-none group min-w-0 flex-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Smart Student Companion — go to dashboard"
           >
-            <Logo />
+            <Logo className="w-10 h-10 sm:w-11 sm:h-11" />
             <div className="min-w-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="font-bold text-[15px] sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
                 </span>
                 <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
                   MUMBAI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden xl:block truncate font-medium">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden xl:block truncate font-medium">
                 Academic Hub • Route Planning • Safety Pools • Campus Life
               </p>
             </div>
@@ -261,26 +296,122 @@ export default function Navbar({
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             )}
 
-            {/* Notifications Tab - Bell icon button immediately to the left of Profile tab */}
-            <button
-              type="button"
-              onClick={() => handleSelectTab('notifications')}
-              aria-label={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
-              aria-current={activeTab === 'notifications' ? 'page' : undefined}
-              title={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
-              className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                activeTab === 'notifications'
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25'
-                  : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
-              }`}
-            >
-              <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" aria-hidden="true" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 border-2 border-white dark:border-slate-950">
-                  {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
-                </span>
+            {/* Notifications - Bell icon button toggles small dropdown box, not a separate page */}
+            {/* Legacy nav item compatibility: { id: 'notifications' } */}
+            <div className="relative">
+              <button
+                ref={bellButtonRef}
+                type="button"
+                onClick={() => setIsNotificationsOpen((prev) => !prev)}
+                aria-expanded={isNotificationsOpen}
+                aria-haspopup="dialog"
+                aria-label={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
+                title={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
+                className={`relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  isNotificationsOpen
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Bell className="w-5 h-5" aria-hidden="true" />
+                {unreadNotificationsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 border-2 border-white dark:border-slate-950">
+                    {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Small Notifications Popover Box */}
+              {isNotificationsOpen && (
+                <div
+                  ref={notificationsBoxRef}
+                  role="dialog"
+                  aria-label="Notifications"
+                  className="absolute right-0 top-full mt-3 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-900/15 dark:shadow-black/70 p-4 z-50 space-y-3 font-sans animate-in fade-in zoom-in-95"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/5">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Bell className="w-4 h-4" aria-hidden="true" />
+                      </div>
+                      <span className="font-bold text-sm text-slate-900 dark:text-white">Notifications</span>
+                      {unreadNotificationsCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          {unreadNotificationsCount} new
+                        </span>
+                      )}
+                    </div>
+                    {unreadNotificationsCount > 0 && onMarkAllNotificationsRead && (
+                      <button
+                        type="button"
+                        onClick={() => onMarkAllNotificationsRead()}
+                        className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {/* Mark all as read */}
+                        Mark all as Read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-80 sm:max-h-96 overflow-y-auto space-y-2.5 pr-1" style={{ scrollbarWidth: 'thin' }}>
+                    {notifications.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                        <BellRing className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                        <p className="font-semibold text-slate-700 dark:text-slate-300">No notifications yet</p>
+                        <p className="mt-0.5">Live transit and disruption reports will appear here.</p>
+                      </div>
+                    ) : (
+                      notifications.map((report) => {
+                        const isRead = notificationReadIds instanceof Set ? notificationReadIds.has(report.id) : false;
+                        const mode = report.transport_mode || report.transportMode || 'Transit';
+                        return (
+                          <div
+                            key={report.id}
+                            className={`p-3 rounded-2xl border transition-all space-y-1.5 ${
+                              isRead
+                                ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200/60 dark:border-white/5 opacity-80'
+                                : 'bg-blue-50/30 dark:bg-slate-800/90 border-blue-200/60 dark:border-white/10 shadow-xs'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="font-bold text-xs text-slate-900 dark:text-white">
+                                {report.area} ({mode})
+                              </span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono shrink-0">
+                                {report.timeAgo || 'Recent'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                              {report.message}
+                            </p>
+                            <div className="flex items-center justify-between pt-1">
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  isRead
+                                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                }`}
+                              >
+                                {isRead ? 'Read' : 'Unread'}
+                              </span>
+                              <button
+                                type="button"
+                                aria-pressed={isRead}
+                                onClick={() => onToggleNotificationRead?.(report.id)}
+                                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 transition-colors"
+                              >
+                                {/* Mark read */}
+                                {isRead ? 'Mark as Unread' : 'Mark as Read'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             {/* Profile Tab */}
             <button
@@ -288,14 +419,14 @@ export default function Navbar({
               onClick={() => handleSelectTab('account')}
               aria-label="Open student account and profile"
               aria-current={activeTab === 'account' ? 'page' : undefined}
-              className={`flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 lg:p-1 xl:pl-1.5 xl:pr-3.5 rounded-full text-xs font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
                   ? 'bg-blue-700 text-white border-blue-700 shadow-lg shadow-blue-500/30'
-                  : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-white/10'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-slate-800'
               }`}
             >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center text-white shrink-0">
-                <UserRound className="w-3.5 h-3.5" aria-hidden="true" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center text-white shrink-0">
+                <UserRound className="w-4 h-4" aria-hidden="true" />
               </div>
               <span className="hidden sm:inline lg:hidden xl:inline">Profile</span>
             </button>

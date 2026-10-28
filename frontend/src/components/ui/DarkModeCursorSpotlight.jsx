@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
  *
  * Renders a pointer-events-none radial light bloom around the mouse cursor
  * only when dark mode is enabled, elevating the dark aesthetic seamlessly.
+ * Narrowed radius with increased brightness for a vivid, luminous spotlight.
  */
 export default function DarkModeCursorSpotlight() {
   const [coords, setCoords] = useState({ x: -1000, y: -1000 });
@@ -55,7 +56,7 @@ export default function DarkModeCursorSpotlight() {
       className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
       style={{
         opacity: isVisible ? 1 : 0,
-        background: `radial-gradient(550px circle at ${coords.x}px ${coords.y}px, rgba(59, 130, 246, 0.12), rgba(129, 140, 248, 0.05) 35%, transparent 70%)`,
+        background: `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(96, 165, 250, 0.40) 0%, rgba(59, 130, 246, 0.22) 30%, rgba(99, 102, 241, 0.08) 55%, transparent 75%)`,
       }}
     />
   );

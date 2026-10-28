@@ -15,7 +15,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
   };
 
   return (
-    <div className="bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">

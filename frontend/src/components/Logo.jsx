@@ -5,7 +5,7 @@ import React from 'react';
  * Featuring an interconnected academic graduation apex and dynamic transit nexus
  * with vibrant gradients and glowing modern tech aesthetics.
  */
-export default function Logo({ className = 'w-9 h-9 sm:w-10 sm:h-10' }) {
+export default function Logo({ className = 'w-10 h-10 sm:w-11 sm:h-11' }) {
   return (
     <div
       className={`${className} rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 p-0.5 shadow-lg shadow-indigo-600/30 ring-1 ring-white/30 dark:ring-white/20 shrink-0 group-hover:scale-105 transition-all duration-300`}
