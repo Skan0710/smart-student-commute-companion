@@ -54,6 +54,7 @@ export default function PlannerPage({
   savedCommutes = [],
   savedCommutesLoading = false,
   savedCommutesError = null,
+  savedCommutesRefreshing = false,
   onRefreshSavedCommutes,
   onPlanCommute,
   onRemoveCommute,
@@ -196,7 +197,7 @@ export default function PlannerPage({
           isLoading={savedCommutesLoading}
           loadError={savedCommutesError}
           onRetryLoad={onRefreshSavedCommutes}
-          isRefreshing={isRefreshing}
+          isRefreshing={savedCommutesRefreshing}
           onRefresh={onRefreshSavedCommutes}
           onPlanCommute={(commute) => {
             onPlanCommute?.(commute);

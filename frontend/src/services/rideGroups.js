@@ -57,7 +57,6 @@ export function joinGroup(groupId) {
 // ─── Voluntary Privacy-Aware Shared Travel (Day 21 Backend Integration) ─────
 
 import {
-  fetchSharedJourneys,
   createSharedJourney as createSharedJourneyApi,
   fetchSharedJourneyDetails,
   inviteSharedJourneyMember,
@@ -71,19 +70,6 @@ import {
   fetchSharingPreferences,
   updateSharingPreferences
 } from './api';
-
-/**
- * List active shared journeys visible to authenticated student
- */
-export async function listSharedJourneys() {
-  try {
-    const res = await fetchSharedJourneys();
-    const data = res?.data || res;
-    return Array.isArray(data?.journeys) ? data.journeys : [];
-  } catch (err) {
-    return [];
-  }
-}
 
 /**
  * Create a new voluntary shared journey

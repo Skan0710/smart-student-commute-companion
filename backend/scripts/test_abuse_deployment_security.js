@@ -11,6 +11,22 @@
  * - Socket channel names are constrained.
  */
 
+// Isolate from the development database: this suite registers users and stores hostile
+// markup, so it must never run against backend/db/commute.db (the dev server's data).
+const __os = require('os');
+const __path = require('path');
+const __fs = require('fs');
+const isolatedDbPath = __path.join(__os.tmpdir(), `sscc-abuse-security-${process.pid}.db`);
+for (const suffix of ['', '-shm', '-wal']) {
+  try { __fs.unlinkSync(isolatedDbPath + suffix); } catch { /* not present */ }
+}
+process.env.DATABASE_PATH = isolatedDbPath;
+process.on('exit', () => {
+  for (const suffix of ['', '-shm', '-wal']) {
+    try { __fs.unlinkSync(isolatedDbPath + suffix); } catch { /* already gone */ }
+  }
+});
+
 const assert = require('assert');
 const http = require('http');
 const path = require('path');

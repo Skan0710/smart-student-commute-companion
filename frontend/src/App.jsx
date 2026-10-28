@@ -1143,6 +1143,7 @@ export default function App() {
             showDashboardOverview={appPreferences.showDashboardOverview}
             savedCommutes={savedCommutes}
             savedCommutesLoading={savedCommutesResource.isLoading}
+            savedCommutesRefreshing={savedCommutesResource.isRefreshing}
             savedCommutesError={savedCommutesResource.loadError}
             onRefreshSavedCommutes={handleRefreshSavedCommutes}
             onPlanCommute={handlePlanCommute}
@@ -1164,23 +1165,6 @@ export default function App() {
           />
         );
 
-      case 'mycommutes':
-        return (
-          <MyCommutesPage
-            commutes={savedCommutes}
-            isLoading={savedCommutesResource.isLoading}
-            loadError={savedCommutesResource.loadError}
-            onRetryLoad={savedCommutesResource.load}
-            isRefreshing={savedCommutesResource.isRefreshing}
-            onRefresh={handleRefreshSavedCommutes}
-            onPlanCommute={handlePlanCommute}
-            onRemoveCommute={handleRemoveSavedCommute}
-            isPlanning={isLoading}
-            activeSignature={currentCommuteSignature}
-            onNavigateToPlanner={() => navigateToScreen('planner')}
-          />
-        );
-
       case 'together':
         return (
           <TravelTogetherPage
@@ -1192,43 +1176,6 @@ export default function App() {
             onRetryLoad={groupsResource.load}
             isRefreshing={groupsResource.isRefreshing}
             onRefresh={handleRefreshGroups}
-          />
-        );
-
-      case 'feed':
-        return (
-          <LiveAlertsPage
-            reports={reports}
-            onConfirm={handleConfirmReport}
-            onContradict={handleContradictReport}
-            onOpenCreateReport={() => setIsReportModalOpen(true)}
-            isConnected={isConnected}
-            isConnectionLost={isConnectionLost}
-            onReconnect={handleReconnect}
-            isLoading={reportsResource.isLoading}
-            loadError={reportsResource.loadError}
-            onRetryLoad={reportsResource.load}
-            isRefreshing={reportsResource.isRefreshing}
-            onRefresh={handleRefreshReports}
-          />
-        );
-
-      case 'transit':
-        return (
-          <TransitSearchPage
-            query={transitQuery}
-            onQueryChange={setTransitQuery}
-            onSearch={handleTransitSearch}
-            status={transitResource.status}
-            result={transitResource.data}
-            error={transitResource.error}
-            onRetry={handleTransitRetry}
-            onRefresh={handleTransitRefresh}
-            recentSearches={recentSearches}
-            onSelectRecent={handleSelectRecentSearch}
-            onClearRecent={handleClearRecentSearches}
-            onUseAsOrigin={handleUseAsOrigin}
-            onUseAsDestination={handleUseAsDestination}
           />
         );
 
@@ -1339,17 +1286,13 @@ export default function App() {
 
   // Navbar props
   const navbarProps = {
-    isConnected,
     onResetDemo: handleResetDemo,
     isResetting,
     activeTab,
     setActiveTab,
     onNavigateScreen: navigateToScreen,
-    reportsCount: reports.length,
     unreadNotificationsCount,
     onOpenPreferences: () => setIsPreferencesOpen(true),
-    canInstall: canInstall && !isInstalled,
-    onInstallApp: handleInstallApp,
     theme,
     onToggleTheme: handleToggleTheme
   };

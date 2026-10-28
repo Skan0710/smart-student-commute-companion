@@ -272,17 +272,13 @@ function MoreMenu({ activeTab, onSelect, onOpenPreferences }) {
 }
 
 export default function Navbar({
-  isConnected,
   onResetDemo,
   isResetting,
   activeTab,
   setActiveTab,
   onNavigateScreen,
-  reportsCount = 0,
   unreadNotificationsCount = 0,
   onOpenPreferences,
-  canInstall = false,
-  onInstallApp,
   theme = 'light',
   onToggleTheme
 }) {

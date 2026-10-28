@@ -165,7 +165,11 @@ function normalizeCommuteResponse(rawResponse) {
         tradeOffs: data.tradeOffs || data.routeTradeOffs || [],
       }),
       aiReasoning: {
-        aiProvider: data.isAiEnhanced ? 'Gemini AI Personalized' : 'Deterministic Scoring Engine',
+        // `isAiEnhanced` is also set when the deterministic provider writes the text, so name
+        // the engine by the provider the API reports rather than by that flag.
+        aiProvider: /gemini|google/i.test(String(data.explanationAudit?.provider || data.explanation?.aiMetadata?.provider || ''))
+          ? 'Gemini AI Personalized'
+          : 'Deterministic Scoring Engine',
         // Only claim a confidence level the engine actually reported
         confidence:
           data.uncertainty === 'LOW' ? 'HIGH'
