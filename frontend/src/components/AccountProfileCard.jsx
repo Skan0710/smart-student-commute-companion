@@ -89,7 +89,7 @@ export default function AccountProfileCard({
   return (
     <section
       aria-labelledby="account-profile-heading"
-      className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm"
+      className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm"
     >
       {/* Profile Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">

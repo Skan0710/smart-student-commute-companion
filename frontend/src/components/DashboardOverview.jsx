@@ -145,7 +145,7 @@ export default function DashboardOverview({
 
 
       {/* Academic & Schedule Context — Smart Commute Alignment */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 space-y-2 shadow-sm">
+      <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-xl p-3.5 space-y-2 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
             <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />

@@ -116,7 +116,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm transition-colors space-y-5 font-sans">
+    <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 sm:p-7 shadow-sm transition-colors space-y-5 font-sans">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5 font-sans">
           <Navigation className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -321,7 +321,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                         className={`flex flex-col items-center justify-center p-2 rounded-xl text-center border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
                           active
                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border-blue-300 dark:border-blue-800 font-semibold shadow-xs'
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                            : 'bg-white dark:bg-[#0a0c16] border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
                         <Icon className={`w-4 h-4 mb-1 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} aria-hidden="true" />
@@ -379,7 +379,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                           setFormData({ ...formData, maxBudgetRupees: isNaN(val) ? 0 : val });
                           clearError('maxBudgetRupees');
                         }}
-                        className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-800 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
+                        className="w-16 bg-white dark:bg-[#0a0c16] border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 text-right font-bold text-amber-800 dark:text-amber-400 text-xs focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -408,7 +408,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                         className={`text-[10px] px-2 py-1 rounded border transition-colors ${
                           formData.maxBudgetRupees === preset
                             ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-600 text-amber-800 dark:text-amber-300 font-bold'
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
+                            : 'bg-white dark:bg-[#0a0c16] border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
                         }`}
                       >
                         ₹{preset}

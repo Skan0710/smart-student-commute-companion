@@ -139,10 +139,10 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 shadow-lg shadow-slate-900/5 dark:shadow-black/30 overflow-x-auto max-w-full font-sans transition-all ${className}`}
+      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-[#fbf9f5] dark:bg-[#070913] border border-[#d8d3c5] dark:border-[#1e2440] shadow-md shadow-slate-900/5 dark:shadow-none overflow-x-auto max-w-full font-sans transition-all ${className}`}
       style={{
-        '--tab-spotlight-color': 'rgba(59, 130, 246, 0.28)',
-        '--tab-ambience-color': 'rgba(59, 130, 246, 1)',
+        '--tab-spotlight-color': 'var(--tab-spotlight-dynamic, rgba(128, 0, 32, 0.22))',
+        '--tab-ambience-color': 'var(--tab-ambience-dynamic, rgba(128, 0, 32, 1))',
       }}
     >
       {/* 1. Mouse-following Spotlight Glow */}
@@ -182,8 +182,8 @@ export default function Tabs({
             onClick={() => !tab.disabled && onChange?.(tab.id)}
             className={`relative z-10 inline-flex items-center shrink-0 whitespace-nowrap gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sizeClasses} ${
               isActive
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 dark:bg-white dark:text-slate-950 dark:shadow-white/20'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5'
+                ? 'bg-[#800020] text-white shadow-md shadow-[#800020]/25 dark:bg-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
+                : 'text-[#586953] hover:text-[#1f2421] dark:text-slate-300 dark:hover:text-white hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
             }`}
           >
             {Icon && <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
@@ -192,8 +192,8 @@ export default function Tabs({
               <span
                 className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                   isActive
-                    ? 'bg-white/20 text-white dark:bg-black/10 dark:text-slate-950'
-                    : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-white/20 text-white dark:bg-[#ccff00] dark:text-black font-extrabold'
+                    : 'bg-[#edeae2] text-[#800020] dark:bg-[#121526] dark:text-[#ccff00]'
                 }`}
               >
                 {typeof tab.count === 'number' ? tab.count : tab.badge}

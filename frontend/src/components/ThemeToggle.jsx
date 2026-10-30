@@ -4,8 +4,8 @@ import { Sun, Moon } from 'lucide-react';
 /**
  * ThemeToggle - Sliding Pill Switch with Sun & Moon
  *
- * Smooth sliding pill button that indicates light and dark mode with animated
- * Sun and Moon icons and a sliding indicator thumb.
+ * Smooth sliding pill button styled with Burgundy + Cream Beige for Light Mode
+ * and Midnight Black + Electric Cobalt Blue + Acid Lime for Dark Mode.
  *
  * @param {Object} props
  * @param {'light'|'dark'} props.theme - Active theme state
@@ -28,23 +28,23 @@ export default function ThemeToggle({
       aria-label={label}
       title={label}
       onClick={onToggle}
-      className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-950 ${
+      className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#0047ff] focus:ring-offset-2 focus:ring-offset-[#f7f5f0] dark:focus:ring-offset-[#030408] ${
         isDark
-          ? 'bg-slate-800 border border-slate-700 shadow-inner'
-          : 'bg-slate-200 border border-slate-300 shadow-inner'
+          ? 'bg-[#0a0c16] border border-[#1e2440] shadow-inner'
+          : 'bg-[#edeae2] border border-[#d8d3c5] shadow-inner'
       } ${className}`}
     >
       {/* Background Icons positioned at each end */}
       <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none select-none">
         <Sun
           className={`w-3.5 h-3.5 transition-opacity duration-200 ${
-            isDark ? 'text-slate-500 opacity-60' : 'text-amber-500 opacity-90 font-bold'
+            isDark ? 'text-slate-600 opacity-60' : 'text-[#800020] opacity-90 font-bold'
           }`}
           aria-hidden="true"
         />
         <Moon
           className={`w-3.5 h-3.5 transition-opacity duration-200 ${
-            isDark ? 'text-indigo-400 opacity-90' : 'text-slate-400 opacity-60'
+            isDark ? 'text-[#ccff00] opacity-95' : 'text-[#8d978a] opacity-60'
           }`}
           aria-hidden="true"
         />
@@ -54,14 +54,14 @@ export default function ThemeToggle({
       <span
         className={`relative z-10 flex items-center justify-center w-7 h-7 rounded-full shadow-md transition-transform duration-300 ease-in-out ${
           isDark
-            ? 'translate-x-[32px] bg-slate-900 text-amber-300 border border-slate-700'
-            : 'translate-x-0 bg-white text-amber-500 border border-slate-200'
+            ? 'translate-x-[32px] bg-[#0047ff] text-[#ccff00] border border-[#0047ff] shadow-[#0047ff]/40'
+            : 'translate-x-0 bg-[#800020] text-[#f7f5f0] border border-[#800020] shadow-sm'
         }`}
       >
         {isDark ? (
-          <Moon className="w-3.5 h-3.5 text-indigo-300 animate-in fade-in zoom-in duration-200" aria-hidden="true" />
+          <Moon className="w-3.5 h-3.5 text-[#ccff00] animate-in fade-in zoom-in duration-200" aria-hidden="true" />
         ) : (
-          <Sun className="w-3.5 h-3.5 text-amber-500 animate-in fade-in zoom-in duration-200" aria-hidden="true" />
+          <Sun className="w-3.5 h-3.5 text-[#f7f5f0] animate-in fade-in zoom-in duration-200" aria-hidden="true" />
         )}
       </span>
 

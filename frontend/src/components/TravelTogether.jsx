@@ -15,7 +15,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4">
+    <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-5 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -54,7 +54,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       </div>
 
       {/* Suggested Public Meeting Points Pill Banner */}
-      <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 space-y-2">
+      <div className="bg-slate-50 dark:bg-[#0a0c16]/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -172,7 +172,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                 </MetaList>
 
                 {grp.notes && (
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-200/80 dark:border-slate-850 mt-2.5">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 italic bg-slate-50 dark:bg-[#0a0c16]/50 p-2 rounded-lg border border-slate-200/80 dark:border-slate-850 mt-2.5">
                     "{grp.notes}"
                   </p>
                 )}

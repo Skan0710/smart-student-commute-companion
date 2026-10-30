@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
  * DarkModeCursorSpotlight - Ethereal ambient light following cursor in dark mode
  *
  * Renders a pointer-events-none radial light bloom around the mouse cursor
- * only when dark mode is enabled, elevating the dark aesthetic seamlessly.
- * Narrowed radius with increased brightness for a vivid, luminous spotlight.
+ * only when dark mode is enabled, using Electric Cobalt Blue and Acid Lime
+ * over the Midnight Black canvas for an energetic, modern look.
  */
 export default function DarkModeCursorSpotlight() {
   const [coords, setCoords] = useState({ x: -1000, y: -1000 });
@@ -56,7 +56,7 @@ export default function DarkModeCursorSpotlight() {
       className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
       style={{
         opacity: isVisible ? 1 : 0,
-        background: `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(96, 165, 250, 0.40) 0%, rgba(59, 130, 246, 0.22) 30%, rgba(99, 102, 241, 0.08) 55%, transparent 75%)`,
+        background: `radial-gradient(220px circle at ${coords.x}px ${coords.y}px, rgba(0, 71, 255, 0.45) 0%, rgba(204, 255, 0, 0.22) 32%, rgba(0, 71, 255, 0.08) 58%, transparent 75%)`,
       }}
     />
   );

@@ -135,7 +135,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl w-full ${sizeClasses} max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden shadow-2xl my-auto focus:outline-none ring-1 ring-slate-900/5 dark:ring-white/10`}
+        className={`bg-white dark:bg-[#0a0c16] border border-slate-200 dark:border-slate-700/80 rounded-2xl w-full ${sizeClasses} max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden shadow-2xl my-auto focus:outline-none ring-1 ring-slate-900/5 dark:ring-white/10`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 shrink-0">

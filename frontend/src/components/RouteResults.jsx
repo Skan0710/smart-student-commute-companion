@@ -122,7 +122,7 @@ export default function RouteResults({
     <div ref={containerRef} className="space-y-5 animate-fade-in">
       {/* Weather Snapshot Widget */}
       {weather && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
+        <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-xl p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <CloudRain className="w-5 h-5" />
@@ -154,7 +154,7 @@ export default function RouteResults({
       {scheduleContext?.hasScheduleContext && (
         <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 rounded-xl p-3 text-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-blue-900 dark:text-blue-300">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <Info className="w-4 h-4 text-[#800020] dark:text-[#ccff00] shrink-0" />
             <span>
               Targeted for <strong>{scheduleContext.eventTitle || 'Class'}</strong> starting at {scheduleContext.eventStartTime || scheduleContext.targetArrivalTime}
             </span>
@@ -170,16 +170,16 @@ export default function RouteResults({
       {/* RECOMMENDED ROUTE CARD (FLAGSHIP EXPERIENCE) */}
       <div
         onClick={() => setSelectedRouteId(recRoute.id)}
-        className={`route-card-animate bg-white dark:bg-slate-900 border-2 rounded-2xl p-5 sm:p-6 shadow-sm transition-all cursor-pointer relative overflow-hidden ${
+        className={`route-card-animate bg-white dark:bg-[#0a0c16] border-2 rounded-2xl p-5 sm:p-6 shadow-sm transition-all cursor-pointer relative overflow-hidden ${
           selectedRouteId === recRoute.id
-            ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+            ? 'border-[#800020] dark:border-[#0047ff] ring-2 ring-[#800020]/25 dark:ring-[#0047ff]/40 shadow-md'
             : 'border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600'
         }`}
       >
         {/* Top Header: Badge, Provenance, Departure Window */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-xs flex items-center gap-1.5">
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#800020] dark:bg-[#0047ff] text-white dark:text-white shadow-xs flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 fill-white" />
               RECOMMENDED COMMUTE
             </span>
@@ -188,7 +188,7 @@ export default function RouteResults({
 
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500 dark:text-slate-400">Depart by</span>
-            <span className="text-sm font-extrabold text-blue-700 dark:text-blue-300 font-mono bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800">
+            <span className="text-sm font-extrabold text-[#800020] dark:text-[#ccff00] font-mono font-bold bg-[#800020]/10 dark:bg-[#0047ff]/20 px-2.5 py-0.5 rounded-lg border border-[#800020]/20 dark:border-[#0047ff]/40">
               {recRoute.estimatedDeparture}
             </span>
           </div>
@@ -219,10 +219,10 @@ export default function RouteResults({
         </div>
 
         {/* Why this route: Decision Rationale */}
-        <div className="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-3.5 mb-4">
+        <div className="bg-[#800020]/5 dark:bg-[#0047ff]/10 border border-[#800020]/20 dark:border-[#0047ff]/30 rounded-xl p-3.5 mb-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-            <span className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#800020] dark:text-[#ccff00] shrink-0" />
+            <span className="text-xs font-bold text-[#800020] dark:text-[#ccff00] uppercase tracking-wider">
               {aiReasoning?.aiProvider || 'Optimal Route Intelligence'}
             </span>
             {aiReasoning?.confidence && (
@@ -342,7 +342,7 @@ export default function RouteResults({
           </div>
           {recRoute.legs?.map((leg, idx) => (
             <div key={idx} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800/60">
-              <div className="w-6 h-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-lg bg-white dark:bg-[#0a0c16] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0 mt-0.5">
                 {idx + 1}
               </div>
               <div className="flex-1 min-w-0">
@@ -390,7 +390,7 @@ export default function RouteResults({
 
       {/* OPTION COMPARISON (Visual comparison of travel time and fares) */}
       {alternatives.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-7 space-y-6 shadow-sm">
+        <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-6 sm:p-7 space-y-6 shadow-sm">
           <ComparisonBars
             title="Travel time across your options"
             valueUnit="min"
@@ -446,7 +446,7 @@ export default function RouteResults({
               <button
                 type="button"
                 onClick={() => scrollAlternatives('prev')}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0c16] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Previous alternative route"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -454,7 +454,7 @@ export default function RouteResults({
               <button
                 type="button"
                 onClick={() => scrollAlternatives('next')}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0c16] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Next alternative route"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -476,9 +476,9 @@ export default function RouteResults({
               <div
                 key={alt.id}
                 onClick={() => setSelectedRouteId(alt.id)}
-                className={`route-card-animate flex-shrink-0 w-[85%] sm:w-[380px] md:w-[420px] snap-start bg-white dark:bg-slate-900 border rounded-2xl p-5 sm:p-6 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs flex flex-col justify-between ${
+                className={`route-card-animate flex-shrink-0 w-[85%] sm:w-[380px] md:w-[420px] snap-start bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-5 sm:p-6 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-xs flex flex-col justify-between ${
                   isSelected
-                    ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+                    ? 'border-[#800020] dark:border-[#0047ff] ring-2 ring-[#800020]/25 dark:ring-[#0047ff]/40 shadow-md'
                     : 'border-slate-200 dark:border-slate-800'
                 }`}
               >

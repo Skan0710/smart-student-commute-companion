@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -7,72 +5,56 @@ import { cn } from "@/lib/utils";
 export interface NavItem {
     id?: string;
     label: string;
-    href: string;
-    badge?: number;
-    /** Accessible name override (e.g. "Notifications, 6 unread notifications"). */
-    ariaLabel?: string;
-    /** Shorter text shown below the xl breakpoint to keep the bar on one line. */
+    shortLabel?: string;
     compactLabel?: string;
+    href: string;
     icon?: React.ComponentType<{ className?: string }>;
+    badge?: number | string;
+    ariaLabel?: string;
 }
 
-export interface SpotlightNavbarProps {
-    items?: NavItem[];
-    className?: string;
-    onItemClick?: (item: NavItem, index: number) => void;
-    defaultActiveIndex?: number;
+interface SpotlightNavbarProps {
+    items: NavItem[];
     activeIndex?: number;
+    onItemClick?: (item: NavItem, index: number) => void;
+    className?: string;
 }
 
+/**
+ * SpotlightNavbar - Navigation bar with moving dynamic cursor spotlight and
+ * active-item ambience underglow.
+ * Colors:
+ * - Light Mode: Muted Sage Grey + Cream Beige + Burgundy ambience
+ * - Dark Mode: Midnight Black + Electric Cobalt Blue + Acid Lime ambience
+ */
 export function SpotlightNavbar({
-    items = [
-        { label: "Home", href: "#home" },
-        { label: "About", href: "#about" },
-        { label: "Events", href: "#events" },
-        { label: "Sponsors", href: "#sponsors" },
-        { label: "Pricing", href: "#pricing" },
-    ],
-    className,
+    items,
+    activeIndex: controlledActiveIndex = 0,
     onItemClick,
-    defaultActiveIndex = 0,
-    activeIndex: controlledActiveIndex,
+    className,
 }: SpotlightNavbarProps) {
-    const navRef = useRef<HTMLDivElement>(null);
-    const [activeIndex, setActiveIndex] = useState(
-        controlledActiveIndex !== undefined ? controlledActiveIndex : defaultActiveIndex
-    );
+    const [activeIndex, setActiveIndex] = useState(controlledActiveIndex);
     const [hoverX, setHoverX] = useState<number | null>(null);
-    const [isDark, setIsDark] = useState(false);
 
-    useEffect(() => {
-        if (controlledActiveIndex !== undefined) {
-            setActiveIndex(controlledActiveIndex);
-        }
-    }, [controlledActiveIndex]);
-
-    // Refs for the "light" positions so we can animate them imperatively
+    const navRef = useRef<HTMLElement>(null);
     const spotlightX = useRef(0);
     const ambienceX = useRef(0);
 
+    // Sync state if controlled from outside
     useEffect(() => {
-        const checkTheme = () => {
-            setIsDark(document.documentElement.classList.contains('dark'));
-        };
-        checkTheme();
-        const observer = new MutationObserver(checkTheme);
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        return () => observer.disconnect();
-    }, []);
+        setActiveIndex(controlledActiveIndex);
+    }, [controlledActiveIndex]);
 
+    // Handle the "Moving Spotlight" (Follows Cursor)
     useEffect(() => {
-        if (!navRef.current) return;
         const nav = navRef.current;
+        if (!nav) return;
 
         const handleMouseMove = (e: MouseEvent) => {
-            const rect = nav.getBoundingClientRect();
-            const x = e.clientX - rect.left;
+            const navRect = nav.getBoundingClientRect();
+            const x = e.clientX - navRect.left;
             setHoverX(x);
-            // Direct update for immediate feedback (no spring for the mouse itself, feels snappier)
+
             spotlightX.current = x;
             nav.style.setProperty("--spotlight-x", `${x}px`);
         };
@@ -140,7 +122,7 @@ export function SpotlightNavbar({
             <nav
                 ref={navRef}
                 className={cn(
-                    "spotlight-nav spotlight-nav-bg glass-border spotlight-nav-shadow",
+                    "spotlight-nav bg-cream-50/90 dark:bg-black/90 border border-[#d8d3c5] dark:border-[#1e2440] shadow-md shadow-slate-900/5 dark:shadow-none",
                     "relative h-12 rounded-full transition-all duration-300 overflow-hidden"
                 )}
             >
@@ -159,11 +141,11 @@ export function SpotlightNavbar({
                                 }}
                                 className={cn(
                                     "px-4 py-2 text-sm sm:text-[15px] font-semibold transition-colors duration-200 rounded-full flex items-center gap-2 whitespace-nowrap",
-                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-white/30",
+                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#800020] dark:focus-visible:ring-[#0047ff]",
                                     // Active vs Inactive Text
                                     activeIndex === idx
-                                        ? "text-blue-600 dark:text-white"
-                                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                        ? "text-[#800020] font-bold dark:text-[#ccff00]"
+                                        : "text-[#586953] hover:text-[#1f2421] dark:text-slate-300 dark:hover:text-white"
                                 )}
                             >
                                 {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0", "aria-hidden": true } as React.ComponentProps<"svg">)}
@@ -176,7 +158,7 @@ export function SpotlightNavbar({
                                     <span>{item.label}</span>
                                 )}
                                 {item.badge !== undefined && item.badge > 0 && (
-                                    <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                                    <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-[#800020]/15 text-[#800020] dark:bg-[#ccff00]/20 dark:text-[#ccff00] border border-[#800020]/30 dark:border-[#ccff00]/40">
                                         {item.badge}
                                     </span>
                                 )}
@@ -185,10 +167,7 @@ export function SpotlightNavbar({
                     ))}
                 </ul>
 
-                {/* LIGHTING LAYERS 
-           We use CSS variables --spotlight-x and --ambience-x updated by JS
-        */}
-
+                {/* LIGHTING LAYERS */}
                 {/* 1. The Moving Spotlight (Follows Mouse) */}
                 <div
                     className="pointer-events-none absolute bottom-0 left-0 w-full h-full z-[1] opacity-0 transition-opacity duration-300"
@@ -196,7 +175,7 @@ export function SpotlightNavbar({
                         opacity: hoverX !== null ? 1 : 0,
                         background: `
               radial-gradient(
-                90px circle at var(--spotlight-x) 100%, var(--spotlight-color, rgba(0,0,0,0.12)) 0%, transparent 60%
+                90px circle at var(--spotlight-x) 100%, var(--spotlight-color, rgba(128,0,32,0.12)) 0%, transparent 60%
               )
             `
                     }}
@@ -204,11 +183,11 @@ export function SpotlightNavbar({
 
                 {/* 2. The Active State Ambience (Stays on Active) */}
                 <div
-                    className="pointer-events-none absolute bottom-0 left-0 w-full h-[2px] z-[2]"
+                    className="pointer-events-none absolute bottom-0 left-0 w-full h-[2.5px] z-[2]"
                     style={{
                         background: `
                   radial-gradient(
-                    50px circle at var(--ambience-x) 0%, var(--ambience-color, rgba(0,0,0,1)) 0%, transparent 100%
+                    55px circle at var(--ambience-x) 0%, var(--ambience-color, rgba(128,0,32,1)) 0%, transparent 100%
                   )
                 `
                     }}
@@ -216,20 +195,17 @@ export function SpotlightNavbar({
 
             </nav>
 
-            {/* STYLE BLOCK for Dynamic Colors 
-        This allows us to switch the gradient colors cleanly using Tailwind classes 
-        without messy inline conditionals.
-      */}
+            {/* STYLE BLOCK for Dynamic Colors */}
             <style>{`
         nav {
-          /* Light Mode Colors: Dark Gray/Black lights */
-          --spotlight-color: rgba(0,0,0,0.08);
-          --ambience-color: rgba(0,0,0,0.8);
+          /* Light Mode Colors: Burgundy Ambience with soft warm glow */
+          --spotlight-color: rgba(128, 0, 32, 0.12);
+          --ambience-color: rgba(128, 0, 32, 1);
         }
         .dark nav {
-          /* Dark Mode Colors: White lights */
-          --spotlight-color: rgba(255,255,255,0.30);
-          --ambience-color: rgba(255,255,255,1);
+          /* Dark Mode Colors: Electric Cobalt Blue + Acid Lime */
+          --spotlight-color: rgba(0, 71, 255, 0.35);
+          --ambience-color: rgba(204, 255, 0, 1);
         }
       `}</style>
         </div>

@@ -36,7 +36,7 @@ import {
 } from '../components/ui';
 
 const CARD_SURFACE =
-  'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none';
+  'bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] shadow-[0_1px_3px_rgba(31,36,33,0.06),0_12px_32px_-14px_rgba(31,36,33,0.12)] dark:shadow-none';
 
 const TRANSPORT_MODE_OPTIONS = [
   { value: 'train', label: 'Local train' },

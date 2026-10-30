@@ -253,7 +253,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 transition-colors duration-150 font-sans shadow-xs">
+      <header className="sticky top-0 z-40 bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#1e2440] transition-colors duration-150 font-sans shadow-xs">
         {/* Main Navbar Bar - Enlarged height & padding */}
         <div className="max-w-[1700px] mx-auto px-4 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 min-h-[74px]">
 
@@ -270,7 +270,7 @@ export default function Navbar({
                 <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
                   Smart Student Companion
                 </span>
-                <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 shrink-0">
+                <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-[#800020]/10 text-[#800020] dark:bg-[#0047ff]/20 dark:text-[#ccff00] border border-[#800020]/25 dark:border-[#ccff00]/30 shrink-0">
                   MUMBAI
                 </span>
               </div>
@@ -309,13 +309,13 @@ export default function Navbar({
                 title={unreadNotificationsCount > 0 ? `${unreadNotificationsCount} unread notifications` : 'Notifications'}
                 className={`relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                   isNotificationsOpen
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25'
-                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-slate-800'
+                    ? 'bg-[#800020] text-white border-[#800020] shadow-md shadow-[#800020]/25 dark:bg-[#0047ff] dark:border-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
+                    : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#1e2440] text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
                 }`}
               >
                 <Bell className="w-5 h-5" aria-hidden="true" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 border-2 border-white dark:border-slate-950">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-[#800020] text-white dark:bg-[#ccff00] dark:text-black font-extrabold border-2 border-[#f7f5f0] dark:border-black">
                     {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
                   </span>
                 )}
@@ -327,11 +327,11 @@ export default function Navbar({
                   ref={notificationsBoxRef}
                   role="dialog"
                   aria-label="Notifications"
-                  className="absolute right-0 top-full mt-3 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-900/15 dark:shadow-black/70 p-4 z-50 space-y-3 font-sans animate-in fade-in zoom-in-95"
+                  className="absolute right-0 top-full mt-3 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-3xl bg-[#ffffff] dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] shadow-2xl shadow-slate-900/10 dark:shadow-black/80 p-4 z-50 space-y-3 font-sans animate-in fade-in zoom-in-95"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/5">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                      <div className="p-1.5 rounded-lg bg-[#800020]/10 text-[#800020] dark:bg-[#0047ff]/20 dark:text-[#ccff00]">
                         <Bell className="w-4 h-4" aria-hidden="true" />
                       </div>
                       <span className="font-bold text-sm text-slate-900 dark:text-white">Notifications</span>
@@ -345,7 +345,7 @@ export default function Navbar({
                       <button
                         type="button"
                         onClick={() => onMarkAllNotificationsRead()}
-                        className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-xs font-semibold text-[#800020] dark:text-[#ccff00] hover:underline"
                       >
                         {/* Mark all as read */}
                         Mark all as Read
@@ -421,11 +421,11 @@ export default function Navbar({
               aria-current={activeTab === 'account' ? 'page' : undefined}
               className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
-                  ? 'bg-blue-700 text-white border-blue-700 shadow-lg shadow-blue-500/30'
-                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400/60 hover:bg-blue-50/60 dark:hover:bg-slate-800'
+                  ? 'bg-[#800020] text-white border-[#800020] shadow-lg shadow-[#800020]/30 dark:bg-[#0047ff] dark:border-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
+                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#1e2440] text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center text-white shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0">
                 <UserRound className="w-4 h-4" aria-hidden="true" />
               </div>
               <span className="hidden sm:inline lg:hidden xl:inline">Profile</span>

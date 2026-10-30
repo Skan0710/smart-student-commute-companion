@@ -51,7 +51,7 @@ export default function LiveStudentFeed({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 font-sans">
+    <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'confirm')}
                       disabled={isConfirming}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-250 dark:border-slate-750 hover:border-emerald-500/50 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-[#0a0c16] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-250 dark:border-slate-750 hover:border-emerald-500/50 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                       title="Vote: Disruption is still active"
                     >
                       <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
@@ -170,7 +170,7 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'contradict')}
                       disabled={isContradicting}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-250 dark:border-slate-750 hover:border-rose-500/50 text-slate-700 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-[#0a0c16] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-250 dark:border-slate-750 hover:border-rose-500/50 text-slate-700 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
                       title="Vote: Cleared up / No longer happening"
                     >
                       <X className="w-3 h-3 text-rose-500 dark:text-rose-400" />
@@ -183,7 +183,7 @@ export default function LiveStudentFeed({
                 {rep.route_name && (
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mb-1.5">{rep.route_name}</div>
                 )}
-                <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-900/40 p-2 rounded-lg border border-slate-100 dark:border-slate-850">
+                <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-[#0a0c16]/40 p-2 rounded-lg border border-slate-100 dark:border-slate-850">
                   "{rep.message}"
                 </p>
               </DataCard>

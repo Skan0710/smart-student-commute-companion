@@ -21,7 +21,7 @@ import useAsyncResource from '../hooks/useAsyncResource';
 import { Alert, Button, SampleDataBanner } from '../components/ui';
 
 const CARD_SURFACE =
-  'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.12)] dark:shadow-none';
+  'bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] shadow-[0_1px_3px_rgba(31,36,33,0.06),0_12px_32px_-14px_rgba(31,36,33,0.12)] dark:shadow-none';
 
 const STAT_ACCENTS = {
   blue: {
@@ -200,7 +200,7 @@ export default function MainDashboardPage({
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-8 font-sans">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-indigo-950 dark:via-slate-900 dark:to-blue-950 text-white p-6 sm:p-10 shadow-2xl shadow-indigo-600/20 border border-white/10">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#800020] via-[#5c0017] to-[#38000e] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-10 shadow-2xl shadow-[#800020]/20 dark:shadow-[#0047ff]/25 border border-white/10 dark:border-[#1e2440]">
         <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 w-80 h-80 rounded-full bg-white/10 blur-3xl"></div>
         <div aria-hidden="true" className="pointer-events-none absolute right-24 -bottom-32 w-72 h-72 rounded-full bg-sky-400/20 blur-3xl"></div>
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]"></div>
@@ -215,7 +215,7 @@ export default function MainDashboardPage({
             <button
               type="button"
               onClick={() => onNavigate?.('planner')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-blue-700 font-bold text-xs sm:text-sm shadow-md hover:bg-blue-50 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#f7f5f0] text-[#800020] dark:bg-[#ccff00] dark:text-black font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#800020] dark:focus-visible:ring-offset-[#0047ff]"
             >
               <Compass className="w-4 h-4" aria-hidden="true" />
               <span>Plan Today's Commute</span>
@@ -224,7 +224,7 @@ export default function MainDashboardPage({
             <button
               type="button"
               onClick={() => onNavigate?.('academics')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs sm:text-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs sm:text-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#800020] dark:focus-visible:ring-offset-[#0047ff]"
             >
               <GraduationCap className="w-4 h-4" aria-hidden="true" />
               <span>View Academics Hub</span>
@@ -405,7 +405,7 @@ export default function MainDashboardPage({
               <button
                 type="button"
                 onClick={() => onNavigate?.('planner')}
-                className="w-full py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#800020] hover:bg-[#68001a] text-white dark:bg-[#0047ff] dark:hover:bg-[#1e5cff] font-bold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#800020] dark:focus-visible:ring-[#0047ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
               >
                 Find Best Multimodal Route to College
               </button>
@@ -476,7 +476,7 @@ export default function MainDashboardPage({
           <button
             type="button"
             onClick={handleInstall}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#68001a] text-white dark:bg-[#0047ff] dark:hover:bg-[#1e5cff] font-semibold text-xs shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#800020] dark:focus-visible:ring-[#0047ff]"
           >
             <Download className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{isInstalled ? 'Installed App' : 'Install App'}</span>
