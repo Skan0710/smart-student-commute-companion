@@ -62,7 +62,7 @@ function buildDeterministicExplanation(recommendedRoute, scoringResults, weather
     reason,
     warnings,
     confidence: rec.transfers === 0 ? 'high' : 'medium',
-    aiProvider: 'Deterministic Grounded Engine (Fallback)'
+    aiProvider: 'Deterministic MAUT Decision Engine'
   };
 }
 

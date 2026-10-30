@@ -1,8 +1,13 @@
 const axios = require('axios');
 const { geocodingRepository } = require('../repositories');
+const { db } = require('../db/database');
 
 // Mumbai Landmark / College / Hub instant lookup table
 const MUMBAI_KNOWN_LOCATIONS = {
+  'dj sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'djsce': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering, Vile Parle West, Mumbai' },
+  'svkm': { lat: 19.1030, lon: 72.8370, display_name: 'SVKM Campus, Vile Parle West, Mumbai' },
+  'mukesh patel': { lat: 19.1078, lon: 72.8365, display_name: 'Mukesh Patel School of Technology (MPSTME), Vile Parle, Mumbai' },
   'iit bombay': { lat: 19.1334, lon: 72.9133, display_name: 'IIT Bombay, Powai, Mumbai' },
   'iit bombay powai': { lat: 19.1334, lon: 72.9133, display_name: 'IIT Bombay, Powai, Mumbai' },
   'powai': { lat: 19.1197, lon: 72.9051, display_name: 'Powai, Mumbai' },
@@ -40,8 +45,9 @@ const MUMBAI_KNOWN_LOCATIONS = {
 /**
  * Geocodes an area query to { lat, lon, display_name }
  * 1. Checks local Mumbai lookup
- * 2. Checks SQLite cache
- * 3. Queries OpenStreetMap Nominatim with custom User-Agent
+ * 2. Checks real Mumbai GTFS stops database (7,500+ stops)
+ * 3. Checks SQLite cache
+ * 4. Queries OpenStreetMap Nominatim with Mumbai bounding box
  */
 async function geocodeArea(query) {
   if (!query || typeof query !== 'string') {
@@ -62,7 +68,32 @@ async function geocodeArea(query) {
     }
   }
 
-  // 2. Check SQLite Cache
+  // 2. Direct match in Real Mumbai GTFS stops database
+  try {
+    const cleanQuery = normalized.replace(/[^a-z0-9 ]/g, ' ').trim();
+    const words = cleanQuery.split(/\s+/).filter(w => w.length > 2);
+    if (words.length > 0) {
+      const firstWord = words[0];
+      const match = db.prepare(`
+        SELECT stop_name, stop_lat, stop_lon
+        FROM gtfs_stops
+        WHERE stop_name LIKE ?
+        LIMIT 1
+      `).get(`%${firstWord}%`);
+
+      if (match && match.stop_lat && match.stop_lon) {
+        return {
+          lat: match.stop_lat,
+          lon: match.stop_lon,
+          display_name: `${match.stop_name}, Mumbai`
+        };
+      }
+    }
+  } catch (dbErr) {
+    // Non-fatal, proceed to cache / web fallback
+  }
+
+  // 3. Check SQLite Cache
   try {
     const cached = geocodingRepository.findByQuery(normalized);
     if (cached) {
@@ -76,7 +107,7 @@ async function geocodeArea(query) {
     console.error('Geocoding cache read error:', err.message);
   }
 
-  // 3. Query Nominatim
+  // 4. Query Nominatim (with Mumbai bounding box [72.75, 18.85, 73.15, 19.35])
   try {
     const url = 'https://nominatim.openstreetmap.org/search';
     const searchQuery = normalized.includes('mumbai') ? normalized : `${normalized}, Mumbai, India`;
@@ -85,7 +116,9 @@ async function geocodeArea(query) {
         q: searchQuery,
         format: 'json',
         limit: 1,
-        addressdetails: 1
+        addressdetails: 1,
+        viewbox: '72.75,19.35,73.15,18.85',
+        bounded: 1
       },
       headers: {
         'User-Agent': 'SmartStudentCommute/1.0 (contact@smartstudentcommute.local)'

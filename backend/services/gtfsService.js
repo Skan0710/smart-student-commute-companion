@@ -136,57 +136,74 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
   const originNearbyStops = findNearbyStops(originCoords.lat, originCoords.lon, 4500);
   const destNearbyStops = findNearbyStops(destCoords.lat, destCoords.lon, 4500);
 
-  const directPairs = [];
+  const topOriginStops = originNearbyStops.slice(0, 15);
+  const topDestStops = destNearbyStops.slice(0, 15);
 
-  // Direct GTFS connection check
-  const directStmt = db.prepare(`
-    SELECT 
-      t.trip_id,
-      t.route_id,
-      t.trip_headsign,
-      r.route_short_name,
-      r.route_long_name,
-      r.route_type,
-      r.route_color,
-      a.agency_name,
-      st1.stop_id as orig_stop_id,
-      st1.departure_time as dep_time,
-      st1.stop_sequence as orig_seq,
-      s1.stop_name as orig_stop_name,
-      s1.stop_lat as orig_stop_lat,
-      s1.stop_lon as orig_stop_lon,
-      st2.stop_id as dest_stop_id,
-      st2.arrival_time as arr_time,
-      st2.stop_sequence as dest_seq,
-      s2.stop_name as dest_stop_name,
-      s2.stop_lat as dest_stop_lat,
-      s2.stop_lon as dest_stop_lon
-    FROM gtfs_stop_times st1
-    JOIN gtfs_stop_times st2 ON st1.trip_id = st2.trip_id AND st1.stop_sequence < st2.stop_sequence
-    JOIN gtfs_trips t ON st1.trip_id = t.trip_id
-    JOIN gtfs_routes r ON t.route_id = r.route_id
-    JOIN gtfs_agency a ON r.agency_id = a.agency_id
-    JOIN gtfs_stops s1 ON st1.stop_id = s1.stop_id
-    JOIN gtfs_stops s2 ON st2.stop_id = s2.stop_id
-    WHERE st1.stop_id = ? AND st2.stop_id = ?
-    ORDER BY st2.arrival_time DESC
-    LIMIT 3
-  `);
+  const directPairsByRoute = new Map();
 
-  for (const oStop of originNearbyStops.slice(0, 4)) {
-    for (const dStop of destNearbyStops.slice(0, 4)) {
-      if (oStop.stop_id === dStop.stop_id) continue;
-      const directTrips = directStmt.all(oStop.stop_id, dStop.stop_id);
-      for (const trip of directTrips) {
-        directPairs.push({
+  if (topOriginStops.length > 0 && topDestStops.length > 0) {
+    const oPlaceholders = topOriginStops.map(() => '?').join(',');
+    const dPlaceholders = topDestStops.map(() => '?').join(',');
+    const oIds = topOriginStops.map(s => s.stop_id);
+    const dIds = topDestStops.map(s => s.stop_id);
+
+    const directStmt = db.prepare(`
+      SELECT 
+        t.trip_id,
+        t.route_id,
+        t.trip_headsign,
+        r.route_short_name,
+        r.route_long_name,
+        r.route_type,
+        r.route_color,
+        a.agency_name,
+        st1.stop_id as orig_stop_id,
+        st1.departure_time as dep_time,
+        st1.stop_sequence as orig_seq,
+        s1.stop_name as orig_stop_name,
+        s1.stop_lat as orig_stop_lat,
+        s1.stop_lon as orig_stop_lon,
+        st2.stop_id as dest_stop_id,
+        st2.arrival_time as arr_time,
+        st2.stop_sequence as dest_seq,
+        s2.stop_name as dest_stop_name,
+        s2.stop_lat as dest_stop_lat,
+        s2.stop_lon as dest_stop_lon
+      FROM gtfs_stop_times st1
+      JOIN gtfs_stop_times st2 ON st1.trip_id = st2.trip_id AND st1.stop_sequence < st2.stop_sequence
+      JOIN gtfs_trips t ON st1.trip_id = t.trip_id
+      JOIN gtfs_routes r ON t.route_id = r.route_id
+      JOIN gtfs_agency a ON r.agency_id = a.agency_id
+      JOIN gtfs_stops s1 ON st1.stop_id = s1.stop_id
+      JOIN gtfs_stops s2 ON st2.stop_id = s2.stop_id
+      WHERE st1.stop_id IN (${oPlaceholders}) AND st2.stop_id IN (${dPlaceholders})
+      ORDER BY st2.arrival_time DESC
+      LIMIT 80
+    `);
+
+    const directTrips = directStmt.all(...oIds, ...dIds);
+    for (const trip of directTrips) {
+      const oStop = topOriginStops.find(s => s.stop_id === trip.orig_stop_id);
+      const dStop = topDestStops.find(s => s.stop_id === trip.dest_stop_id);
+      if (!oStop || !dStop) continue;
+
+      const totalWalkMeters = (oStop.distanceMeters || 0) + (dStop.distanceMeters || 0);
+      const routeKey = trip.route_short_name || trip.route_id;
+
+      // Keep the best stop pair for this route line (lowest walking distance)
+      const existing = directPairsByRoute.get(routeKey);
+      if (!existing || totalWalkMeters < existing.totalWalkMeters) {
+        directPairsByRoute.set(routeKey, {
           trip,
           oStop,
-          dStop
+          dStop,
+          totalWalkMeters
         });
       }
     }
   }
 
+  const directPairs = Array.from(directPairsByRoute.values()).slice(0, 4);
   const candidates = [];
 
   // Build Route Candidates based on available direct routes
@@ -215,6 +232,11 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
     const estDepMin = targetArrivalMin - totalDurationMin;
     const estArrMin = estDepMin + totalDurationMin;
 
+    const modePrefix = modeName === 'bus' ? 'Bus ' : (modeName === 'metro' ? 'Metro Line ' : 'Train ');
+    const displayRouteName = trip.route_short_name.toLowerCase().startsWith('bus')
+      ? trip.route_short_name
+      : `${modePrefix}${trip.route_short_name}`;
+
     const routeLegs = [
       {
         type: 'WALK',
@@ -227,7 +249,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
       },
       {
         type: 'TRANSIT',
-        description: `Board ${trip.route_short_name} (${trip.route_long_name}) towards ${trip.trip_headsign}`,
+        description: `Board ${displayRouteName} towards ${trip.trip_headsign}`,
         from: trip.orig_stop_name,
         to: trip.dest_stop_name,
         agency: trip.agency_name,
@@ -271,7 +293,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
 
     candidates.push({
       id: `route-gtfs-${trip.route_id}-${idx + 1}`,
-      title: `${trip.route_short_name} + Walking`,
+      title: `${displayRouteName} + Walking`,
       subtitle: `${trip.orig_stop_name} → ${trip.dest_stop_name}`,
       primaryMode: modeName,
       modesIncluded: [modeName, 'walk'],
