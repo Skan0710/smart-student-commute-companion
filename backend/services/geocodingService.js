@@ -5,7 +5,13 @@ const { db } = require('../db/database');
 // Mumbai Landmark / College / Hub instant lookup table
 const MUMBAI_KNOWN_LOCATIONS = {
   'dj sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'd j sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'd. j. sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'd.j. sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'sanghvi': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
+  'sanghvi college': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering (DJSCE), Vile Parle West, Mumbai' },
   'djsce': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering, Vile Parle West, Mumbai' },
+  'd.j.s.c.e': { lat: 19.1075, lon: 72.8372, display_name: 'D. J. Sanghvi College of Engineering, Vile Parle West, Mumbai' },
   'svkm': { lat: 19.1030, lon: 72.8370, display_name: 'SVKM Campus, Vile Parle West, Mumbai' },
   'mukesh patel': { lat: 19.1078, lon: 72.8365, display_name: 'Mukesh Patel School of Technology (MPSTME), Vile Parle, Mumbai' },
   'iit bombay': { lat: 19.1334, lon: 72.9133, display_name: 'IIT Bombay, Powai, Mumbai' },
@@ -55,23 +61,35 @@ async function geocodeArea(query) {
   }
 
   const normalized = query.trim().toLowerCase();
+  const cleanNormalized = normalized.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const collapsedNormalized = cleanNormalized.replace(/\s+/g, '');
 
   // 1. Direct match in local dictionary
   if (MUMBAI_KNOWN_LOCATIONS[normalized]) {
     return MUMBAI_KNOWN_LOCATIONS[normalized];
   }
+  if (MUMBAI_KNOWN_LOCATIONS[cleanNormalized]) {
+    return MUMBAI_KNOWN_LOCATIONS[cleanNormalized];
+  }
+  if (MUMBAI_KNOWN_LOCATIONS[collapsedNormalized]) {
+    return MUMBAI_KNOWN_LOCATIONS[collapsedNormalized];
+  }
 
   // Check substring match in local dictionary
   for (const [key, val] of Object.entries(MUMBAI_KNOWN_LOCATIONS)) {
-    if (normalized.includes(key) || key.includes(normalized)) {
+    const cleanKey = key.replace(/[^a-z0-9]/g, '');
+    if (
+      normalized.includes(key) ||
+      key.includes(normalized) ||
+      (collapsedNormalized.length >= 4 && (collapsedNormalized.includes(cleanKey) || cleanKey.includes(collapsedNormalized)))
+    ) {
       return val;
     }
   }
 
   // 2. Direct match in Real Mumbai GTFS stops database
   try {
-    const cleanQuery = normalized.replace(/[^a-z0-9 ]/g, ' ').trim();
-    const words = cleanQuery.split(/\s+/).filter(w => w.length > 2);
+    const words = cleanNormalized.split(/\s+/).filter(w => w.length > 2);
     if (words.length > 0) {
       const firstWord = words[0];
       const match = db.prepare(`

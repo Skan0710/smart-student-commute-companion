@@ -121,7 +121,7 @@ function getRoutePoints(route, originCoord, destCoord) {
   if (!route) return [];
   const points = [];
 
-  // 1. Try geometry coordinates
+  // 1. Try geometry coordinates (verified physical roads and tracks from backend)
   if (route.geometry && Array.isArray(route.geometry.coordinates) && route.geometry.coordinates.length > 0) {
     route.geometry.coordinates.forEach((c) => {
       const pt = resolvePoint(c);
@@ -129,33 +129,22 @@ function getRoutePoints(route, originCoord, destCoord) {
     });
   }
 
-  // 2. If geometry is empty or has fewer than 2 points, construct from stations
-  if (points.length < 2) {
-    if (originCoord) points.push(originCoord);
-    const stations = route.transitStations || route.stations || [];
-    stations.forEach((s) => {
-      const sPt = resolvePoint(s);
-      if (sPt) points.push(sPt);
-    });
-    if (destCoord) points.push(destCoord);
-  } else {
-    // Ensure origin is connected to start of geometry if not already close
-    if (originCoord && points.length > 0) {
-      const distStart = Math.hypot(points[0][0] - originCoord[0], points[0][1] - originCoord[1]);
-      if (distStart > 0.003) {
-        points.unshift(originCoord);
-      }
-    }
-    // Ensure destination is connected to end of geometry if not already close
-    if (destCoord && points.length > 0) {
-      const distEnd = Math.hypot(points[points.length - 1][0] - destCoord[0], points[points.length - 1][1] - destCoord[1]);
-      if (distEnd > 0.003) {
-        points.push(destCoord);
-      }
-    }
+  // 2. If geometry coordinates are present, return them directly without inserting artificial straight jumps
+  if (points.length >= 2) {
+    return points;
   }
 
-  return points;
+  // 3. Fallback only if no geometry coordinates were computed
+  const fallback = [];
+  if (originCoord) fallback.push(originCoord);
+  const stations = route.transitStations || route.stations || [];
+  stations.forEach((s) => {
+    const sPt = resolvePoint(s);
+    if (sPt) fallback.push(sPt);
+  });
+  if (destCoord) fallback.push(destCoord);
+
+  return fallback;
 }
 
 // Re-measure the map whenever its container changes size

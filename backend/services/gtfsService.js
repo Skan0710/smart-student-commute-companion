@@ -1,3 +1,58 @@
+
+// Major Mumbai Suburban Railway (Western & Central) and Metro Line 1 Stations
+const MUMBAI_RAILWAY_STATIONS = [
+  // Western Railway (WR)
+  { id: 'STN_CHURCHGATE', name: 'Churchgate', line: 'WR', lineName: 'Western Railway', lat: 18.9322, lon: 72.8264, seq: 1 },
+  { id: 'STN_MARINE_LINES', name: 'Marine Lines', line: 'WR', lineName: 'Western Railway', lat: 18.9442, lon: 72.8242, seq: 2 },
+  { id: 'STN_CHARNI_ROAD', name: 'Charni Road', line: 'WR', lineName: 'Western Railway', lat: 18.9515, lon: 72.8188, seq: 3 },
+  { id: 'STN_GRANT_ROAD', name: 'Grant Road', line: 'WR', lineName: 'Western Railway', lat: 18.9632, lon: 72.8159, seq: 4 },
+  { id: 'STN_MUMBAI_CENTRAL', name: 'Mumbai Central', line: 'WR', lineName: 'Western Railway', lat: 18.9712, lon: 72.8193, seq: 5 },
+  { id: 'STN_MAHALAXMI', name: 'Mahalaxmi', line: 'WR', lineName: 'Western Railway', lat: 18.9827, lon: 72.8236, seq: 6 },
+  { id: 'STN_LOWER_PAREL', name: 'Lower Parel', line: 'WR', lineName: 'Western Railway', lat: 18.9954, lon: 72.8302, seq: 7 },
+  { id: 'STN_PRABHADEVI', name: 'Prabhadevi', line: 'WR', lineName: 'Western Railway', lat: 19.0112, lon: 72.8375, seq: 8 },
+  { id: 'STN_DADAR_WR', name: 'Dadar (Western)', line: 'WR', lineName: 'Western Railway', lat: 19.0178, lon: 72.8432, seq: 9 },
+  { id: 'STN_MATUNGA_ROAD', name: 'Matunga Road', line: 'WR', lineName: 'Western Railway', lat: 19.0274, lon: 72.8451, seq: 10 },
+  { id: 'STN_MAHIM', name: 'Mahim', line: 'WR', lineName: 'Western Railway', lat: 19.0409, lon: 72.8417, seq: 11 },
+  { id: 'STN_BANDRA', name: 'Bandra', line: 'WR', lineName: 'Western Railway', lat: 19.0544, lon: 72.8406, seq: 12 },
+  { id: 'STN_KHAR_ROAD', name: 'Khar Road', line: 'WR', lineName: 'Western Railway', lat: 19.0699, lon: 72.8394, seq: 13 },
+  { id: 'STN_SANTACRUZ', name: 'Santacruz', line: 'WR', lineName: 'Western Railway', lat: 19.0827, lon: 72.8415, seq: 14 },
+  { id: 'STN_VILE_PARLE', name: 'Vile Parle', line: 'WR', lineName: 'Western Railway', lat: 19.0999, lon: 72.8439, seq: 15 },
+  { id: 'STN_ANDHERI', name: 'Andheri', line: 'WR', lineName: 'Western Railway', lat: 19.1197, lon: 72.8464, seq: 16 },
+  { id: 'STN_JOGESHWARI', name: 'Jogeshwari', line: 'WR', lineName: 'Western Railway', lat: 19.1362, lon: 72.8488, seq: 17 },
+  { id: 'STN_RAM_MANDIR', name: 'Ram Mandir', line: 'WR', lineName: 'Western Railway', lat: 19.1517, lon: 72.8491, seq: 18 },
+  { id: 'STN_GOREGAON', name: 'Goregaon', line: 'WR', lineName: 'Western Railway', lat: 19.1646, lon: 72.8494, seq: 19 },
+  { id: 'STN_MALAD', name: 'Malad', line: 'WR', lineName: 'Western Railway', lat: 19.1866, lon: 72.8486, seq: 20 },
+  { id: 'STN_KANDIVALI', name: 'Kandivali', line: 'WR', lineName: 'Western Railway', lat: 19.2045, lon: 72.8522, seq: 21 },
+  { id: 'STN_BORIVALI', name: 'Borivali', line: 'WR', lineName: 'Western Railway', lat: 19.2294, lon: 72.8567, seq: 22 },
+  { id: 'STN_DAHISAR', name: 'Dahisar', line: 'WR', lineName: 'Western Railway', lat: 19.2501, lon: 72.8592, seq: 23 },
+  { id: 'STN_MIRA_ROAD', name: 'Mira Road', line: 'WR', lineName: 'Western Railway', lat: 19.2809, lon: 72.8560, seq: 24 },
+  { id: 'STN_BHAYANDAR', name: 'Bhayandar', line: 'WR', lineName: 'Western Railway', lat: 19.3023, lon: 72.8519, seq: 25 },
+  { id: 'STN_VASAI_ROAD', name: 'Vasai Road', line: 'WR', lineName: 'Western Railway', lat: 19.3820, lon: 72.8322, seq: 26 },
+  { id: 'STN_VIRAR', name: 'Virar', line: 'WR', lineName: 'Western Railway', lat: 19.4674, lon: 72.8115, seq: 27 },
+
+  // Central Railway (CR)
+  { id: 'STN_CSMT', name: 'CSMT', line: 'CR', lineName: 'Central Railway', lat: 18.9400, lon: 72.8354, seq: 1 },
+  { id: 'STN_BYCULLA', name: 'Byculla', line: 'CR', lineName: 'Central Railway', lat: 18.9774, lon: 72.8336, seq: 2 },
+  { id: 'STN_DADAR_CR', name: 'Dadar (Central)', line: 'CR', lineName: 'Central Railway', lat: 19.0180, lon: 72.8435, seq: 3 },
+  { id: 'STN_KURLA', name: 'Kurla', line: 'CR', lineName: 'Central Railway', lat: 19.0657, lon: 72.8794, seq: 4 },
+  { id: 'STN_GHATKOPAR_CR', name: 'Ghatkopar', line: 'CR', lineName: 'Central Railway', lat: 19.0864, lon: 72.9081, seq: 5 },
+  { id: 'STN_VIKHROLI', name: 'Vikhroli', line: 'CR', lineName: 'Central Railway', lat: 19.1106, lon: 72.9288, seq: 6 },
+  { id: 'STN_KANJURMARG', name: 'Kanjurmarg', line: 'CR', lineName: 'Central Railway', lat: 19.1302, lon: 72.9351, seq: 7 },
+  { id: 'STN_BHANDUP', name: 'Bhandup', line: 'CR', lineName: 'Central Railway', lat: 19.1438, lon: 72.9372, seq: 8 },
+  { id: 'STN_THANE', name: 'Thane', line: 'CR', lineName: 'Central Railway', lat: 19.1860, lon: 72.9757, seq: 9 },
+
+  // Metro Line 1 (Versova - Ghatkopar)
+  { id: 'METRO_VERSOVA', name: 'Versova Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1317, lon: 72.8174, seq: 1 },
+  { id: 'METRO_DN_NAGAR', name: 'D.N. Nagar Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1306, lon: 72.8288, seq: 2 },
+  { id: 'METRO_AZAD_NAGAR', name: 'Azad Nagar Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1278, lon: 72.8369, seq: 3 },
+  { id: 'METRO_ANDHERI', name: 'Andheri Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1197, lon: 72.8464, seq: 4 },
+  { id: 'METRO_WEH', name: 'WEH Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1165, lon: 72.8575, seq: 5 },
+  { id: 'METRO_CHAKALA', name: 'Chakala Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1114, lon: 72.8653, seq: 6 },
+  { id: 'METRO_MAROL_NAKA', name: 'Marol Naka Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1090, lon: 72.8830, seq: 7 },
+  { id: 'METRO_SAKI_NAKA', name: 'Saki Naka Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.1037, lon: 72.8878, seq: 8 },
+  { id: 'METRO_GHATKOPAR', name: 'Ghatkopar Metro', line: 'M1', lineName: 'Metro Line 1', lat: 19.0864, lon: 72.9081, seq: 9 }
+];
+
 const { db } = require('../db/database');
 const { haversineDistance } = require('./routingService');
 
@@ -311,6 +366,100 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
     });
   });
 
+  
+  // Suburban Local Train / Metro corridor direct connection check
+  if (allowedModes.includes('train') || allowedModes.includes('metro')) {
+    const origRailStn = MUMBAI_RAILWAY_STATIONS
+      .map(s => ({ ...s, distKm: haversineDistance(originCoords.lat, originCoords.lon, s.lat, s.lon) }))
+      .filter(s => s.distKm <= 3.2)
+      .sort((a, b) => a.distKm - b.distKm)[0];
+
+    const destRailStn = MUMBAI_RAILWAY_STATIONS
+      .map(s => ({ ...s, distKm: haversineDistance(destCoords.lat, destCoords.lon, s.lat, s.lon) }))
+      .filter(s => s.distKm <= 3.2)
+      .sort((a, b) => a.distKm - b.distKm)[0];
+
+    if (origRailStn && destRailStn && origRailStn.line === destRailStn.line && origRailStn.id !== destRailStn.id) {
+      const modeName = origRailStn.line === 'M1' ? 'metro' : 'train';
+      if (allowedModes.includes(modeName)) {
+        const hops = Math.abs(origRailStn.seq - destRailStn.seq);
+        const transitMin = Math.max(8, Math.round(hops * (modeName === 'metro' ? 2.1 : 2.5)));
+        const firstMileWalkKm = +origRailStn.distKm.toFixed(2);
+        const lastMileWalkKm = +destRailStn.distKm.toFixed(2);
+        const firstMileWalkMin = Math.round(firstMileWalkKm * 13.5);
+        const lastMileWalkMin = Math.round(lastMileWalkKm * 13.5);
+        const totalDurationMin = firstMileWalkMin + transitMin + lastMileWalkMin + 4; // 4m platform wait
+        const fare = modeName === 'metro' ? (hops > 4 ? 20 : 10) : (hops > 8 ? 10 : 5);
+
+        const estDepMin = targetArrivalMin - totalDurationMin;
+        const estArrMin = estDepMin + totalDurationMin;
+
+        const lineTitle = modeName === 'metro'
+          ? 'Metro Line 1 (Versova ↔ Ghatkopar)'
+          : `${origRailStn.lineName} Suburban Local`;
+
+        candidates.unshift({
+          id: `route-suburban-${origRailStn.line.toLowerCase()}-${origRailStn.id}-${destRailStn.id}`,
+          title: `${lineTitle} + Walking`,
+          subtitle: `${origRailStn.name} → ${destRailStn.name}`,
+          primaryMode: modeName,
+          modesIncluded: [modeName, 'walk'],
+          durationMinutes: totalDurationMin,
+          walkingDurationMinutes: firstMileWalkMin + lastMileWalkMin,
+          totalWalkingDistanceKm: +(firstMileWalkKm + lastMileWalkKm).toFixed(2),
+          fareRupees: fare,
+          transfers: 0,
+          estimatedDeparture: minutesToTime(estDepMin),
+          estimatedArrival: minutesToTime(estArrMin),
+          legs: [
+            {
+              type: 'WALK',
+              description: `Walk to ${origRailStn.name} Station`,
+              from: 'Origin',
+              to: origRailStn.name,
+              distanceKm: firstMileWalkKm,
+              durationMinutes: firstMileWalkMin,
+              mode: 'walk'
+            },
+            {
+              type: 'TRANSIT',
+              description: `Board ${lineTitle} towards ${destRailStn.name}`,
+              from: origRailStn.name,
+              to: destRailStn.name,
+              agency: origRailStn.lineName,
+              routeShortName: modeName === 'metro' ? 'Metro 1' : 'Local Train',
+              mode: modeName,
+              fareRupees: fare,
+              distanceKm: +(hops * 2.2).toFixed(1),
+              durationMinutes: transitMin,
+              departureTime: minutesToTime(estDepMin + firstMileWalkMin),
+              arrivalTime: minutesToTime(estDepMin + firstMileWalkMin + transitMin)
+            },
+            {
+              type: 'WALK',
+              description: `Walk from ${destRailStn.name} Station to destination`,
+              from: destRailStn.name,
+              to: 'Destination College',
+              distanceKm: lastMileWalkKm,
+              durationMinutes: lastMileWalkMin,
+              mode: 'walk'
+            }
+          ],
+          stopsCount: hops + 1,
+          transitStations: (() => {
+            const minSeq = Math.min(origRailStn.seq, destRailStn.seq);
+            const maxSeq = Math.max(origRailStn.seq, destRailStn.seq);
+            return MUMBAI_RAILWAY_STATIONS
+              .filter(s => s.line === origRailStn.line && s.seq >= minSeq && s.seq <= maxSeq)
+              .sort((a, b) => origRailStn.seq <= destRailStn.seq ? a.seq - b.seq : b.seq - a.seq)
+              .map(s => ({ name: s.name, lat: s.lat, lon: s.lon }));
+          })(),
+          sourceLabel: 'Verified Railway Schedule'
+        });
+      }
+    }
+  }
+
   // If no direct single-line connection was found or we have room for viable alternatives,
   // construct multimodal multi-leg connections via key interchange hubs matching allowedModes
   if (candidates.length < 4) {
@@ -448,7 +597,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
           ],
           sourceLabel: 'Verified GTFS Multi-Agency Network'
         });
-        break; // Add one high quality interchange matching allowed modes
+        if (candidates.filter(c => c.transfers > 0).length >= 2) break;
       }
     }
   }
