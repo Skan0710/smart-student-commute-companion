@@ -480,11 +480,7 @@ function initDb(overrideDb) {
     seedGtfsData(activeDb);
   }
 
-  // Seed Demo Reports if empty
-  const reportsCount = activeDb.prepare('SELECT COUNT(*) as cnt FROM live_commute_reports').get().cnt;
-  if (reportsCount === 0) {
-    seedDemoReports(activeDb);
-  }
+  // Note: Demo reports disabled so student cleared state is permanently respected
 
   // Seed Demo Ride Groups if empty
   const groupsCount = activeDb.prepare('SELECT COUNT(*) as cnt FROM ride_groups').get().cnt;

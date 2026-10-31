@@ -171,6 +171,7 @@ export default function Navbar({
   notifications = [],
   notificationReadIds = new Set(),
   onToggleNotificationRead,
+  onContradictNotification,
   onMarkAllNotificationsRead,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -394,15 +395,25 @@ export default function Navbar({
                               >
                                 {isRead ? 'Read' : 'Unread'}
                               </span>
-                              <button
-                                type="button"
-                                aria-pressed={isRead}
-                                onClick={() => onToggleNotificationRead?.(report.id)}
-                                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 transition-colors"
-                              >
-                                {/* Mark read */}
-                                {isRead ? 'Mark as Unread' : 'Mark as Read'}
-                              </button>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => onContradictNotification?.(report.id)}
+                                  className="text-[10px] font-bold px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-colors"
+                                  title="Remove report if no longer happening"
+                                >
+                                  No longer happening
+                                </button>
+                                <button
+                                  type="button"
+                                  aria-pressed={isRead}
+                                  onClick={() => onToggleNotificationRead?.(report.id)}
+                                  className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 transition-colors"
+                                >
+                                  {/* Mark read */}
+                                  {isRead ? 'Mark as Unread' : 'Mark as Read'}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );

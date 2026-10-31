@@ -191,8 +191,8 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
   const originNearbyStops = findNearbyStops(originCoords.lat, originCoords.lon, 4500);
   const destNearbyStops = findNearbyStops(destCoords.lat, destCoords.lon, 4500);
 
-  const topOriginStops = originNearbyStops.slice(0, 15);
-  const topDestStops = destNearbyStops.slice(0, 15);
+  const topOriginStops = originNearbyStops.slice(0, 80);
+  const topDestStops = destNearbyStops.slice(0, 80);
 
   const directPairsByRoute = new Map();
 
@@ -233,7 +233,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
       JOIN gtfs_stops s2 ON st2.stop_id = s2.stop_id
       WHERE st1.stop_id IN (${oPlaceholders}) AND st2.stop_id IN (${dPlaceholders})
       ORDER BY st2.arrival_time DESC
-      LIMIT 80
+      LIMIT 300
     `);
 
     const directTrips = directStmt.all(...oIds, ...dIds);
@@ -243,7 +243,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
       if (!oStop || !dStop) continue;
 
       const totalWalkMeters = (oStop.distanceMeters || 0) + (dStop.distanceMeters || 0);
-      const routeKey = trip.route_short_name || trip.route_id;
+      const routeKey = (trip.route_short_name || trip.route_id).toLowerCase().trim();
 
       // Keep the best stop pair for this route line (lowest walking distance)
       const existing = directPairsByRoute.get(routeKey);
@@ -258,7 +258,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
     }
   }
 
-  const directPairs = Array.from(directPairsByRoute.values()).slice(0, 4);
+  const directPairs = Array.from(directPairsByRoute.values()).sort((a, b) => a.totalWalkMeters - b.totalWalkMeters).slice(0, 6);
   const candidates = [];
 
   // Build Route Candidates based on available direct routes

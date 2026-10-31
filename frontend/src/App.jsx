@@ -1314,6 +1314,7 @@ export default function App() {
     notificationReadIds,
     onToggleNotificationRead: handleToggleNotificationRead,
     onMarkAllNotificationsRead: handleMarkAllNotificationsRead,
+    onContradictNotification: handleContradictReport,
   };
 
   return (

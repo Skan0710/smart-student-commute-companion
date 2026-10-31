@@ -147,7 +147,7 @@ export default function RouteResults({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-900 dark:text-white">Mumbai Weather: {weather.condition}</span>
+                  <span className="text-xs font-semibold text-slate-900 dark:text-white">Mumbai Weather: {(weather.condition || "Clear").split("/")[0].trim()}</span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">({weather.temperatureC}°C)</span>
                 </div>
                 <div className="min-w-[170px] max-w-[240px] flex-1">
@@ -162,9 +162,7 @@ export default function RouteResults({
                 </div>
               </div>
             </div>
-            <span className="text-[10px] text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hidden sm:inline">
-              Open-Meteo Verified
-            </span>
+            
           </div>
         )}
 
@@ -201,9 +199,7 @@ export default function RouteResults({
                 </p>
               </div>
             </div>
-            <span className="text-[10px] text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hidden sm:inline">
-              Live IST Telemetry
-            </span>
+            
           </div>
         )}
       </div>
@@ -325,7 +321,7 @@ export default function RouteResults({
                 <span>INSPECTING: {activeRoute.badgeLabel || 'ALTERNATIVE ROUTE'}</span>
               </span>
             )}
-            <ProvenanceTag tier={activeRoute.provenanceTier || (activeRoute.sourceLabel?.includes('Verified') ? 'VERIFIED' : 'ESTIMATED')} />
+            
           </div>
 
           <div className="flex items-center gap-2">
@@ -365,13 +361,9 @@ export default function RouteResults({
           <div className="flex items-center gap-2 mb-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#800020] dark:text-[#ccff00] shrink-0" />
             <span className="text-xs font-bold text-[#800020] dark:text-[#ccff00] uppercase tracking-wider">
-              {isInspectingBest ? (aiReasoning?.aiProvider || 'Deterministic MAUT Decision Engine') : 'Alternative Selection Rationale'}
+              {isInspectingBest ? 'Why this route' : 'Alternative Selection Rationale'}
             </span>
-            {isInspectingBest && aiReasoning?.confidence && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 ml-auto font-medium">
-                Confidence: {String(aiReasoning.confidence).toUpperCase()}
-              </span>
-            )}
+            
           </div>
           <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
             {isInspectingBest
@@ -620,7 +612,7 @@ export default function RouteResults({
                         <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white break-words min-w-0">{cleanRouteDisplayTitle(alt.title, alt.primaryMode)}</span>
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />
+                        
                         {alt.badgeLabel && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                             {alt.badgeLabel}

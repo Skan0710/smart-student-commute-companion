@@ -122,9 +122,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           <Navigation className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <span>Student Commute Planner</span>
         </h2>
-        <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 font-sans">
-          GTFS + Gemini Grounded
-        </span>
+        
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5 font-sans">
