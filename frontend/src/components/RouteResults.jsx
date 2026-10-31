@@ -27,6 +27,17 @@ import { staggerRouteCards } from '../utils/motion';
 import { buildOsmDirectionsUrl } from '../utils/mapLinks';
 
 /** Honest trade-off pills computed by comparing the route with its alternatives. */
+function cleanRouteDisplayTitle(title, mode) {
+  if (!title) return '';
+  if (mode === 'bus') {
+    return title.replace(/^Bus\s+/i, 'Route ');
+  }
+  if (mode === 'train') {
+    return title.replace(/^Train\s+/i, '');
+  }
+  return title;
+}
+
 function deriveTradeoffs(route, alternatives) {
   const pills = [];
   const rivals = alternatives.filter(Boolean);
@@ -266,7 +277,7 @@ export default function RouteResults({
                     <div className="flex items-center gap-2 mt-1">
                       <RouteBadge mode={route.primaryMode} size="sm" />
                       <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
-                        {route.title}
+                        {cleanRouteDisplayTitle(route.title, route.primaryMode)}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
@@ -330,7 +341,7 @@ export default function RouteResults({
           <div className="flex items-center gap-2.5 flex-wrap">
             <RouteBadge mode={activeRoute.primaryMode} size="md" />
             <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
-              {activeRoute.title}
+              {cleanRouteDisplayTitle(activeRoute.title, activeRoute.primaryMode)}
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{activeRoute.subtitle}</p>
@@ -529,7 +540,7 @@ export default function RouteResults({
             title="Travel time across your options"
             valueUnit="min"
             items={allRoutes.map((r) => ({
-              label: r.id === recRoute.id ? `Recommended — ${r.title}` : r.title,
+              label: r.id === recRoute.id ? `Recommended — ${cleanRouteDisplayTitle(r.title, r.primaryMode)}` : cleanRouteDisplayTitle(r.title, r.primaryMode),
               value: r.durationMinutes,
               emphasis: r.id === recRoute.id,
               variant: r.id === recRoute.id ? 'emerald' : 'slate',
@@ -606,7 +617,7 @@ export default function RouteResults({
                     <div className="flex flex-col gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0 flex-wrap">
                         <RouteBadge mode={alt.primaryMode} size="sm" />
-                        <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white break-words min-w-0">{alt.title}</span>
+                        <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white break-words min-w-0">{cleanRouteDisplayTitle(alt.title, alt.primaryMode)}</span>
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <ProvenanceTag tier={alt.provenanceTier || 'ESTIMATED'} size="xs" />

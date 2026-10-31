@@ -1,5 +1,9 @@
 agency_id,agency_name,agency_url,agency_timezone,agency_lang
+KDMT,Kalyan Dombivali Municipal Transport,https://kdmc.gov.in,Asia/Kolkata,en
+TMT,Thane Municipal Transport,https://www.thanecity.gov.in,Asia/Kolkata,en
+BEST,Brihanmumbai Electric Supply and Transport,https://www.bestundertaking.com,Asia/Kolkata,en
+VVMT,Vasai-Virar Municipal Transport,https://vvcmc.in,Asia/Kolkata,en
 WR,Western Railway,https://wr.indianrailways.gov.in,Asia/Kolkata,en
 CR,Central Railway,https://cr.indianrailways.gov.in,Asia/Kolkata,en
-MMRDA,Maha Mumbai Metro,https://www.mmmocl.co.in,Asia/Kolkata,en
-BEST,Brihanmumbai Electric Supply and Transport,https://www.bestundertaking.com,Asia/Kolkata,en
+MMOPL,Mumbai Metro One (Line 1),https://www.reliancemumbaimetro.com,Asia/Kolkata,en
+MMMOCL,Maha Mumbai Metro (Lines 2A/7/3),https://www.mmmocl.co.in,Asia/Kolkata,en

@@ -170,23 +170,35 @@ function scoreRoutes(candidates, weather, userPreferences, disruptionEvaluations
   // Sort by composite score descending
   scoredCandidates.sort((a, b) => b.scores.composite - a.scores.composite);
 
-  // Identify distinct alternatives
-  const fastest = [...scoredCandidates].sort((a, b) => a.durationMinutes - b.durationMinutes)[0] || null;
-  const cheapest = [...scoredCandidates].sort((a, b) => a.fareRupees - b.fareRupees)[0] || null;
-  const rainSafe = [...scoredCandidates].sort((a, b) => {
-    // Metro and lowest walking is most rain safe
-    const rainScoreA = (a.primaryMode === 'metro' ? 30 : 0) - a.walkingDurationMinutes * 2;
-    const rainScoreB = (b.primaryMode === 'metro' ? 30 : 0) - b.walkingDurationMinutes * 2;
-    return rainScoreB - rainScoreA;
-  })[0] || null;
-
   const topRoute = scoredCandidates[0] || null;
+
+  // Find fastest alternative that is distinct from top choice
+  const fastest = scoredCandidates
+    .filter(c => !topRoute || (c.id !== topRoute.id && c.title !== topRoute.title))
+    .sort((a, b) => a.durationMinutes - b.durationMinutes)[0] || null;
+
+  // Find cheapest alternative that is distinct from top choice and fastest
+  const cheapest = scoredCandidates
+    .filter(c => (!topRoute || (c.id !== topRoute.id && c.title !== topRoute.title)) &&
+                 (!fastest || (c.id !== fastest.id && c.title !== fastest.title)))
+    .sort((a, b) => a.fareRupees - b.fareRupees)[0] || null;
+
+  // Find rain safe alternative that is sheltered / minimal walking
+  const rainSafe = scoredCandidates
+    .filter(c => (!topRoute || (c.id !== topRoute.id && c.title !== topRoute.title)) &&
+                 (!fastest || c.id !== fastest.id) &&
+                 (!cheapest || c.id !== cheapest.id))
+    .sort((a, b) => {
+      const rainScoreA = (a.primaryMode === 'metro' ? 35 : 0) - a.walkingDurationMinutes * 2;
+      const rainScoreB = (b.primaryMode === 'metro' ? 35 : 0) - b.walkingDurationMinutes * 2;
+      return rainScoreB - rainScoreA;
+    })[0] || null;
 
   return {
     rankedCandidates: scoredCandidates,
     recommended: topRoute,
-    fastestAlternative: fastest && topRoute && fastest.id !== topRoute.id ? fastest : (scoredCandidates[1] || fastest),
-    cheapestAlternative: cheapest && topRoute && cheapest.id !== topRoute.id ? cheapest : (scoredCandidates[1] || cheapest),
+    fastestAlternative: fastest,
+    cheapestAlternative: cheapest,
     rainSafeAlternative: rainSafe
   };
 }

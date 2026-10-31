@@ -287,10 +287,18 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
     const estDepMin = targetArrivalMin - totalDurationMin;
     const estArrMin = estDepMin + totalDurationMin;
 
-    const modePrefix = modeName === 'bus' ? 'Bus ' : (modeName === 'metro' ? 'Metro Line ' : 'Train ');
-    const displayRouteName = trip.route_short_name.toLowerCase().startsWith('bus')
-      ? trip.route_short_name
-      : `${modePrefix}${trip.route_short_name}`;
+    let displayRouteName = trip.route_short_name;
+    if (modeName === 'bus' && !displayRouteName.toLowerCase().startsWith('bus')) {
+      displayRouteName = `Bus ${displayRouteName}`;
+    } else if (modeName === 'metro') {
+      if (displayRouteName.toLowerCase().startsWith('line')) {
+        displayRouteName = `Metro ${displayRouteName}`;
+      } else if (!displayRouteName.toLowerCase().includes('metro')) {
+        displayRouteName = `Metro Line ${displayRouteName}`;
+      }
+    } else if (modeName === 'train' && !displayRouteName.toLowerCase().startsWith('train')) {
+      displayRouteName = `Train ${displayRouteName}`;
+    }
 
     const routeLegs = [
       {
@@ -367,98 +375,7 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
   });
 
   
-  // Suburban Local Train / Metro corridor direct connection check
-  if (allowedModes.includes('train') || allowedModes.includes('metro')) {
-    const origRailStn = MUMBAI_RAILWAY_STATIONS
-      .map(s => ({ ...s, distKm: haversineDistance(originCoords.lat, originCoords.lon, s.lat, s.lon) }))
-      .filter(s => s.distKm <= 3.2)
-      .sort((a, b) => a.distKm - b.distKm)[0];
-
-    const destRailStn = MUMBAI_RAILWAY_STATIONS
-      .map(s => ({ ...s, distKm: haversineDistance(destCoords.lat, destCoords.lon, s.lat, s.lon) }))
-      .filter(s => s.distKm <= 3.2)
-      .sort((a, b) => a.distKm - b.distKm)[0];
-
-    if (origRailStn && destRailStn && origRailStn.line === destRailStn.line && origRailStn.id !== destRailStn.id) {
-      const modeName = origRailStn.line === 'M1' ? 'metro' : 'train';
-      if (allowedModes.includes(modeName)) {
-        const hops = Math.abs(origRailStn.seq - destRailStn.seq);
-        const transitMin = Math.max(8, Math.round(hops * (modeName === 'metro' ? 2.1 : 2.5)));
-        const firstMileWalkKm = +origRailStn.distKm.toFixed(2);
-        const lastMileWalkKm = +destRailStn.distKm.toFixed(2);
-        const firstMileWalkMin = Math.round(firstMileWalkKm * 13.5);
-        const lastMileWalkMin = Math.round(lastMileWalkKm * 13.5);
-        const totalDurationMin = firstMileWalkMin + transitMin + lastMileWalkMin + 4; // 4m platform wait
-        const fare = modeName === 'metro' ? (hops > 4 ? 20 : 10) : (hops > 8 ? 10 : 5);
-
-        const estDepMin = targetArrivalMin - totalDurationMin;
-        const estArrMin = estDepMin + totalDurationMin;
-
-        const lineTitle = modeName === 'metro'
-          ? 'Metro Line 1 (Versova ↔ Ghatkopar)'
-          : `${origRailStn.lineName} Suburban Local`;
-
-        candidates.unshift({
-          id: `route-suburban-${origRailStn.line.toLowerCase()}-${origRailStn.id}-${destRailStn.id}`,
-          title: `${lineTitle} + Walking`,
-          subtitle: `${origRailStn.name} → ${destRailStn.name}`,
-          primaryMode: modeName,
-          modesIncluded: [modeName, 'walk'],
-          durationMinutes: totalDurationMin,
-          walkingDurationMinutes: firstMileWalkMin + lastMileWalkMin,
-          totalWalkingDistanceKm: +(firstMileWalkKm + lastMileWalkKm).toFixed(2),
-          fareRupees: fare,
-          transfers: 0,
-          estimatedDeparture: minutesToTime(estDepMin),
-          estimatedArrival: minutesToTime(estArrMin),
-          legs: [
-            {
-              type: 'WALK',
-              description: `Walk to ${origRailStn.name} Station`,
-              from: 'Origin',
-              to: origRailStn.name,
-              distanceKm: firstMileWalkKm,
-              durationMinutes: firstMileWalkMin,
-              mode: 'walk'
-            },
-            {
-              type: 'TRANSIT',
-              description: `Board ${lineTitle} towards ${destRailStn.name}`,
-              from: origRailStn.name,
-              to: destRailStn.name,
-              agency: origRailStn.lineName,
-              routeShortName: modeName === 'metro' ? 'Metro 1' : 'Local Train',
-              mode: modeName,
-              fareRupees: fare,
-              distanceKm: +(hops * 2.2).toFixed(1),
-              durationMinutes: transitMin,
-              departureTime: minutesToTime(estDepMin + firstMileWalkMin),
-              arrivalTime: minutesToTime(estDepMin + firstMileWalkMin + transitMin)
-            },
-            {
-              type: 'WALK',
-              description: `Walk from ${destRailStn.name} Station to destination`,
-              from: destRailStn.name,
-              to: 'Destination College',
-              distanceKm: lastMileWalkKm,
-              durationMinutes: lastMileWalkMin,
-              mode: 'walk'
-            }
-          ],
-          stopsCount: hops + 1,
-          transitStations: (() => {
-            const minSeq = Math.min(origRailStn.seq, destRailStn.seq);
-            const maxSeq = Math.max(origRailStn.seq, destRailStn.seq);
-            return MUMBAI_RAILWAY_STATIONS
-              .filter(s => s.line === origRailStn.line && s.seq >= minSeq && s.seq <= maxSeq)
-              .sort((a, b) => origRailStn.seq <= destRailStn.seq ? a.seq - b.seq : b.seq - a.seq)
-              .map(s => ({ name: s.name, lat: s.lat, lon: s.lon }));
-          })(),
-          sourceLabel: 'Verified Railway Schedule'
-        });
-      }
-    }
-  }
+  // Note: Direct suburban train & metro lines are now queried directly from gtfs_* tables in SQLite
 
   // If no direct single-line connection was found or we have room for viable alternatives,
   // construct multimodal multi-leg connections via key interchange hubs matching allowedModes

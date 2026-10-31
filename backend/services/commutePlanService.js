@@ -263,52 +263,44 @@ class CommutePlanService {
     }
 
     // Collect distinct alternative routes strictly within budget
-    const alternatives = scoringResults.rankedCandidates.filter(c =>
-      c.id !== recommendedRoute.id && (withinBudgetCandidates.length === 0 || c.fareRupees <= maxBudgetRupees)
-    );
+    const seenTitles = new Set([recommendedRoute.title.toLowerCase().trim()]);
+    const seenIds = new Set([recommendedRoute.id]);
     const practicalAlternatives = [];
 
-    // Add fastest alternative (if within budget)
-    if (scoringResults.fastestAlternative &&
-        scoringResults.fastestAlternative.id !== recommendedRoute.id &&
-        (withinBudgetCandidates.length === 0 || scoringResults.fastestAlternative.fareRupees <= maxBudgetRupees)) {
+    const tryAddAlternative = (cand, badge) => {
+      if (!cand) return false;
+      const normTitle = cand.title.toLowerCase().trim();
+      if (seenTitles.has(normTitle) || seenIds.has(cand.id)) return false;
+      if (withinBudgetCandidates.length > 0 && cand.fareRupees > maxBudgetRupees) return false;
+
+      seenTitles.add(normTitle);
+      seenIds.add(cand.id);
       practicalAlternatives.push({
-        ...scoringResults.fastestAlternative,
-        badgeLabel: 'Fastest Alternative'
+        ...cand,
+        badgeLabel: badge || 'Alternative Route'
       });
+      return true;
+    };
+
+    // 1. Add fastest alternative if distinct
+    if (scoringResults.fastestAlternative) {
+      tryAddAlternative(scoringResults.fastestAlternative, 'Fastest Alternative');
     }
 
-    // Add cheapest alternative (if within budget)
-    if (scoringResults.cheapestAlternative &&
-        scoringResults.cheapestAlternative.id !== recommendedRoute.id &&
-        (withinBudgetCandidates.length === 0 || scoringResults.cheapestAlternative.fareRupees <= maxBudgetRupees) &&
-        !practicalAlternatives.some(a => a.id === scoringResults.cheapestAlternative.id)) {
-      practicalAlternatives.push({
-        ...scoringResults.cheapestAlternative,
-        badgeLabel: 'Lowest-Cost Alternative'
-      });
+    // 2. Add cheapest alternative if distinct
+    if (scoringResults.cheapestAlternative) {
+      tryAddAlternative(scoringResults.cheapestAlternative, 'Lowest-Cost Alternative');
     }
 
-    // Add rain-safe alternative (if within budget)
-    if (scoringResults.rainSafeAlternative &&
-        scoringResults.rainSafeAlternative.id !== recommendedRoute.id &&
-        (withinBudgetCandidates.length === 0 || scoringResults.rainSafeAlternative.fareRupees <= maxBudgetRupees) &&
-        !practicalAlternatives.some(a => a.id === scoringResults.rainSafeAlternative.id)) {
-      practicalAlternatives.push({
-        ...scoringResults.rainSafeAlternative,
-        badgeLabel: 'Rain-Safe Alternative'
-      });
+    // 3. Add rain-safe alternative if distinct
+    if (scoringResults.rainSafeAlternative) {
+      tryAddAlternative(scoringResults.rainSafeAlternative, 'Rain-Safe Alternative');
     }
 
-    // Fill remaining alternatives up to 4
-    for (const alt of alternatives) {
-      if (practicalAlternatives.length >= 4) break;
-      if (!practicalAlternatives.some(a => a.id === alt.id)) {
-        practicalAlternatives.push({
-          ...alt,
-          badgeLabel: 'Alternative Route'
-        });
-      }
+    // 4. Fill remaining distinct alternatives up to 3 options
+    for (const alt of scoringResults.rankedCandidates) {
+      if (practicalAlternatives.length >= 3) break;
+      tryAddAlternative(alt, 'Alternative Option');
     }
 
     return {

@@ -45,7 +45,19 @@ const MUMBAI_KNOWN_LOCATIONS = {
   'thane': { lat: 19.1860, lon: 72.9757, display_name: 'Thane, Mumbai' },
   'goregaon': { lat: 19.1646, lon: 72.8494, display_name: 'Goregaon, Mumbai' },
   'malad': { lat: 19.1866, lon: 72.8486, display_name: 'Malad, Mumbai' },
-  'kandivali': { lat: 19.2045, lon: 72.8522, display_name: 'Kandivali, Mumbai' }
+  'kandivali': { lat: 19.2045, lon: 72.8522, display_name: 'Kandivali, Mumbai' },
+  'versova': { lat: 19.1317, lon: 72.8174, display_name: 'Versova, Andheri West, Mumbai' },
+  'versova metro': { lat: 19.1317, lon: 72.8174, display_name: 'Versova Metro Station, Mumbai' },
+  'dn nagar': { lat: 19.1306, lon: 72.8344, display_name: 'D.N. Nagar Metro Station, Mumbai' },
+  'd.n. nagar': { lat: 19.1306, lon: 72.8344, display_name: 'D.N. Nagar Metro Station, Mumbai' },
+  'bkc': { lat: 19.0645, lon: 72.8680, display_name: 'Bandra Kurla Complex (BKC), Mumbai' },
+  'seepz': { lat: 19.1228, lon: 72.8744, display_name: 'SEEPZ, Andheri East, Mumbai' },
+  'dahisar': { lat: 19.2568, lon: 72.8601, display_name: 'Dahisar, Mumbai' },
+  'kalyan': { lat: 19.2364, lon: 73.1302, display_name: 'Kalyan, Mumbai Suburban' },
+  'dombivli': { lat: 19.2184, lon: 73.0867, display_name: 'Dombivli, Mumbai Suburban' },
+  'vashi': { lat: 19.0645, lon: 72.9978, display_name: 'Vashi, Navi Mumbai' },
+  'panvel': { lat: 18.9894, lon: 73.1215, display_name: 'Panvel, Navi Mumbai' },
+  'chembur': { lat: 19.0624, lon: 72.9029, display_name: 'Chembur, Mumbai' }
 };
 
 /**
