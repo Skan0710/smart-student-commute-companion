@@ -53,6 +53,7 @@ export default function AccountPage({
   submitError = null,
   onDismissSubmitError,
   onSignOut,
+  onProfileUpdated,
 }) {
   const user = session?.user || null;
   const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
@@ -157,6 +158,7 @@ export default function AccountPage({
           lastVerifiedAt={lastVerifiedAt}
           refreshError={hydrateError}
           onRequestSignOut={() => setIsConfirmingSignOut(true)}
+          onProfileUpdated={onProfileUpdated}
         />
       )}
 

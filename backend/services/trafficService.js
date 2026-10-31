@@ -292,27 +292,46 @@ class TrafficService {
     const isEveningPeak = minuteOfDay >= 1050 && minuteOfDay <= 1245;
     const isAfternoon = minuteOfDay >= 750 && minuteOfDay <= 990;
 
+    const cleanOrig = String(originArea || '').toLowerCase().trim();
+    const cleanDest = String(destinationArea || '').toLowerCase().trim();
+    const isWestern = [cleanOrig, cleanDest].some(a => /andheri|vile parle|bandra|borivali|kandivali|malad|goregaon|santacruz|jogeshwari|dahisar|khar|juhu|versova|djs/i.test(a));
+    const isCentral = [cleanOrig, cleanDest].some(a => /dadar|kurla|ghatkopar|vikhroli|bhandup|mulund|thane|sion|matunga|byculla|csmt|cst|masjid|sandhurst/i.test(a));
+    const isSouthMumbai = [cleanOrig, cleanDest].some(a => /csmt|cst|churchgate|marine lines|charni road|grant road|mumbai central|byculla|colaba|fort|nariman/i.test(a));
+
+    let corridorName = 'Western Express Highway & SV Road';
+    if (isCentral && isSouthMumbai) {
+      corridorName = 'Dr. Ambedkar Road & Eastern Freeway corridor';
+    } else if (isCentral) {
+      corridorName = 'LBS Marg & Eastern Express Highway';
+    } else if (isSouthMumbai) {
+      corridorName = 'Maharshi Karve Road & Marine Drive';
+    } else if (isWestern) {
+      corridorName = 'Western Express Highway & SV Road';
+    } else {
+      corridorName = 'arterial transit road links';
+    }
+
     if (isMorningPeak) {
       level = TRAFFIC_LEVELS.HEAVY;
       expectedDelayMinutes = 14;
       currentSpeedKmH = 20;
       freeFlowSpeedKmH = 45;
       congestionPercent = 55;
-      description = 'Peak morning college rush-hour density on Western Express Highway & SV Road (+14m delay)';
+      description = `Peak morning college rush-hour density on ${corridorName} (+14m delay)`;
     } else if (isEveningPeak) {
       level = TRAFFIC_LEVELS.HEAVY;
       expectedDelayMinutes = 16;
       currentSpeedKmH = 18;
       freeFlowSpeedKmH = 45;
       congestionPercent = 60;
-      description = 'Peak evening commute congestion on north-bound corridors & station junctions (+16m delay)';
+      description = `Peak evening commute congestion on ${corridorName} (+16m delay)`;
     } else if (isAfternoon) {
       level = TRAFFIC_LEVELS.MODERATE;
       expectedDelayMinutes = 6;
       currentSpeedKmH = 32;
       freeFlowSpeedKmH = 45;
       congestionPercent = 25;
-      description = 'Moderate midday traffic flow with typical signal waiting delays (+6m delay)';
+      description = `Moderate midday traffic flow on ${corridorName} (+6m delay)`;
     }
 
     // Check active community reports in SQLite matching origin or destination

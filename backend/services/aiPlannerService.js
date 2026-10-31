@@ -1,16 +1,12 @@
 const axios = require('axios');
-const config = require('../config');
 
-/**
- * Builds deterministic grounded explanation when Gemini is unavailable or fails
- */
 function buildDeterministicExplanation(recommendedRoute, scoringResults, weather, activeReports, userPreferences) {
   if (!recommendedRoute) {
     return {
       recommendedRouteId: null,
       departureTime: null,
-      summary: 'No routes match your selected modes and budget constraints.',
-      reason: `No transit options were found within your max budget of ₹${userPreferences.maxBudgetRupees || 100}. Try relaxing your mode filters or increasing your budget limit.`,
+      summary: 'No viable commute options found for the selected criteria.',
+      reason: 'Please adjust your walking distance, budget, or preferred transportation modes.',
       warnings: ['No matching routes found.'],
       confidence: 'none',
       aiProvider: 'Deterministic Grounded Engine'
@@ -24,7 +20,7 @@ function buildDeterministicExplanation(recommendedRoute, scoringResults, weather
     warnings.push(`High rain probability (${weather.rainProbability}%). Outdoor walking legs carry elevated delay and soaking risk.`);
   }
 
-  // Disruption warnings
+  // Disruption warnings strictly along the recommended route corridor
   if (recommendedRoute.disruptionAlerts && recommendedRoute.disruptionAlerts.length > 0) {
     recommendedRoute.disruptionAlerts.forEach(a => {
       warnings.push(`⚠ Community report in ${a.area}: "${a.message}" (${a.ageFormatted})`);
@@ -49,41 +45,41 @@ function buildDeterministicExplanation(recommendedRoute, scoringResults, weather
     reason = `${rec.title} provides the optimal balance of travel time (${rec.durationMinutes} mins), student-friendly fare (₹${rec.fareRupees}), and high transit reliability (${rec.scores?.reliability || 85}% index).`;
   }
 
+  // If there are active disruptions strictly in recommended route corridor, incorporate them
   if (rec.disruptionAlerts && rec.disruptionAlerts.length > 0) {
-    reason += ` Note: Although community reports flagged moderate congestion in ${rec.disruptionAlerts[0].area}, this route remains the strongest option due to dedicated right-of-way advantages.`;
+    const mainDisruption = rec.disruptionAlerts[0];
+    reason += ` Note: Although community reports flagged ${mainDisruption.impact} delay/congestion in ${mainDisruption.area}, this route remains the strongest option due to dedicated right-of-way advantages.`;
   }
-
-  const summary = `Recommended: ${rec.title} via ${rec.subtitle} (Est. ${rec.durationMinutes} mins, ₹${rec.fareRupees}). Depart by ${rec.estimatedDeparture} to reach on time.`;
 
   return {
     recommendedRouteId: rec.id,
     departureTime: rec.estimatedDeparture,
-    summary,
+    summary: `Recommended: ${rec.title} via ${rec.transitStations ? rec.transitStations.map(s => s.name).join(' → ') : (rec.legs ? rec.legs.map(l => l.from).join(' → ') : 'direct transit')} (Est. ${rec.durationMinutes} mins, ₹${rec.fareRupees}). Depart by ${rec.estimatedDeparture} to reach on time.`,
     reason,
     warnings,
-    confidence: rec.transfers === 0 ? 'high' : 'medium',
-    aiProvider: 'Deterministic MAUT Decision Engine'
+    confidence: rec.transitReliabilityScore >= 80 ? 'high' : 'medium',
+    aiProvider: 'Deterministic Decision Engine'
   };
 }
 
-/**
- * Plans and explains recommendations using Gemini with strict grounding
- */
 async function generateAiRecommendation(candidates, scoringResults, weather, activeReports, userPreferences, targetArrival) {
-  const recommendedRoute = scoringResults.recommended;
-  if (!recommendedRoute || !candidates || candidates.length === 0) {
+  const recommendedRoute = scoringResults.rankedCandidates[0];
+  if (!recommendedRoute) {
     return buildDeterministicExplanation(null, scoringResults, weather, activeReports, userPreferences);
   }
 
-  const apiKey = config.geminiApiKey || '';
+  // Only pass community reports that are strictly relevant to the generated candidate routes
+  const candidateReportIds = new Set(
+    candidates.flatMap(c => (c.disruptionAlerts || []).map(a => a.id))
+  );
+  const relevantReports = (activeReports || []).filter(r => candidateReportIds.has(r.id));
 
-  // If no API key is provided, return deterministic explanation immediately
-  if (!apiKey || apiKey.trim() === '') {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     return buildDeterministicExplanation(recommendedRoute, scoringResults, weather, activeReports, userPreferences);
   }
 
   try {
-    // Attempt using official SDK or direct Gemini REST endpoint
     let GoogleGenAI;
     try {
       GoogleGenAI = require('@google/genai').GoogleGenAI;
@@ -106,7 +102,7 @@ async function generateAiRecommendation(candidates, scoringResults, weather, act
         rainProbability: weather.rainProbability,
         rainRisk: weather.rainRisk
       },
-      communityReports: (activeReports || []).slice(0, 5).map(r => ({
+      communityReports: relevantReports.slice(0, 5).map(r => ({
         area: r.area,
         mode: r.mode,
         message: r.message,
@@ -126,7 +122,7 @@ async function generateAiRecommendation(candidates, scoringResults, weather, act
         departureTime: c.estimatedDeparture,
         arrivalTime: c.estimatedArrival,
         compositeScore: c.scores?.composite || 75,
-        disruptions: (c.disruptionAlerts || []).map(a => a.message)
+        disruptions: (c.disruptionAlerts || []).map(a => `${a.area}: ${a.message}`)
       }))
     };
 
@@ -136,7 +132,7 @@ CRITICAL INSTRUCTIONS:
 2. DO NOT INVENT or hallucinate routes, bus numbers, train numbers, station names, fares, travel times, weather conditions, or disruptions.
 3. Select the best route matching the student's preferences (e.g. balanced, fastest, cheapest, rain-safe).
 4. Explain clearly WHY the selected option is best compared to alternatives.
-5. If community reports or weather impacted the recommendation, explicitly highlight it.
+5. STRICT TRAVEL CORRIDOR RULE: Route advisories and warnings must ONLY be given if they are within the physical travel corridor of the recommended route. Do NOT mention disruptions at locations that are outside the travel plan (e.g. For Dadar to CST, never mention issues at Andheri or Ghatkopar).
 6. Output strictly valid JSON matching this schema:
 {
   "recommendedRouteId": "string (must match one of the candidate IDs)",
@@ -162,9 +158,17 @@ CRITICAL INSTRUCTIONS:
 
       if (response && response.text) {
         const parsed = JSON.parse(response.text.trim());
+        const recRoute = candidates.find(c => c.id === parsed.recommendedRouteId) || recommendedRoute;
+        const validAreas = (recRoute?.disruptionAlerts || []).map(a => (a.area || '').toLowerCase());
+        const filteredWarnings = (parsed.warnings || []).filter(w => {
+          const wLower = w.toLowerCase();
+          if (wLower.includes('rain') || wLower.includes('weather')) return true;
+          return validAreas.some(area => wLower.includes(area));
+        });
         return {
           ...parsed,
-          aiProvider: 'Gemini 3.8 Flash (High Reasoning)'
+          warnings: filteredWarnings.length > 0 ? filteredWarnings : (recRoute?.disruptionAlerts || []).map(a => `⚠ Community report in ${a.area}: "${a.message}" (${a.ageFormatted})`),
+          aiProvider: 'Gemini 3.8 Flash'
         };
       }
     } else {
@@ -177,12 +181,20 @@ CRITICAL INSTRUCTIONS:
         generationConfig: {
           responseMimeType: 'application/json'
         }
-      }, { timeout: 7000, headers: { 'x-goog-api-key': apiKey } }); // header, not URL, so it never reaches logs
+      }, { timeout: 7000, headers: { 'x-goog-api-key': apiKey } });
 
       const text = restRes.data.candidates[0].content.parts[0].text;
       const parsed = JSON.parse(text);
+      const recRoute = candidates.find(c => c.id === parsed.recommendedRouteId) || recommendedRoute;
+      const validAreas = (recRoute?.disruptionAlerts || []).map(a => (a.area || '').toLowerCase());
+      const filteredWarnings = (parsed.warnings || []).filter(w => {
+        const wLower = w.toLowerCase();
+        if (wLower.includes('rain') || wLower.includes('weather')) return true;
+        return validAreas.some(area => wLower.includes(area));
+      });
       return {
         ...parsed,
+        warnings: filteredWarnings.length > 0 ? filteredWarnings : (recRoute?.disruptionAlerts || []).map(a => `⚠ Community report in ${a.area}: "${a.message}" (${a.ageFormatted})`),
         aiProvider: 'Gemini 3.8 Flash'
       };
     }
@@ -194,6 +206,6 @@ CRITICAL INSTRUCTIONS:
 }
 
 module.exports = {
-  generateAiRecommendation,
-  buildDeterministicExplanation
+  buildDeterministicExplanation,
+  generateAiRecommendation
 };

@@ -49,9 +49,9 @@ export default function AppShell({
       </a>
       <DarkModeCursorSpotlight />
 
-      {/* Header Slot */}
+      {/* Header Slot - Fixed to top of viewport during scrolling */}
       {header && (
-        <div className="w-full shrink-0">
+        <div className="w-full shrink-0 sticky top-0 z-50">
           {header}
         </div>
       )}

@@ -426,6 +426,12 @@ function findTransitCandidates(originCoords, destCoords, arrivalTime = '09:00', 
         const leg1Dist = +(haversineDistance(origStop.stop_lat, origStop.stop_lon, hub.lat, hub.lon)).toFixed(1);
         const leg2Dist = +(haversineDistance(hub.lat, hub.lon, destStop.stop_lat, destStop.stop_lon)).toFixed(1);
 
+        // Discard irrational retrograde detours (e.g. going north to Ghatkopar when traveling south from Dadar to CSMT)
+        const detourRatio = (leg1Dist + leg2Dist) / Math.max(1, totalDirectDist);
+        if (detourRatio > 1.65) {
+          continue;
+        }
+
         const leg1Duration = Math.max(12, Math.round(leg1Dist * 2.3));
         const leg2Duration = Math.max(10, Math.round(leg2Dist * 2.5));
         const walk1 = Math.round(origStop.distanceMeters / 1000 * 13);

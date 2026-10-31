@@ -1,4 +1,5 @@
 const { reportRepository } = require('../repositories');
+const { MUMBAI_KNOWN_LOCATIONS } = require('./geocodingService');
 
 /**
  * Calculates freshness multiplier based on age in milliseconds
@@ -15,6 +16,44 @@ function calculateFreshnessWeight(createdAt) {
   if (ageMinutes <= 60) return 0.45;
   if (ageMinutes <= 120) return 0.20;
   return 0.0;
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Stopwords to prevent generic transit words from creating false corridor matches
+const TRANSIT_STOPWORDS = new Set([
+  'station', 'metro', 'train', 'local', 'line', 'stop', 'stand', 'depot',
+  'east', 'west', 'road', 'express', 'highway', 'terminal', 'terminus',
+  'junction', 'bridge', 'flyover', 'corridor', 'route', 'mumbai', 'suburban',
+  'central', 'western', 'harbour', 'fast', 'slow', 'service', 'wr', 'cr',
+  'platform', 'near', 'towards', 'interchange', 'gate'
+]);
+
+function extractSpecificLocationTokens(str) {
+  return (str || '').toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 3 && !TRANSIT_STOPWORDS.has(w));
+}
+
+function getReportCoordinates(report) {
+  if (report.lat && report.lon) return { lat: report.lat, lon: report.lon };
+  const areaLower = (report.area || '').toLowerCase();
+  for (const [key, loc] of Object.entries(MUMBAI_KNOWN_LOCATIONS)) {
+    if (areaLower.includes(key)) {
+      return { lat: loc.lat, lon: loc.lon };
+    }
+  }
+  return null;
 }
 
 function getActiveReports() {
@@ -36,47 +75,77 @@ function getActiveReports() {
 }
 
 /**
- * Evaluates candidate route impact against active community reports
- * Returns disruptionScore (0 = clean, 100 = severely blocked) and matching alerts
+ * Evaluates candidate route impact against active community reports.
+ * Route advisories and warnings are strictly filtered to the physical corridor of travel:
+ * - A report must be within 2.0 km of the route's physical path or transit stops.
+ * - Transportation modes must match the actual route legs (e.g. auto stand issues do not attach to train routes).
+ *
+ * Returns disruptionScore (0 = clean, 100 = severely blocked) and matching alerts.
  */
 function evaluateRouteDisruptions(routeCandidate, activeReports) {
   let disruptionPenalty = 0;
   const matchingAlerts = [];
 
-  for (const report of activeReports) {
-    let modeMatched = false;
-    let locationMatched = false;
-
-    // Check transportation mode match
-    const repMode = (report.mode || '').toLowerCase();
-    if (routeCandidate.modesIncluded && routeCandidate.modesIncluded.includes(repMode)) {
-      modeMatched = true;
-    } else if (routeCandidate.primaryMode === repMode) {
-      modeMatched = true;
+  // Build physical corridor reference coordinates from transit stations and sampled route geometry
+  const corridorPoints = [];
+  if (routeCandidate.transitStations && routeCandidate.transitStations.length > 0) {
+    for (const s of routeCandidate.transitStations) {
+      if (s.lat && s.lon) corridorPoints.push({ lat: s.lat, lon: s.lon });
     }
-
-    // Check corridor/location match against route title, subtitle, legs or transit stations
-    const searchTarget = [
-      routeCandidate.title,
-      routeCandidate.subtitle,
-      ...(routeCandidate.transitStations || []).map(s => s.name),
-      ...(routeCandidate.legs || []).map(l => `${l.from} ${l.to} ${l.description}`)
-    ].join(' ').toLowerCase();
-
-    const reportAreaLower = (report.area || '').toLowerCase();
-    const reportRouteLower = (report.route_name || '').toLowerCase();
-
-    // Check if area keywords match
-    const keywords = [...reportAreaLower.split(/\s+/), ...reportRouteLower.split(/\s+/)].filter(w => w.length > 3);
-    for (const kw of keywords) {
-      if (searchTarget.includes(kw)) {
-        locationMatched = true;
-        break;
+  }
+  if (routeCandidate.geometry && Array.isArray(routeCandidate.geometry.coordinates)) {
+    const coords = routeCandidate.geometry.coordinates;
+    const step = Math.max(1, Math.floor(coords.length / 30));
+    for (let i = 0; i < coords.length; i += step) {
+      const pt = coords[i];
+      if (pt && pt.length >= 2) {
+        corridorPoints.push({ lat: pt[1], lon: pt[0] });
       }
     }
+  }
 
-    // If both mode and location match, compute penalty scaled by freshness and confirmation score
-    if (modeMatched || locationMatched) {
+  // Tokenize candidate route stations and leg endpoints for name matching
+  const searchTarget = [
+    routeCandidate.title,
+    routeCandidate.subtitle,
+    ...(routeCandidate.transitStations || []).map(s => s.name),
+    ...(routeCandidate.legs || []).map(l => `${l.from} ${l.to}`)
+  ].join(' ').toLowerCase();
+
+  for (const report of activeReports) {
+    // 1. Check transportation mode match
+    const repMode = (report.mode || '').toLowerCase();
+    const routeModes = [
+      routeCandidate.primaryMode,
+      ...(routeCandidate.modesIncluded || []),
+      ...(routeCandidate.legs || []).map(l => l.mode)
+    ].filter(Boolean).map(m => m.toLowerCase());
+
+    const modeMatched = routeModes.includes(repMode) ||
+      (repMode === 'train' && routeModes.some(m => m.includes('rail') || m.includes('train'))) ||
+      (repMode === 'bus' && routeModes.some(m => m.includes('bus')));
+
+    // 2. Check spatial corridor match
+    let spatialMatched = null;
+    const repCoords = getReportCoordinates(report);
+    if (repCoords && corridorPoints.length > 0) {
+      let minDist = Infinity;
+      for (const pt of corridorPoints) {
+        const d = haversineKm(repCoords.lat, repCoords.lon, pt.lat, pt.lon);
+        if (d < minDist) minDist = d;
+      }
+      // Report must be within 2.0 km of this travel plan's physical path
+      spatialMatched = minDist <= 2.0;
+    }
+
+    // 3. Name match using non-stopword tokens (e.g. "dadar", "ghatkopar", "vikhroli")
+    const repTokens = extractSpecificLocationTokens(report.area);
+    const nameMatched = repTokens.length > 0 && repTokens.some(tok => searchTarget.includes(tok));
+
+    const locationMatched = spatialMatched !== null ? spatialMatched : nameMatched;
+
+    // Report MUST be within physical travel corridor AND match route mode
+    if (locationMatched && modeMatched) {
       let baseSeverity = 15;
       if (report.impact === 'high') baseSeverity = 40;
       if (report.impact === 'medium') baseSeverity = 25;

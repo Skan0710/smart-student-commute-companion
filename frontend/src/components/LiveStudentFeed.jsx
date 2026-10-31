@@ -159,10 +159,10 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'confirm')}
                       disabled={isConfirming}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-[#0a0c16] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-250 dark:border-slate-750 hover:border-emerald-500/50 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150 flex items-center gap-1.5 disabled:opacity-50"
                       title="Vote: Disruption is still active"
                     >
-                      <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
                       <span>Still happening</span>
                     </button>
 
@@ -170,10 +170,10 @@ export default function LiveStudentFeed({
                     <button
                       onClick={() => handleVote(rep.id, 'contradict')}
                       disabled={isContradicting}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-[#0a0c16] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-250 dark:border-slate-750 hover:border-rose-500/50 text-slate-700 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150 flex items-center gap-1.5 disabled:opacity-50"
                       title="Vote: Cleared up / No longer happening"
                     >
-                      <X className="w-3 h-3 text-rose-500 dark:text-rose-400" />
+                      <X className="w-3.5 h-3.5 text-white stroke-[2.5]" />
                       <span>No longer happening</span>
                     </button>
                     </div>

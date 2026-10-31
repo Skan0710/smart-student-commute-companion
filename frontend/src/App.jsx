@@ -1286,6 +1286,14 @@ export default function App() {
             submitError={authSubmitError}
             onDismissSubmitError={() => setAuthSubmitError(null)}
             onSignOut={handleSignOut}
+            onProfileUpdated={(updatedUser) => {
+              const current = sessionResource.data;
+              if (current?.token) {
+                sessionResource.setData({ ...current, user: updatedUser });
+              } else {
+                sessionResource.setData(updatedUser);
+              }
+            }}
           />
         );
 
@@ -1301,6 +1309,7 @@ export default function App() {
 
   // Navbar props
   const navbarProps = {
+    user: sessionResource?.data?.user || sessionResource?.data,
     onResetDemo: handleResetDemo,
     isResetting,
     activeTab,

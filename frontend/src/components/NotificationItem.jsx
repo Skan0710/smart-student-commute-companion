@@ -25,14 +25,14 @@ export default function NotificationItem({ report, isRead = false, onToggleRead 
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {!isRead && <Badge variant="emerald" size="xs">Unread</Badge>}
           {modeLabel && <p className="text-xs font-medium text-blue-700 dark:text-blue-300">{modeLabel}</p>}
-          {onToggleRead && (
+          {onToggleRead && !isRead && (
             <button
               type="button"
               onClick={() => onToggleRead(report.id)}
               aria-pressed={isRead}
               className="min-h-8 rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:border-emerald-500/50 hover:text-slate-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              {isRead ? 'Mark as Unread' : 'Mark as Read' /* Mark read */}
+              Mark as Read {/* Mark read */}
             </button>
           )}
         </div>

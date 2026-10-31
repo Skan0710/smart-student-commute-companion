@@ -159,6 +159,7 @@ export const SECONDARY_SCREENS = [
 ];
 
 export default function Navbar({
+  user = null,
   onResetDemo,
   isResetting,
   activeTab,
@@ -174,6 +175,8 @@ export default function Navbar({
   onContradictNotification,
   onMarkAllNotificationsRead,
 }) {
+  const profileLabel = user?.full_name || user?.name || user?.displayName || (user?.email ? user.email.split('@')[0] : 'Profile');
+  const userInitials = (profileLabel || 'P').split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
@@ -254,7 +257,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#1e2440] transition-colors duration-150 font-sans shadow-xs">
+      <header className="sticky top-0 z-50 w-full bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#1e2440] transition-colors duration-150 font-sans shadow-xs">
         {/* Main Navbar Bar - Enlarged height & padding */}
         <div className="max-w-[1700px] mx-auto px-4 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 min-h-[74px]">
 
@@ -399,20 +402,20 @@ export default function Navbar({
                                 <button
                                   type="button"
                                   onClick={() => onContradictNotification?.(report.id)}
-                                  className="text-[10px] font-bold px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-colors"
+                                  className="text-[10px] font-bold px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150"
                                   title="Remove report if no longer happening"
                                 >
                                   No longer happening
                                 </button>
-                                <button
-                                  type="button"
-                                  aria-pressed={isRead}
-                                  onClick={() => onToggleNotificationRead?.(report.id)}
-                                  className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 transition-colors"
-                                >
-                                  {/* Mark read */}
-                                  {isRead ? 'Mark as Unread' : 'Mark as Read'}
-                                </button>
+                                {!isRead && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onToggleNotificationRead?.(report.id)}
+                                    className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 transition-colors"
+                                  >
+                                    Mark as Read
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -428,7 +431,7 @@ export default function Navbar({
             <button
               type="button"
               onClick={() => handleSelectTab('account')}
-              aria-label="Open student account and profile"
+              aria-label={user ? `Signed in as ${profileLabel}. Open profile` : 'Open student account and profile'}
               aria-current={activeTab === 'account' ? 'page' : undefined}
               className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
@@ -436,10 +439,14 @@ export default function Navbar({
                   : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#1e2440] text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0">
-                <UserRound className="w-4 h-4" aria-hidden="true" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0 font-bold text-xs">
+                {user ? (
+                  <span>{userInitials}</span>
+                ) : (
+                  <UserRound className="w-4 h-4" aria-hidden="true" />
+                )}
               </div>
-              <span className="hidden sm:inline lg:hidden xl:inline">Profile</span>
+              <span className="hidden sm:inline max-w-[130px] truncate">{profileLabel}</span>
             </button>
 
             {/* Mobile Hamburger Toggle Button */}
