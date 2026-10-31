@@ -58,7 +58,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-            Verified Transit Meeting Points
+            Transit Meeting Points
           </span>
           <span className="text-[10px] text-slate-500 dark:text-slate-400">Public hubs only</span>
         </div>

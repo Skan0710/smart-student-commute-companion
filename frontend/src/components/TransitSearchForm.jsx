@@ -60,7 +60,7 @@ export default function TransitSearchForm({
         </h2>
         <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400/90 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
           <TrainFront className="w-3 h-3" aria-hidden="true" />
-          Mumbai GTFS Verified
+          Mumbai GTFS
         </span>
       </div>
 

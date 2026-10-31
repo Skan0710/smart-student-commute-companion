@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search as SearchIcon, RefreshCw, AlertTriangle, AlertCircle, MapPin, ShieldAlert, CheckCircle2, X } from 'lucide-react';
 import LiveStudentFeed from '../components/LiveStudentFeed';
-import { LoadingState, ErrorState, EmptyState, SearchInput, FilterBar, Select, StatTile, Alert, RouteBadge, ProvenanceTag, StatusIndicator } from '../components/ui';
+import { LoadingState, ErrorState, EmptyState, SearchInput, FilterBar, Select, StatTile, Alert, RouteBadge, StatusIndicator } from '../components/ui';
 import { applyListControls, buildActiveFilters } from '../utils/listControls';
 import { listCommuteAlerts, dismissAlert } from '../services/liveReports';
 
@@ -180,7 +180,7 @@ export default function LiveAlertsPage({
               <ShieldAlert className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400" />
               <span>Official Corridor Advisories ({officialAlerts.length})</span>
             </h2>
-            <ProvenanceTag tier="VERIFIED" size="xs" />
+            
           </div>
           {dismissError && (
             <Alert variant="error" dismissible onDismiss={() => setDismissError(null)}>

@@ -252,7 +252,7 @@ export default function MapView({
       <div className="absolute bottom-8 left-3 z-[1000] bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs space-y-1 shadow-lg pointer-events-auto">
         <div className="font-bold text-slate-700 dark:text-slate-200 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
           <span>Transit Map</span>
-          <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Verified GTFS</span>
+          <span>Mumbai GTFS</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white"></span>
@@ -379,7 +379,7 @@ export default function MapView({
               <div className="text-xs">
                 <div className="font-bold text-amber-800 dark:text-amber-400">Transit Stop</div>
                 <div className="text-slate-700 dark:text-slate-200">{station.name}</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Verified Mumbai GTFS Stop</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Mumbai GTFS Stop</div>
               </div>
             </Popup>
           </Marker>

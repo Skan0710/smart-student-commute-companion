@@ -20,7 +20,6 @@ import {
   ProgressBar,
   ComparisonBars,
   RouteBadge,
-  ProvenanceTag,
   TradeoffPill
 } from './ui';
 import { staggerRouteCards } from '../utils/motion';
