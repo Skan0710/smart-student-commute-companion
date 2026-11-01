@@ -473,6 +473,9 @@ export function readThemePreference() {
 export function writeThemePreference(theme) {
   if (['light', 'dark', 'system'].includes(theme)) {
     safeWrite(THEME_PREFERENCE_KEY, theme);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('app-theme-change', { detail: { theme } }));
+    }
     return theme;
   }
   return 'light';

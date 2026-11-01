@@ -67,7 +67,11 @@ const updateProfileSchema = z
       .trim()
       .min(2, 'College name must be at least 2 characters')
       .max(150, 'College name cannot exceed 150 characters')
+      .optional(),
+    profile_picture: z
+      .string()
       .optional()
+      .nullable()
   })
   .refine(data => Object.keys(data).length > 0, {
     message: 'At least one field must be provided for update'

@@ -437,11 +437,13 @@ export default function Navbar({
               className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
                   ? 'bg-[#800020] text-white border-[#800020] shadow-lg shadow-[#800020]/30 dark:bg-[#0047ff] dark:border-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
-                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#1e2440] text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
+                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-white/20 text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0 font-bold text-xs">
-                {user ? (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0 font-bold text-xs overflow-hidden">
+                {user?.profile_picture ? (
+                  <img src={user.profile_picture} alt={profileLabel} className="w-full h-full object-cover rounded-full" />
+                ) : user ? (
                   <span>{userInitials}</span>
                 ) : (
                   <UserRound className="w-4 h-4" aria-hidden="true" />

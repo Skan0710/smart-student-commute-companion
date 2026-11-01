@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   GraduationCap,
   KeyRound,
@@ -17,7 +17,10 @@ import {
   Compass,
   Sparkles,
   LogOut,
-  X
+  X,
+  Camera,
+  Trash2,
+  Upload
 } from 'lucide-react';
 import { Alert, Button, Input } from './ui';
 import { readThemePreference, writeThemePreference, applyTheme } from '../utils/uiPreferences';
@@ -54,6 +57,7 @@ export default function AccountProfileCard({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.full_name || '');
+  const [profilePicture, setProfilePicture] = useState(user?.profile_picture || user?.avatar_url || '');
   const [collegeName, setCollegeName] = useState(user?.college_name || 'Dwarkadas J. Sanghvi College of Engineering');
   const [department, setDepartment] = useState(user?.department || 'Computer Engineering');
   const [studentId, setStudentId] = useState(user?.student_id || user?.roll_no || '60004220000');
@@ -64,6 +68,36 @@ export default function AccountProfileCard({
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Synchronize theme state whenever theme preference changes across the app
+  useEffect(() => {
+    const syncTheme = () => {
+      setSelectedTheme(readThemePreference());
+    };
+    window.addEventListener('app-theme-change', syncTheme);
+    window.addEventListener('storage', syncTheme);
+    return () => {
+      window.removeEventListener('app-theme-change', syncTheme);
+      window.removeEventListener('storage', syncTheme);
+    };
+  }, []);
+
+  // Update local fields when user prop updates
+  useEffect(() => {
+    if (user) {
+      if (user.full_name) setFullName(user.full_name);
+      if (user.profile_picture || user.avatar_url) {
+        setProfilePicture(user.profile_picture || user.avatar_url);
+      }
+      if (user.college_name) setCollegeName(user.college_name);
+      if (user.department) setDepartment(user.department);
+      if (user.student_id || user.roll_no) setStudentId(user.student_id || user.roll_no);
+      if (user.preferred_corridor) setCorridor(user.preferred_corridor);
+      if (user.home_station) setHomeStation(user.home_station);
+      if (user.max_walking_minutes) setWalkingTolerance(user.max_walking_minutes);
+    }
+  }, [user]);
 
   const displayName = fullName || user?.full_name || user?.email || 'Student';
   const initials = displayName
@@ -80,6 +114,80 @@ export default function AccountProfileCard({
     applyTheme(newTheme);
   };
 
+  /**
+   * Process and compress image file upload (downscaled to max 280x280 for fast instant storage)
+   */
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setSaveError('Please select a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setSaveError('Image file is too large. Please select an image under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 280;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        setProfilePicture(dataUrl);
+
+        // Auto-save photo change immediately
+        const updatedUser = {
+          ...(user || {}),
+          profile_picture: dataUrl
+        };
+        updateUserProfile(user?.id, updatedUser).then((res) => {
+          onProfileUpdated?.(res);
+          setSaveSuccess(true);
+          setTimeout(() => setSaveSuccess(false), 3000);
+        }).catch(() => {});
+      };
+      img.src = loadEvent.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = (e) => {
+    e?.stopPropagation();
+    setProfilePicture('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    const updatedUser = {
+      ...(user || {}),
+      profile_picture: null
+    };
+    updateUserProfile(user?.id, updatedUser).then((res) => {
+      onProfileUpdated?.(res);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    }).catch(() => {});
+  };
+
   const handleSaveProfile = async (e) => {
     e?.preventDefault();
     if (!fullName.trim()) {
@@ -93,6 +201,7 @@ export default function AccountProfileCard({
     const updatedUser = {
       ...user,
       full_name: fullName.trim(),
+      profile_picture: profilePicture || null,
       college_name: collegeName.trim() || 'Dwarkadas J. Sanghvi College of Engineering',
       department: department.trim(),
       student_id: studentId.trim(),
@@ -120,22 +229,72 @@ export default function AccountProfileCard({
       aria-labelledby="account-profile-heading"
       className="space-y-6 animate-fade-in font-sans"
     >
+      {/* Hidden file input for avatar uploading */}
+      <input
+        ref={fileInputRef}
+        id="profile-picture-input"
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        onChange={handlePhotoUpload}
+        className="sr-only"
+        aria-label="Upload student profile picture"
+      />
+
       {/* ─── Digital Student Campus ID Card ────────────────────────────── */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#1e2440] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-8 shadow-2xl overflow-hidden border border-white/10">
+      <div className="relative rounded-3xl bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#1e2440] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-8 shadow-2xl overflow-hidden border border-white/20 dark:border-white/25">
         {/* Background Ambient Elements */}
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-5 min-w-0">
-            {/* Student Avatar */}
-            <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-[#800020] via-[#586953] to-teal-400 dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#ccff00] p-1 shadow-xl flex items-center justify-center">
-                <div className="w-full h-full rounded-[22px] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider">
-                  {initials || <UserRound className="w-10 h-10" />}
+            {/* Student Avatar with Photo Upload & Removal Controls */}
+            <div className="relative shrink-0 group">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="block relative rounded-3xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+                title="Click to add or change profile picture"
+                aria-label="Change profile picture"
+              >
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-[#800020] via-[#586953] to-teal-400 dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#ccff00] p-1 shadow-xl flex items-center justify-center transition-transform group-hover:scale-105">
+                  <div className="w-full h-full rounded-[22px] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider overflow-hidden">
+                    {profilePicture ? (
+                      <img
+                        src={profilePicture}
+                        alt={displayName}
+                        className="w-full h-full object-cover rounded-[22px]"
+                      />
+                    ) : (
+                      initials || <UserRound className="w-10 h-10 text-white/90" />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center shadow-md" title="Active Verified Session">
+
+                {/* Hover overlay with camera indicator */}
+                <div className="absolute inset-0 rounded-3xl bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
+                  <Camera className="w-6 h-6 text-white drop-shadow-md" />
+                  <span className="text-[10px] font-bold text-white mt-1 drop-shadow">Photo</span>
+                </div>
+              </button>
+
+              {/* Delete photo quick button */}
+              {profilePicture && (
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  title="Remove profile picture"
+                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-lg border-2 border-slate-900 transition-all hover:scale-110 z-20"
+                  aria-label="Remove profile picture"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              <span
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center shadow-md z-10"
+                title="Active Verified Session"
+              >
                 <Check className="w-3.5 h-3.5 text-white" />
               </span>
             </div>
@@ -231,15 +390,54 @@ export default function AccountProfileCard({
 
       {/* ─── Profile Content: Edit Form vs Display Cards ────────────────── */}
       {isEditing ? (
-        <form onSubmit={handleSaveProfile} className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+        <form onSubmit={handleSaveProfile} className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-white/20 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+          <div className="border-b border-slate-100 dark:border-white/12 pb-4">
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Edit Student Information</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Update your name, department, campus travel corridor, and base station.
+              Update your photo, name, department, campus travel corridor, and base station.
             </p>
+          </div>
+
+          {/* Profile Picture Upload Section inside Form */}
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/15 flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-white/20 overflow-hidden flex items-center justify-center shrink-0">
+              {profilePicture ? (
+                <img src={profilePicture} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-slate-500 dark:text-slate-400">{initials}</span>
+              )}
+            </div>
+            <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Profile Photo
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Upload a custom picture from your device. Supported formats: JPG, PNG, WEBP.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>{profilePicture ? 'Change Photo' : 'Upload Photo'}</span>
+              </button>
+              {profilePicture && (
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-bold transition-all flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Remove</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -253,7 +451,7 @@ export default function AccountProfileCard({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Anirudh"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -268,7 +466,7 @@ export default function AccountProfileCard({
                 value={collegeName}
                 onChange={(e) => setCollegeName(e.target.value)}
                 placeholder="e.g. Dwarkadas J. Sanghvi College of Engineering"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -280,7 +478,7 @@ export default function AccountProfileCard({
                 id="edit-dept"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {DEPARTMENTS.map((d) => (
                   <option key={d} value={d}>
@@ -300,7 +498,7 @@ export default function AccountProfileCard({
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 placeholder="e.g. 60004220000"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -314,7 +512,7 @@ export default function AccountProfileCard({
                 value={homeStation}
                 onChange={(e) => setHomeStation(e.target.value)}
                 placeholder="e.g. Vikhroli, Dadar, Borivali, Thane"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -326,7 +524,7 @@ export default function AccountProfileCard({
                 id="edit-corridor"
                 value={corridor}
                 onChange={(e) => setCorridor(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/20 bg-slate-50/50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {TRANSIT_CORRIDORS.map((c) => (
                   <option key={c} value={c}>
@@ -337,7 +535,7 @@ export default function AccountProfileCard({
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-white/12">
             <button
               type="button"
               onClick={() => setIsEditing(false)}
@@ -359,8 +557,8 @@ export default function AccountProfileCard({
         /* ─── Profile Display Cards ─────────────────────────────────────── */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Academic & Campus Identity Card */}
-          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-white/20 rounded-3xl p-6 space-y-4 shadow-sm dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/12 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Academic Profile</span>
@@ -371,19 +569,19 @@ export default function AccountProfileCard({
             </div>
 
             <dl className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Full Name</dt>
                 <dd className="font-bold text-slate-900 dark:text-slate-100">{displayName}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Registered Email</dt>
                 <dd className="font-semibold text-slate-900 dark:text-slate-100">{user?.email || 'student@djsanghvi.edu'}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Department</dt>
                 <dd className="font-semibold text-teal-600 dark:text-teal-400">{department}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Student Roll / ID</dt>
                 <dd className="font-mono font-semibold text-slate-900 dark:text-slate-100">{studentId}</dd>
               </div>
@@ -395,8 +593,8 @@ export default function AccountProfileCard({
           </div>
 
           {/* Commute & Route Preferences Card */}
-          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-white/20 rounded-3xl p-6 space-y-4 shadow-sm dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/12 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Train className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>Daily Commute Configuration</span>
@@ -407,18 +605,18 @@ export default function AccountProfileCard({
             </div>
 
             <dl className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Home / Base Station</dt>
                 <dd className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5" />
                   {homeStation}
                 </dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Primary Corridor</dt>
                 <dd className="font-medium text-slate-800 dark:text-slate-200">{corridor}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
                 <dt className="text-slate-500 dark:text-slate-400">Max Walking Tolerance</dt>
                 <dd className="font-semibold text-slate-900 dark:text-slate-100">{walkingTolerance} minutes</dd>
               </div>
@@ -433,8 +631,8 @@ export default function AccountProfileCard({
           </div>
 
           {/* Theme & Device Preferences Card */}
-          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 space-y-4 shadow-sm md:col-span-2">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-white/20 rounded-3xl p-6 space-y-4 shadow-sm dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)] md:col-span-2">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/12 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#800020] dark:text-[#ccff00]" />
                 <span>App Theme &amp; Personalization</span>
@@ -455,25 +653,31 @@ export default function AccountProfileCard({
                   { id: 'light', label: 'Light', icon: Sun },
                   { id: 'dark', label: 'Dark', icon: Moon },
                   { id: 'system', label: 'System', icon: Monitor },
-                ].map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => handleThemeChange(id)}
-                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-2xl border text-xs font-bold transition-all ${
-                      selectedTheme === id
-                        ? 'border-[#800020] dark:border-blue-500 bg-[#800020]/10 dark:bg-blue-950/60 text-[#800020] dark:text-blue-300 shadow-xs'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{label}</span>
-                  </button>
-                ))}
+                ].map(({ id, label, icon: Icon }) => {
+                  const isEffectiveActive =
+                    selectedTheme === id ||
+                    (selectedTheme === 'system' && id === (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'));
+
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleThemeChange(id)}
+                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-2xl border text-xs font-bold transition-all ${
+                        selectedTheme === id
+                          ? 'border-[#800020] dark:border-blue-500 bg-[#800020]/10 dark:bg-blue-950/60 text-[#800020] dark:text-blue-300 shadow-xs'
+                          : 'border-slate-200 dark:border-white/20 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="pt-3 border-t border-slate-100 dark:border-white/12 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span className="flex items-center gap-1.5">
                 <KeyRound className="w-3.5 h-3.5" />
                 {lastVerifiedAt

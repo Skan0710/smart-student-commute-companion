@@ -134,6 +134,17 @@ export default function App() {
     applyTheme(theme);
   }, [theme]);
 
+  // Synchronize theme across ThemeToggle, AccountProfileCard, and system changes
+  useEffect(() => {
+    const handleThemeEvent = (e) => {
+      const newTheme = e.detail?.theme || readThemePreference();
+      setTheme(newTheme);
+      applyTheme(newTheme);
+    };
+    window.addEventListener('app-theme-change', handleThemeEvent);
+    return () => window.removeEventListener('app-theme-change', handleThemeEvent);
+  }, []);
+
   const handleToggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     writeThemePreference(nextTheme);

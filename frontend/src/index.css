@@ -87,9 +87,9 @@ html {
   --color-surface-overlay: #475569;   /* slate-600 - Hover / active */
   
   /* Border Colors */
-  --color-border-subtle: #1e293b;     /* slate-800 */
-  --color-border-default: #334155;    /* Borders: #334155 */
-  --color-border-emphasis: #475569;   /* slate-600 */
+  --color-border-subtle: #2d3748;     /* slate-700/80 */
+  --color-border-default: #3e4c63;    /* Borders: #3e4c63 */
+  --color-border-emphasis: #5a6b87;   /* slate-500 */
   
   /* Text Colors */
   --color-text-primary: #f8fafc;      /* Primary text: #F8FAFC */
@@ -152,6 +152,74 @@ html.theme-transition *::after {
               stroke 280ms cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1) !important;
   transition-delay: 0ms !important;
+}
+
+/* ============================================================
+   HIGH VISIBILITY BORDERS IN DARK MODE
+   Ensures card outlines, inner blocks, and tabs are distinctly visible
+   against midnight-dark surfaces and backgrounds.
+   ============================================================ */
+
+html.dark .border-slate-800,
+html.dark .border-slate-800\/40,
+html.dark .border-slate-800\/50,
+html.dark .border-slate-800\/60,
+html.dark .border-slate-800\/70,
+html.dark .border-slate-800\/80,
+html.dark .border-slate-800\/90,
+html.dark .border-\[\#1e2440\],
+html.dark .border-\[\#1e2440\]\/80,
+html.dark .dark\:border-slate-800,
+html.dark .dark\:border-slate-800\/40,
+html.dark .dark\:border-slate-800\/50,
+html.dark .dark\:border-slate-800\/60,
+html.dark .dark\:border-slate-800\/70,
+html.dark .dark\:border-slate-800\/80,
+html.dark .dark\:border-slate-800\/90,
+html.dark .dark\:border-\[\#1e2440\] {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+html.dark .border-slate-700,
+html.dark .border-slate-700\/60,
+html.dark .border-slate-700\/80,
+html.dark .dark\:border-slate-700,
+html.dark .dark\:border-slate-700\/60,
+html.dark .dark\:border-slate-700\/80 {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+html.dark .border-b.border-slate-100,
+html.dark .border-b.border-slate-200,
+html.dark .border-b.dark\:border-slate-800,
+html.dark .border-t.border-slate-100,
+html.dark .border-t.border-slate-200,
+html.dark .border-t.dark\:border-slate-800 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-800 > :not([hidden]) ~ :not([hidden]),
+html.dark .dark\:divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Card surfaces and containers in dark mode get crisp outline */
+html.dark section[class*="rounded-3xl"],
+html.dark section[class*="rounded-2xl"],
+html.dark div[class*="rounded-3xl"],
+html.dark div[class*="rounded-2xl"][class*="border"],
+html.dark li[class*="rounded-2xl"][class*="border"],
+html.dark aside[class*="rounded-3xl"] {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Subtle ring on dark card surfaces to give them distinct visual separation */
+html.dark .card,
+html.dark [class*="CARD_SURFACE"],
+html.dark section[class*="rounded-3xl"] {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px -4px rgba(0, 0, 0, 0.45);
 }
 
 /* ============================================================

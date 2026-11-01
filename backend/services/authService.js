@@ -11,7 +11,7 @@ const { signToken } = require('../utils/token');
 const crypto = require('crypto');
 const { hashPassword, verifyPassword, needsRehash } = require('../utils/password');
 
-const EDITABLE_PROFILE_FIELDS = ['full_name', 'college_name'];
+const EDITABLE_PROFILE_FIELDS = ['full_name', 'college_name', 'profile_picture'];
 
 // Verified against when an account does not exist, so unknown and known
 // emails cost the same. Built lazily with the *current* scrypt parameters.

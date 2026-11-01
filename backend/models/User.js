@@ -15,6 +15,7 @@ const userSchema = z.object({
   password_hash: z.string().min(1, 'Password hash is required'),
   full_name: z.string().min(2, 'Full name must be at least 2 characters').max(100),
   college_name: z.string().min(2, 'College name must be at least 2 characters').max(150),
+  profile_picture: z.string().optional().nullable(),
   role: z.enum(['student', 'admin']).default('student'),
   created_at: z.number().int().positive().default(() => Date.now()),
   updated_at: z.number().int().positive().default(() => Date.now())
@@ -92,6 +93,7 @@ class User {
       password_hash: this.password_hash,
       full_name: this.full_name,
       college_name: this.college_name,
+      profile_picture: this.profile_picture || null,
       role: this.role,
       created_at: this.created_at,
       updated_at: this.updated_at
@@ -119,6 +121,7 @@ class User {
       email: this.email,
       full_name: this.full_name,
       college_name: this.college_name,
+      profile_picture: this.profile_picture || null,
       role: this.role,
       created_at: this.created_at,
       updated_at: this.updated_at

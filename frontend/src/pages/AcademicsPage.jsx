@@ -48,7 +48,7 @@ import {
 } from '../components/ui';
 
 const CARD_SURFACE =
-  'bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] shadow-[0_1px_3px_rgba(31,36,33,0.06),0_12px_32px_-14px_rgba(31,36,33,0.12)] dark:shadow-none';
+  'bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-white/20 shadow-[0_1px_3px_rgba(31,36,33,0.06),0_12px_32px_-14px_rgba(31,36,33,0.12)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]';
 
 const ASSIGNMENT_PRIORITIES = [
   { value: 'low', label: 'Low' },

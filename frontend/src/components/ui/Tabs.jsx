@@ -139,7 +139,7 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-[#fbf9f5] dark:bg-[#070913] border border-[#d8d3c5] dark:border-[#1e2440] shadow-md shadow-slate-900/5 dark:shadow-none overflow-x-auto max-w-full font-sans transition-all ${className}`}
+      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-[#fbf9f5] dark:bg-[#070913] border border-[#d8d3c5] dark:border-white/20 shadow-md shadow-slate-900/5 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-x-auto max-w-full font-sans transition-all ${className}`}
       style={{
         '--tab-spotlight-color': 'var(--tab-spotlight-dynamic, rgba(128, 0, 32, 0.22))',
         '--tab-ambience-color': 'var(--tab-ambience-dynamic, rgba(128, 0, 32, 1))',
