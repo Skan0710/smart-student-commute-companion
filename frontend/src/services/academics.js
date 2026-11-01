@@ -354,6 +354,17 @@ export function createCalendarEvent(eventData) {
   return request('/calendar/events', { method: 'POST', body: JSON.stringify(eventData) });
 }
 
+export function createStudySession(sessionData) {
+  const payload = {
+    title: sessionData.title,
+    course_id: sessionData.courseId || sessionData.course_id || null,
+    planned_start_time: sessionData.startTime ? new Date(sessionData.startTime).getTime() : Date.now(),
+    planned_duration_minutes: Number(sessionData.durationMinutes || 60),
+    notes: sessionData.notes || '',
+  };
+  return request('/calendar/study-sessions', { method: 'POST', body: JSON.stringify(payload) });
+}
+
 export function createStudyResource(resourceData) {
   return request('/student/resources', { method: 'POST', body: JSON.stringify(resourceData) });
 }
@@ -362,6 +373,13 @@ export function generateStudyPlan(preferences) {
   return request('/student/study-plans/generate', {
     method: 'POST',
     body: JSON.stringify(preferences || {}),
+  });
+}
+
+export function generateInteractiveAiStudyPlan(params) {
+  return request('/academic/ai-study-plan', {
+    method: 'POST',
+    body: JSON.stringify(params),
   });
 }
 

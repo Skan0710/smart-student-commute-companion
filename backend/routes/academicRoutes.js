@@ -11,6 +11,7 @@ const goalController = require('../controllers/goalController');
 const productivityController = require('../controllers/productivityController');
 const studentController = require('../controllers/studentController');
 const timetableOcrController = require('../controllers/timetableOcrController');
+const aiStudyPlanController = require('../controllers/aiStudyPlanController');
 const { authenticate } = require('../middleware/authMiddleware');
 const { searchAbuseSafeguard } = require('../middleware/searchSafeguard');
 const {
@@ -43,6 +44,12 @@ function createAcademicRoutes() {
   router.post(
     '/academic/timetable/scan',
     timetableOcrController.handleTimetableOcr
+  );
+
+  // Interactive AI Study Plan Generator
+  router.post(
+    '/academic/ai-study-plan',
+    aiStudyPlanController.generateInteractivePlan
   );
 
 

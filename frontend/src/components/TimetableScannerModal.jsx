@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Camera,
   UploadCloud,
@@ -15,7 +15,9 @@ import {
   X,
   RefreshCw,
   Eye,
-  FileText
+  FileText,
+  Clipboard,
+  FileUp
 } from 'lucide-react';
 import { scanTimetableOcr } from '../services/academics';
 
@@ -32,6 +34,51 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
   const [isDragOver, setIsDragOver] = useState(false);
 
   const fileInputRef = useRef(null);
+
+  // Global paste handler when modal is open (supports copying timetable image from anywhere and pressing Ctrl+V)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleWindowPaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            if (blob) {
+              handleFileSelect(blob);
+              e.preventDefault();
+              return;
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handleWindowPaste);
+    return () => window.removeEventListener('paste', handleWindowPaste);
+  }, [isOpen]);
+
+  const handlePasteFromClipboard = async () => {
+    setScanError(null);
+    try {
+      if (navigator.clipboard?.read) {
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+          for (const type of item.types) {
+            if (type.startsWith('image/')) {
+              const blob = await item.getType(type);
+              handleFileSelect(blob);
+              return;
+            }
+          }
+        }
+      }
+      setScanError('No image found on your clipboard. Please copy an image (Ctrl+C or right-click Copy Image) and click Paste, or upload a file directly.');
+    } catch (err) {
+      setScanError('Please press Ctrl+V to paste your copied timetable image directly.');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -221,17 +268,37 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
                     <p className="text-[11px] text-slate-500">Click to choose a different image</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="w-14 h-14 rounded-3xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto shadow-sm">
                       <UploadCloud className="w-7 h-7" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                        Drag and drop your timetable photo here, or <span className="text-blue-600 dark:text-blue-400 underline">browse</span>
+                        Drag & drop your timetable photo, or choose an option:
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Supports PNG, JPG, or WebP (photo of college board, printed sheet, or screenshot)
+                        Supports PNG, JPG, or WebP • Auto-detects lectures, timings & classrooms
                       </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-3 pt-2" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                      >
+                        <FileUp className="w-4 h-4" />
+                        <span>Upload from Device</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handlePasteFromClipboard}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-700 transition-all active:scale-95"
+                      >
+                        <Clipboard className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span>Paste from Clipboard (Ctrl+V)</span>
+                      </button>
                     </div>
                   </div>
                 )}

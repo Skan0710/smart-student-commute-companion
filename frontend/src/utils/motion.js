@@ -41,14 +41,14 @@ export function isTouchDevice() {
  * @returns {() => void} Teardown function
  */
 export function initDesktopSmoothScroll(options = {}) {
-  // If reduced motion is preferred or if this is a touch screen, DO NOT hijack scrolling
-  if (prefersReducedMotion() || isTouchDevice()) {
+  // If reduced motion is explicitly preferred in accessibility settings, do not hijack scrolling
+  if (prefersReducedMotion()) {
     return () => {};
   }
 
   try {
     const lenis = new Lenis({
-      duration: 1.0,
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
@@ -56,25 +56,26 @@ export function initDesktopSmoothScroll(options = {}) {
       wheelMultiplier: 1.0,
       touchMultiplier: 1.0,
       infinite: false,
-      // Let dialogs, carousels and textareas scroll natively instead of the page
       allowNestedScroll: true,
       ...options,
     });
 
-    // Synchronize Lenis with GSAP's central animation loop
-    function updateTicker(time) {
-      lenis.raf(time * 1000);
+    let rafId;
+    function update(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(update);
     }
+    rafId = requestAnimationFrame(update);
 
-    gsap.ticker.add(updateTicker);
-    gsap.ticker.lagSmoothing(0);
+    window.__lenis = lenis;
 
     return () => {
-      gsap.ticker.remove(updateTicker);
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+      window.__lenis = null;
     };
   } catch (err) {
-    console.warn('[motion] Failed to initialize desktop smooth scrolling:', err);
+    console.warn('[motion] Failed to initialize Lenis smooth scrolling:', err);
     return () => {};
   }
 }

@@ -20,6 +20,15 @@ export default function ThemeToggle({
   const isDark = theme === 'dark';
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
 
+  const handleToggleClick = () => {
+    document.documentElement.classList.add('theme-transition');
+    onToggle?.();
+    window.clearTimeout(window.__themeSwitchTimer);
+    window.__themeSwitchTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+    }, 320);
+  };
+
   return (
     <button
       type="button"
@@ -27,7 +36,7 @@ export default function ThemeToggle({
       aria-checked={isDark}
       aria-label={label}
       title={label}
-      onClick={onToggle}
+      onClick={handleToggleClick}
       className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#0047ff] focus:ring-offset-2 focus:ring-offset-[#f7f5f0] dark:focus:ring-offset-[#030408] ${
         isDark
           ? 'bg-[#0a0c16] border border-[#1e2440] shadow-inner'

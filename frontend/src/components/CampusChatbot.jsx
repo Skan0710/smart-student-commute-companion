@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, Sparkles, Navigation, AlertCircle, ArrowRight } from 'lucide-react';
 import { request } from '../services/api';
+import AiFormattedText from './ui/AiFormattedText';
 
 const QUICK_PROMPTS = [
   'How to reach DJSCE from Vikhroli?',
@@ -296,9 +297,9 @@ export default function CampusChatbot({ onNavigate }) {
                   }`}
                 >
                   {msg.sender === 'user' ? (
-                    <p className="text-xs leading-relaxed break-words whitespace-pre-wrap">{msg.text}</p>
+                    <p className="text-xs sm:text-sm leading-relaxed break-words whitespace-pre-wrap">{msg.text}</p>
                   ) : (
-                    <div className="space-y-0.5 break-words">{renderFormattedMessage(msg.text)}</div>
+                    <AiFormattedText text={msg.text} className="text-xs sm:text-sm" />
                   )}
                 </div>
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 px-1 mt-1">

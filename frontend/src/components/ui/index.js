@@ -18,6 +18,7 @@ export { default as EmptyState } from './EmptyState';
 export { default as Card } from './Card';
 export { default as SampleDataBanner } from './SampleDataBanner';
 export { default as EntityFormModal } from './EntityFormModal';
+export { default as AiFormattedText } from './AiFormattedText';
 
 // Reusable Page States
 export { default as LoadingState } from './LoadingState';

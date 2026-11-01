@@ -14,18 +14,24 @@ import {
   Camera,
   UploadCloud,
   Trash2,
-  Check
+  Check,
+  HelpCircle,
+  Edit3,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import {
   loadAcademicHub,
   getCurrentStudyPlan,
   generateStudyPlan,
+  generateInteractiveAiStudyPlan,
   createCourse,
   createAssignment,
   updateAssignmentStatus,
   deleteAssignment,
   createCalendarEvent,
-  createStudyResource
+  createStudyResource,
+  createStudySession
 } from '../services/academics';
 import useAsyncResource from '../hooks/useAsyncResource';
 import TimetableScannerModal from '../components/TimetableScannerModal';
@@ -37,7 +43,8 @@ import {
   ErrorState,
   ListSkeleton,
   SampleDataBanner,
-  EntityFormModal
+  EntityFormModal,
+  AiFormattedText
 } from '../components/ui';
 
 const CARD_SURFACE =
@@ -124,10 +131,19 @@ function AddButton({ onClick, children }) {
  */
 export default function AcademicsPage({ onNavigate, onNotify }) {
   const [activeSubTab, setActiveSubTab] = useState('courses'); // 'courses' | 'calendar' | 'resources' | 'studyplans'
-  const [openForm, setOpenForm] = useState(null); // 'course' | 'assignment' | 'event' | 'resource' | null
+  const [openForm, setOpenForm] = useState(null); // 'course' | 'assignment' | 'event' | 'resource' | 'session' | null
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannedEvents, setScannedEvents] = useState([]);
+
+  // AI Questionnaire Consultation State
+  const [aiExamHas, setAiExamHas] = useState(null); // 'yes' | 'no' | null
+  const [aiExamTimeframe, setAiExamTimeframe] = useState(''); // e.g. '3 days'
+  const [aiStudyHours, setAiStudyHours] = useState(''); // e.g. '4'
+  const [aiSleepHours, setAiSleepHours] = useState(''); // e.g. '7'
+  const [aiSelectedSubjects, setAiSelectedSubjects] = useState([]);
+  const [customAiPlan, setCustomAiPlan] = useState(null);
+  const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(true);
 
   const hub = useAsyncResource(loadAcademicHub, {
     errorMessage: 'Unable to load your academic data. Please check your connection and try again.',
@@ -218,6 +234,75 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     });
     return Object.values(groups);
   }, [resources]);
+
+  const groupedAssignments = React.useMemo(() => {
+    const groups = {};
+    assignments.forEach((assignment) => {
+      const subjectName = assignment.subjectName || assignment.courseName || assignment.courseCode || 'General Assignments';
+      if (!groups[subjectName]) {
+        groups[subjectName] = {
+          name: subjectName,
+          code: assignment.courseCode || '',
+          items: []
+        };
+      }
+      groups[subjectName].items.push(assignment);
+    });
+    return Object.values(groups);
+  }, [assignments]);
+
+  // Pre-populate AI subject checkboxes from courses
+  useEffect(() => {
+    if (courses.length > 0 && aiSelectedSubjects.length === 0) {
+      setAiSelectedSubjects(courses.map(c => c.name || c.code));
+    }
+  }, [courses, aiSelectedSubjects.length]);
+
+  const handleGenerateInteractivePlan = async () => {
+    if (!aiExamHas) {
+      onNotify?.('Please answer whether you have an exam coming up.', 'error');
+      return;
+    }
+    if (aiExamHas === 'yes' && !aiExamTimeframe.trim()) {
+      onNotify?.('Please specify hours or days remaining before your exam.', 'error');
+      return;
+    }
+    if (!aiStudyHours.trim()) {
+      onNotify?.('Please enter how many hours you study per day.', 'error');
+      return;
+    }
+    if (!aiSleepHours.trim()) {
+      onNotify?.('Please enter how many hours you sleep per day.', 'error');
+      return;
+    }
+    if (aiSelectedSubjects.length === 0) {
+      onNotify?.('Please select at least one subject with an upcoming exam or study focus.', 'error');
+      return;
+    }
+
+    setIsGeneratingPlan(true);
+    try {
+      const res = await generateInteractiveAiStudyPlan({
+        hasExam: aiExamHas,
+        examTimeframe: aiExamTimeframe.trim(),
+        dailyStudyHours: aiStudyHours.trim(),
+        sleepHours: aiSleepHours.trim(),
+        selectedSubjects: aiSelectedSubjects
+      });
+
+      if (res?.plan) {
+        setCustomAiPlan(res.plan);
+        setIsQuestionnaireOpen(false);
+        onNotify?.('Your personalized AI Study Plan is ready!', 'success');
+      } else {
+        onNotify?.('Could not generate plan. Please try again.', 'error');
+      }
+    } catch (err) {
+      onNotify?.(err?.message || 'Failed to generate AI plan.', 'error');
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
 
   // Persist a new record, refresh the screen and tell the student
   const saveAndRefresh = async (create, payload, successMessage) => {
@@ -314,7 +399,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     { id: 'courses', label: 'Courses', icon: GraduationCap, count: courses.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, count: events.length },
     { id: 'resources', label: 'Study Resources', icon: BookOpen, count: resources.length },
-    { id: 'studyplans', label: 'AI Planner', icon: Sparkles, badge: 'AI' },
+    { id: 'studyplans', label: 'AI Planner', icon: Sparkles },
   ];
 
   // ── Create forms ──────────────────────────────────────────────────────────
@@ -361,6 +446,14 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
       validate: (value) => (value && !/^https?:\/\//i.test(value.trim()) ? 'Enter a full link starting with http:// or https://.' : null),
     },
     { name: 'description', label: 'Notes (optional)', type: 'textarea', rows: 2, maxLength: 1000 },
+  ];
+
+  const sessionFields = [
+    { name: 'title', label: 'Session title', required: true, maxLength: 120, placeholder: 'e.g. Graph Algorithms Revision' },
+    { name: 'courseId', label: 'Course', type: 'select', options: courseOptions, half: true },
+    { name: 'durationMinutes', label: 'Duration (minutes)', type: 'number', half: true, min: 15, max: 360, placeholder: '60' },
+    { name: 'startTime', label: 'Scheduled date & time', type: 'datetime-local', required: true },
+    { name: 'notes', label: 'Topics / goals for this session', maxLength: 300, placeholder: 'e.g. Solve 5 dynamic programming questions' },
   ];
 
   return (
@@ -471,86 +564,113 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                     No assignments yet.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-slate-100 dark:divide-slate-800 list-none">
-                    {assignments.map((assignment) => {
-                      const badge = assignmentBadge(assignment);
-                      const isCompleted = assignment.status === 'completed';
-                      return (
-                        <li key={assignment.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="space-y-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              {(assignment.subjectName || assignment.courseName || assignment.courseCode) && (
-                                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400">
-                                  {assignment.subjectName || assignment.courseName || assignment.courseCode}
+                  <div className="space-y-6">
+                    {groupedAssignments.map((group) => (
+                      <div
+                        key={group.name}
+                        className="p-5 rounded-2xl bg-slate-50/60 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-3"
+                      >
+                        {/* Subject Group Header */}
+                        <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800 pb-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                              <FileText className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                                {group.name}
+                              </h3>
+                              {group.code && group.code !== group.name && (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                                  {group.code}
                                 </span>
                               )}
-                              <span className={`font-semibold text-sm transition-all ${isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
-                                {assignment.title}
-                              </span>
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-3">
-                              <span>Due: {assignment.dueDate}</span>
-                              {assignment.estimatedHours && (
-                                <>
-                                  <span aria-hidden="true">•</span>
-                                  <span>Est: {assignment.estimatedHours} hrs</span>
-                                </>
-                              )}
-                              {(assignment.priority === 'high' || assignment.priority === 'urgent') && (
-                                <>
-                                  <span aria-hidden="true">•</span>
-                                  <span className="font-semibold text-rose-700 dark:text-rose-400">{formatStatus(assignment.priority)} priority</span>
-                                </>
-                              )}
                             </div>
                           </div>
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            {group.items.length} {group.items.length === 1 ? 'task' : 'tasks'}
+                          </span>
+                        </div>
 
-                          {/* Interactive Actions: Mark Complete & Remove */}
-                          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleComplete(assignment)}
-                              title={isCompleted ? 'Mark as pending' : 'Mark as completed'}
-                              aria-label={isCompleted ? `Mark ${assignment.title} as pending` : `Mark ${assignment.title} as completed`}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
-                                isCompleted
-                                  ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60'
-                                  : 'bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/80 dark:hover:bg-emerald-950/40 text-slate-700 hover:text-emerald-700 dark:text-slate-200 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700/60'
-                              }`}
-                            >
-                              {isCompleted ? (
-                                <>
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-                                  <span>Completed</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden="true" />
-                                  <span>Mark Complete</span>
-                                </>
-                              )}
-                            </button>
+                        {/* Assignments under this Subject */}
+                        <ul className="divide-y divide-slate-100 dark:divide-slate-800 list-none">
+                          {group.items.map((assignment) => {
+                            const badge = assignmentBadge(assignment);
+                            const isCompleted = assignment.status === 'completed';
+                            return (
+                              <li key={assignment.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="space-y-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`font-semibold text-sm transition-all ${isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+                                      {assignment.title}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-3">
+                                    <span>Due: {assignment.dueDate}</span>
+                                    {assignment.estimatedHours && (
+                                      <>
+                                        <span aria-hidden="true">•</span>
+                                        <span>Est: {assignment.estimatedHours} hrs</span>
+                                      </>
+                                    )}
+                                    {(assignment.priority === 'high' || assignment.priority === 'urgent') && (
+                                      <>
+                                        <span aria-hidden="true">•</span>
+                                        <span className="font-semibold text-rose-700 dark:text-rose-400">{formatStatus(assignment.priority)} priority</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
 
-                            {!isCompleted && (
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
-                                {badge.label}
-                              </span>
-                            )}
+                                {/* Interactive Actions: Mark Complete & Remove */}
+                                <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleComplete(assignment)}
+                                    title={isCompleted ? 'Mark as pending' : 'Mark as completed'}
+                                    aria-label={isCompleted ? `Mark ${assignment.title} as pending` : `Mark ${assignment.title} as completed`}
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                                      isCompleted
+                                        ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60'
+                                        : 'bg-white hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/40 text-slate-700 hover:text-emerald-700 dark:text-slate-200 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700/60 shadow-2xs'
+                                    }`}
+                                  >
+                                    {isCompleted ? (
+                                      <>
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+                                        <span>Completed</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden="true" />
+                                        <span>Mark Complete</span>
+                                      </>
+                                    )}
+                                  </button>
 
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
-                              title="Remove assignment"
-                              aria-label={`Remove assignment ${assignment.title}`}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all active:scale-95 border border-transparent hover:border-rose-200 dark:hover:border-rose-900/60"
-                            >
-                              <Trash2 className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                                  {!isCompleted && (
+                                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+                                      {badge.label}
+                                    </span>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
+                                    title="Remove assignment"
+                                    aria-label={`Remove assignment ${assignment.title}`}
+                                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all active:scale-95 border border-transparent hover:border-rose-200 dark:hover:border-rose-900/60"
+                                  >
+                                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                                  </button>
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </section>
             </TabPanel>
@@ -618,14 +738,29 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                 </section>
 
                 <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Study sessions">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
-                    <span>Dedicated Study Sessions</span>
-                  </h2>
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
+                      <span>Dedicated Study Sessions</span>
+                    </h2>
+                    {canEdit && <AddButton onClick={() => setOpenForm('session')}>Add session</AddButton>}
+                  </div>
                   {sessions.length === 0 ? (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
-                      No study sessions planned.
-                    </p>
+                    <div className="text-center py-6 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 space-y-3">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        No study sessions planned yet.
+                      </p>
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => setOpenForm('session')}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Schedule Study Session</span>
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <ul className="space-y-3 list-none">
                       {sessions.map((session) => (
@@ -756,166 +891,260 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
 
           {/* AI Study Plans Engine */}
           {activeSubTab === 'studyplans' && (
-            <TabPanel idPrefix="academics" tabId="studyplans" className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-6`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 text-xs font-bold">
-                    <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>Gemini AI Study Planning Engine</span>
+            <TabPanel idPrefix="academics" tabId="studyplans" className="space-y-6">
+              {/* Header */}
+              <div className={`p-6 rounded-3xl ${CARD_SURFACE} flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs font-bold">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                    <span>Personalized AI Study Planner</span>
                   </div>
-                  <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
-                    {plan?.title || 'Weekly Study Plan'}
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                    {customAiPlan ? customAiPlan.title : 'AI Academic & Exam Study Planner'}
                   </h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                    Smart schedule tailored to your upcoming exam dates, daily study limits, and sleep requirements.
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleGeneratePlan}
-                  disabled={isGeneratingPlan || !canEdit}
-                  aria-busy={isGeneratingPlan}
-                  title={canEdit ? undefined : 'Sign in to build a plan from your own assignments and goals'}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
-                >
-                  <Zap className={`w-4 h-4 ${isGeneratingPlan ? 'animate-spin' : ''}`} aria-hidden="true" />
-                  <span>{isGeneratingPlan ? 'Generating AI Plan…' : plan ? 'Recalculate AI Plan' : 'Generate AI Plan'}</span>
-                </button>
+
+                {customAiPlan && !isQuestionnaireOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setIsQuestionnaireOpen(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs shadow-2xs transition-all active:scale-95 shrink-0"
+                  >
+                    <Edit3 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span>Adjust Questionnaire Answers</span>
+                  </button>
+                )}
               </div>
 
-              {!plan ? (
-                <EmptyState
-                  headingLevel={3}
-                  icon={<Zap className="w-6 h-6" aria-hidden="true" />}
-                  title="No study plan yet"
-                  description="Generate a plan and the engine will schedule focus sessions around your assignments and goals."
-                />
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Plan progress</span>
-                      <div className="text-2xl font-black text-slate-900 dark:text-white mt-1 tabular-nums">
-                        {Number.isFinite(plan.targetCompletion) ? `${plan.targetCompletion}%` : '—'}
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Allocated focus hours</span>
-                      <div className="text-2xl font-black text-slate-900 dark:text-white mt-1 tabular-nums">{plan.allocatedHours} hrs</div>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Hours completed</span>
-                      <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1 tabular-nums">{plan.completedHours} hrs</div>
-                    </div>
-                  </div>
-
-                                    {/* AI Strategy & Requirements Briefing Card */}
-                  {plan.aiExplanation && (
-                    <div className="rounded-3xl border border-indigo-200/90 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/40 dark:from-indigo-950/40 dark:via-[#0b0e1d] dark:to-purple-950/20 p-5 sm:p-6 space-y-4 shadow-xs">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 dark:border-indigo-900/50 pb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                            <Sparkles className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                              <span>AI Strategy &amp; Requirements Rationale</span>
-                            </h3>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                              Analyzed against current assignments, deadlines, and transit timetable
-                            </p>
-                          </div>
-                        </div>
-                        <span className="self-start sm:self-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
-                          {plan.aiExplanation.provider || 'Gemini 1.5 Flash AI'}
-                        </span>
-                      </div>
-
-                      {plan.aiExplanation.executiveSummary && (
-                        <p className="text-xs sm:text-sm font-medium text-indigo-950 dark:text-indigo-200 bg-indigo-100/50 dark:bg-indigo-950/60 rounded-2xl p-3.5 border border-indigo-200/60 dark:border-indigo-900/40 leading-relaxed">
-                          "{plan.aiExplanation.executiveSummary}"
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Current Requirements & Deadlines */}
-                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1.5 shadow-2xs">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
-                            <span>📋 Current Requirements &amp; Deadlines</span>
-                          </h4>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                            {plan.aiExplanation.requirementsBreakdown}
-                          </p>
-                        </div>
-
-                        {/* Why this Plan: AI Rationale */}
-                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1.5 shadow-2xs">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
-                            <span>🧠 Why This Plan? (Scheduling Rationale)</span>
-                          </h4>
-                          <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-                            {plan.aiExplanation.strategyWhy}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Commute Study Tips & Milestones */}
-                      {(plan.aiExplanation.commuteStudyTips || (plan.aiExplanation.keyMilestones && plan.aiExplanation.keyMilestones.length > 0)) && (
-                        <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 space-y-2">
-                          {plan.aiExplanation.commuteStudyTips && (
-                            <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
-                              {plan.aiExplanation.commuteStudyTips}
-                            </p>
-                          )}
-                          {plan.aiExplanation.keyMilestones && plan.aiExplanation.keyMilestones.length > 0 && (
-                            <div className="pt-2 border-t border-amber-200/50 dark:border-amber-900/30">
-                              <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200 uppercase tracking-wider">
-                                Action Milestones:
-                              </span>
-                              <ul className="list-disc list-inside text-xs text-amber-900/90 dark:text-amber-300/90 mt-1 space-y-0.5">
-                                {plan.aiExplanation.keyMilestones.map((m, idx) => (
-                                  <li key={idx}>{m}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Scheduled focus work items</h3>
-                    {plan.items.length === 0 ? (
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        This plan has no work items — add assignments or goals, then recalculate.
+              {/* Questionnaire Form Card */}
+              {(isQuestionnaireOpen || !customAiPlan) && (
+                <div className={`p-6 sm:p-8 rounded-3xl ${CARD_SURFACE} space-y-6 border-2 border-blue-100 dark:border-blue-950/60 shadow-md`}>
+                  <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <HelpCircle className="w-5 h-5 text-blue-600" />
+                        <span>Student Study Questionnaire</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Please answer these questions so the AI can build an accurate, realistic study plan.
                       </p>
-                    ) : (
-                      <ul className="space-y-2.5 list-none">
-                        {plan.items.map((item) => (
-                          <li key={item.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <CheckCircle2
-                                className={`w-4 h-4 shrink-0 ${item.status === 'completed' ? 'text-emerald-700' : 'text-slate-400'}`}
-                                aria-hidden="true"
-                              />
-                              <div className="min-w-0">
-                                <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">{item.title}</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">
-                                  {[item.day, item.duration && `Duration: ${item.duration}`].filter(Boolean).join(' • ')}
-                                </div>
-                              </div>
-                            </div>
-                            <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-bold ${
-                              item.status === 'completed'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
-                            }`}>
-                              {formatStatus(item.status)}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                    </div>
+                    {customAiPlan && (
+                      <button
+                        type="button"
+                        onClick={() => setIsQuestionnaireOpen(false)}
+                        className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                      >
+                        Cancel &amp; View Plan
+                      </button>
                     )}
                   </div>
-                </>
+
+                  <div className="space-y-5">
+                    {/* Q1: Do you have an exam? */}
+                    <div className="space-y-2">
+                      <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                        1. Do you have an upcoming exam?
+                      </label>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setAiExamHas('yes')}
+                          className={`flex-1 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold border transition-all active:scale-98 flex items-center justify-center gap-2 ${
+                            aiExamHas === 'yes'
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-400'
+                          }`}
+                        >
+                          <CheckCircle2 className={`w-4 h-4 ${aiExamHas === 'yes' ? 'text-white' : 'text-slate-400'}`} />
+                          <span>Yes, I have an exam</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAiExamHas('no');
+                            setAiExamTimeframe('');
+                          }}
+                          className={`flex-1 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold border transition-all active:scale-98 flex items-center justify-center gap-2 ${
+                            aiExamHas === 'no'
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-400'
+                          }`}
+                        >
+                          <CheckCircle2 className={`w-4 h-4 ${aiExamHas === 'no' ? 'text-white' : 'text-slate-400'}`} />
+                          <span>No exam (Regular Semester)</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Q2: If exam, how many hours/days before exam? */}
+                    {aiExamHas === 'yes' && (
+                      <div className="space-y-1.5 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40">
+                        <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                          2. How many hours or days before your exam?
+                        </label>
+                        <input
+                          type="text"
+                          value={aiExamTimeframe}
+                          onChange={(e) => setAiExamTimeframe(e.target.value)}
+                          placeholder="e.g. 3 days, 48 hours, or 1 week"
+                          className="w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+                    )}
+
+                    {/* Q3: How many hours do you study per day? */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                        3. How many hours do you study per day?
+                      </label>
+                      <input
+                        type="text"
+                        value={aiStudyHours}
+                        onChange={(e) => setAiStudyHours(e.target.value)}
+                        placeholder="e.g. 4 hours"
+                        className="w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Q4: How many hours do you sleep? */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                        4. How many hours do you sleep?
+                      </label>
+                      <input
+                        type="text"
+                        value={aiSleepHours}
+                        onChange={(e) => setAiSleepHours(e.target.value)}
+                        placeholder="e.g. 7 hours (preserved for mental alertness & retention)"
+                        className="w-full px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Q5: Which subjects you got exam on? */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                          5. Which subjects do you have an exam on? (Select all that apply)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allNames = courses.length > 0
+                              ? courses.map(c => c.name || c.code)
+                              : ['Data Structures & Algorithms', 'Database Management Systems', 'Computer Networks', 'Applied Mathematics'];
+                            if (aiSelectedSubjects.length === allNames.length) {
+                              setAiSelectedSubjects([]);
+                            } else {
+                              setAiSelectedSubjects(allNames);
+                            }
+                          }}
+                          className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                        >
+                          {aiSelectedSubjects.length === (courses.length || 4) ? 'Deselect All' : 'Select All'}
+                        </button>
+                      </div>
+
+                      {/* Course checkbox list */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        {(courses.length > 0 ? courses : [
+                          { id: 'c1', name: 'Data Structures & Algorithms', code: 'CS 301' },
+                          { id: 'c2', name: 'Database Management Systems', code: 'CS 302' },
+                          { id: 'c3', name: 'Computer Networks', code: 'CS 303' },
+                          { id: 'c4', name: 'Applied Mathematics', code: 'MA 301' }
+                        ]).map((course) => {
+                          const subjectTitle = course.name || course.code;
+                          const isChecked = aiSelectedSubjects.includes(subjectTitle);
+                          return (
+                            <button
+                              key={course.id || subjectTitle}
+                              type="button"
+                              onClick={() => {
+                                if (isChecked) {
+                                  setAiSelectedSubjects(prev => prev.filter(s => s !== subjectTitle));
+                                } else {
+                                  setAiSelectedSubjects(prev => [...prev, subjectTitle]);
+                                }
+                              }}
+                              className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all ${
+                                isChecked
+                                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-200 shadow-2xs'
+                                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                              }`}
+                            >
+                              {isChecked ? (
+                                <CheckSquare className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                              ) : (
+                                <Square className="w-5 h-5 text-slate-400 shrink-0" />
+                              )}
+                              <div className="min-w-0">
+                                <span className="font-bold text-xs sm:text-sm block truncate">{subjectTitle}</span>
+                                {course.code && course.code !== subjectTitle && (
+                                  <span className="text-[10px] text-slate-500 font-mono">{course.code}</span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleGenerateInteractivePlan}
+                      disabled={
+                        isGeneratingPlan ||
+                        !aiExamHas ||
+                        (aiExamHas === 'yes' && !aiExamTimeframe.trim()) ||
+                        !aiStudyHours.trim() ||
+                        !aiSleepHours.trim() ||
+                        aiSelectedSubjects.length === 0
+                      }
+                      className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.99]"
+                    >
+                      <Sparkles className={`w-4 h-4 ${isGeneratingPlan ? 'animate-spin' : ''}`} />
+                      <span>{isGeneratingPlan ? 'Generating Custom AI Study Plan…' : 'Generate My Personalized AI Plan'}</span>
+                    </button>
+                    {(!aiExamHas || !aiStudyHours.trim() || !aiSleepHours.trim() || aiSelectedSubjects.length === 0) && (
+                      <p className="text-[11px] text-amber-600 dark:text-amber-400 text-center mt-2 font-medium">
+                        * Please answer all 5 questions above to calculate your study plan.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Personalized AI Plan Result */}
+              {customAiPlan && !isQuestionnaireOpen && (
+                <div className="space-y-6">
+                  {/* Parameter badges */}
+                  <div className="flex flex-wrap items-center gap-2.5 p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40 text-xs text-blue-900 dark:text-blue-200">
+                    <span className="font-bold">Active Configuration:</span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 font-semibold">
+                      {customAiPlan.hasExam === 'yes' ? `Exam in: ${customAiPlan.examTimeframe}` : 'Regular Semester'}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 font-semibold">
+                      ⏱️ {customAiPlan.dailyStudyHours} hrs study/day
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 font-semibold">
+                      😴 {customAiPlan.sleepHours} hrs sleep
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 font-semibold">
+                      📚 {customAiPlan.selectedSubjects.length} subjects
+                    </span>
+                  </div>
+
+                  {/* Render Plan Content with formatted typography */}
+                  <div className={`p-6 sm:p-8 rounded-3xl ${CARD_SURFACE} shadow-sm border border-slate-200/80 dark:border-slate-800`}>
+                    <AiFormattedText text={customAiPlan.content} />
+                  </div>
+                </div>
               )}
             </TabPanel>
           )}
@@ -1012,6 +1241,37 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
             'Resource saved.'
           )
         }
+      />
+
+      {/* Schedule Dedicated Study Session Modal */}
+      <EntityFormModal
+        isOpen={openForm === 'session'}
+        onClose={() => setOpenForm(null)}
+        title="Schedule Study Session"
+        icon={<Clock className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />}
+        fields={sessionFields}
+        initialValues={{ durationMinutes: 60, startTime: toLocalInput(new Date()) }}
+        submitLabel="Schedule Session"
+        onSubmit={(values) =>
+          saveAndRefresh(
+            createStudySession,
+            {
+              title: values.title.trim(),
+              startTime: values.startTime,
+              durationMinutes: Number(values.durationMinutes) || 60,
+              ...(values.courseId ? { courseId: values.courseId } : {}),
+              ...(values.notes?.trim() ? { notes: values.notes.trim() } : {}),
+            },
+            'Study session scheduled!'
+          )
+        }
+      />
+
+      {/* Timetable OCR Scanner Modal */}
+      <TimetableScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onSaveTimetable={handleSaveTimetable}
       />
     </div>
   );
