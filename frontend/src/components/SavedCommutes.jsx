@@ -112,7 +112,7 @@ export default function SavedCommutes({
                 </MetaList>
 
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  <Badge variant="indigo" size="xs" icon={<Sliders />}>
+                  <Badge variant="sky" size="xs" icon={<Sliders />}>
                     {PREFERENCE_LABELS[commute.preference] || commute.preference}
                   </Badge>
                   {commute.preferredModes.map((mode) => (

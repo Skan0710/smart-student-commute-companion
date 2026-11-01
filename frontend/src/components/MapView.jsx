@@ -259,7 +259,7 @@ export default function MapView({
           <span>Origin</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
-          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 border border-white"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 border border-white"></span>
           <span>College Destination</span>
         </div>
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
@@ -314,7 +314,7 @@ export default function MapView({
           >
             <Popup>
               <div className="text-xs">
-                <div className="font-bold text-indigo-700 dark:text-indigo-400">Destination College</div>
+                <div className="font-bold text-blue-700 dark:text-blue-400">Destination College</div>
                 <div className="text-slate-700 dark:text-slate-200 mt-0.5">
                   {typeof planResult?.query?.destination === 'string'
                     ? planResult.query.destination

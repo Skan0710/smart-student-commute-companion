@@ -10,7 +10,7 @@ import React from 'react';
  * @param {Object} props
  * @param {React.ReactNode} props.children - Badge text (required for accessibility)
  * @param {React.ReactNode} [props.icon] - Optional leading icon (decorative)
- * @param {'slate'|'emerald'|'amber'|'rose'|'indigo'|'sky'|'teal'} [props.variant='slate'] - Color variant
+ * @param {'slate'|'emerald'|'amber'|'rose'|'cobalt'|'sky'|'teal'} [props.variant='slate'] - Color variant
  * @param {'xs'|'sm'} [props.size='sm'] - Badge size
  * @param {string} [props.className=''] - Additional classes
  *
@@ -22,7 +22,7 @@ const VARIANT_CLASSES = {
   emerald: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
   amber: 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30',
   rose: 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30',
-  indigo: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+  cobalt: 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30',
   sky: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30',
   teal: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
 };

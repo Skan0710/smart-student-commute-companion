@@ -32,9 +32,9 @@ const MODE_CONFIG = {
   metro: {
     label: 'Metro',
     icon: Navigation,
-    bg: 'bg-purple-500/15',
-    text: 'text-purple-700 dark:text-purple-300',
-    border: 'border-purple-500/30'
+    bg: 'bg-[#800020]/10 dark:bg-[#0047ff]/20',
+    text: 'text-[#800020] dark:text-[#ccff00]',
+    border: 'border-[#800020]/30 dark:border-[#0047ff]/30'
   },
   bus: {
     label: 'BEST Bus',

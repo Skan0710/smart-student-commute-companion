@@ -57,10 +57,11 @@ const FLEX_OPTIONS = [
 const pad = (n) => String(n).padStart(2, '0');
 const localDateInput = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-function PrimaryButton({ onClick, icon: Icon, children, tone = 'violet', disabled, title }) {
+function PrimaryButton({ onClick, icon: Icon, children, tone = 'burgundy', disabled, title }) {
   const tones = {
-    violet: 'bg-violet-700 hover:bg-violet-600 focus-visible:ring-violet-500',
-    blue: 'bg-blue-700 hover:bg-blue-600 focus-visible:ring-blue-500',
+    burgundy: 'bg-[#800020] hover:bg-[#66001a] dark:bg-[#0047ff] dark:hover:bg-[#0038cc] focus-visible:ring-[#800020] text-white',
+    emerald: 'bg-emerald-700 hover:bg-emerald-600 focus-visible:ring-emerald-500 text-white',
+    blue: 'bg-blue-700 hover:bg-blue-600 focus-visible:ring-blue-500 text-white',
   };
   return (
     <button
@@ -323,7 +324,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
 
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-violet-700 dark:text-violet-400" aria-hidden="true" />
+                  <TrendingUp className="w-5 h-5 text-[#800020] dark:text-[#ccff00]" aria-hidden="true" />
                   <span>Active milestones &amp; goals</span>
                 </h2>
                 {!isSampleGoals && <PrimaryButton icon={Plus} onClick={() => setOpenForm('goal')}>Add goal</PrimaryButton>}
@@ -342,11 +343,11 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
                   {goals.map((goal) => (
                     <li
                       key={goal.id}
-                      className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4 hover:border-violet-400 dark:hover:border-violet-500 transition-all flex flex-col justify-between`}
+                      className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4 hover:border-[#800020] dark:hover:border-[#0047ff] transition-all flex flex-col justify-between`}
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-violet-50 dark:bg-violet-900/40 text-violet-800 dark:text-violet-300">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#800020]/10 dark:bg-[#0047ff]/20 text-[#800020] dark:text-[#ccff00]">
                             {goal.category || formatStatus(goal.status)}
                           </span>
                           <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{goal.targetDate}</span>
@@ -360,7 +361,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
                       <div className="space-y-2 pt-2">
                         <div className="flex items-center justify-between text-xs font-bold">
                           <span className="text-slate-600 dark:text-slate-400">Progress</span>
-                          <span className="text-violet-700 dark:text-violet-400 tabular-nums">{goal.progress}%</span>
+                          <span className="text-[#800020] dark:text-[#ccff00] tabular-nums font-bold">{goal.progress}%</span>
                         </div>
                         <div
                           role="progressbar"
@@ -371,7 +372,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
                           className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"
                         >
                           <div
-                            className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] rounded-full transition-all duration-500"
                             style={{ width: `${goal.progress}%` }}
                           />
                         </div>
@@ -633,7 +634,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
         isOpen={openForm === 'goal'}
         onClose={() => setOpenForm(null)}
         title="Create a goal"
-        icon={<Target className="w-5 h-5 text-violet-700 dark:text-violet-400" />}
+        icon={<Target className="w-5 h-5 text-[#800020] dark:text-[#ccff00]" />}
         fields={goalFields}
         submitLabel="Save goal"
         onSubmit={async (values) => {

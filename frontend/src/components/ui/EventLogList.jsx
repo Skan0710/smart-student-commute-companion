@@ -33,7 +33,7 @@ const KIND_STYLES = {
   install: { label: 'Install', variant: 'sky' },
   offline: { label: 'Offline', variant: 'amber' },
   online: { label: 'Online', variant: 'emerald' },
-  cache: { label: 'Cache', variant: 'indigo' },
+  cache: { label: 'Cache', variant: 'sky' },
   'sw-error': { label: 'Worker error', variant: 'rose' },
   'sw-update': { label: 'Worker update', variant: 'teal' },
 };

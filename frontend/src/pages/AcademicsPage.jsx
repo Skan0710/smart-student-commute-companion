@@ -237,19 +237,25 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
 
   const groupedAssignments = React.useMemo(() => {
     const groups = {};
+    const courseMap = {};
+    courses.forEach((c) => {
+      courseMap[c.id] = c.name || c.code;
+    });
+
     assignments.forEach((assignment) => {
-      const subjectName = assignment.subjectName || assignment.courseName || assignment.courseCode || 'General Assignments';
+      const resolvedCourse = assignment.courseId ? courseMap[assignment.courseId] : null;
+      const subjectName = assignment.subjectName || assignment.courseName || resolvedCourse || assignment.courseCode || 'General Assignments';
       if (!groups[subjectName]) {
         groups[subjectName] = {
           name: subjectName,
-          code: assignment.courseCode || '',
+          code: assignment.courseCode || (assignment.courseId ? courseMap[assignment.courseId] : '') || '',
           items: []
         };
       }
       groups[subjectName].items.push(assignment);
     });
     return Object.values(groups);
-  }, [assignments]);
+  }, [assignments, courses]);
 
   // Pre-populate AI subject checkboxes from courses
   useEffect(() => {
@@ -554,7 +560,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
               <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Assignments">
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-indigo-700 dark:text-indigo-400" aria-hidden="true" />
+                    <FileText className="w-5 h-5 text-blue-700 dark:text-blue-400" aria-hidden="true" />
                     <span>Upcoming Deliverables &amp; Assignments</span>
                   </h2>
                   {canEdit && <AddButton onClick={() => setOpenForm('assignment')}>Add assignment</AddButton>}
@@ -573,7 +579,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                         {/* Subject Group Header */}
                         <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800 pb-2.5">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                            <div className="w-7 h-7 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs shrink-0">
                               <FileText className="w-3.5 h-3.5" />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -581,7 +587,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                                 {group.name}
                               </h3>
                               {group.code && group.code !== group.name && (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
                                   {group.code}
                                 </span>
                               )}
@@ -680,7 +686,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
           {activeSubTab === 'calendar' && (
             <TabPanel idPrefix="academics" tabId="calendar" className="space-y-6">
               {/* Timetable OCR Scanner Banner */}
-              <div className={`p-5 sm:p-6 rounded-3xl ${CARD_SURFACE} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-blue-200/80 dark:border-blue-900/50 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-transparent dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-transparent shadow-xs`}>
+              <div className={`p-5 sm:p-6 rounded-3xl ${CARD_SURFACE} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-blue-200/80 dark:border-blue-900/50 bg-gradient-to-r from-blue-50/70 via-sky-50/40 to-transparent dark:from-blue-950/40 dark:via-slate-900/40 dark:to-transparent shadow-xs`}>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
                     <Camera className="w-6 h-6" aria-hidden="true" />
@@ -817,7 +823,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                       {/* Subject Name Row Header */}
                       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 flex items-center justify-center font-bold text-xs shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
                             <BookOpen className="w-4 h-4" />
                           </div>
                           <div>
@@ -826,7 +832,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                                 {group.name}
                               </h3>
                               {group.code && (
-                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800/60">
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                                   {group.code}
                                 </span>
                               )}
@@ -843,11 +849,11 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                         {group.items.map((resource) => (
                           <li
                             key={resource.id}
-                            className={`p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-violet-400 dark:hover:border-violet-600 transition-all shadow-xs`}
+                            className={`p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-emerald-400 dark:hover:border-emerald-600 transition-all shadow-xs`}
                           >
                             <div className="space-y-2">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-100/80 dark:bg-violet-900/40 text-violet-800 dark:text-violet-300">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300">
                                   {resource.type}
                                 </span>
                                 {resource.size && (
@@ -1178,7 +1184,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
         isOpen={openForm === 'assignment'}
         onClose={() => setOpenForm(null)}
         title="Add assignment"
-        icon={<FileText className="w-5 h-5 text-indigo-700 dark:text-indigo-400" />}
+        icon={<FileText className="w-5 h-5 text-blue-700 dark:text-blue-400" />}
         fields={assignmentFields}
         initialValues={{ priority: 'medium', due: toLocalInput(tomorrowAt(23, 59)) }}
         submitLabel="Add assignment"
@@ -1224,7 +1230,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
         isOpen={openForm === 'resource'}
         onClose={() => setOpenForm(null)}
         title="Add study resource"
-        icon={<BookOpen className="w-5 h-5 text-violet-700 dark:text-violet-400" />}
+        icon={<BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />}
         fields={resourceFields}
         initialValues={{ resourceType: 'link' }}
         submitLabel="Save resource"

@@ -184,7 +184,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
         <div>
           <label htmlFor="planner-destination" className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2 flex items-center justify-between font-sans">
             <span className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+              <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               College Destination
             </span>
           </label>
@@ -224,7 +224,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
                 }}
                 className={`text-[11px] px-2.5 py-1 rounded-lg transition-all ${
                   formData.destination === col.value
-                    ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800 font-semibold'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-300 dark:border-blue-800 font-semibold'
                     : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700/60'
                 }`}
               >
@@ -424,7 +424,7 @@ export default function PlannerForm({ formData, setFormData, onPlan, isLoading, 
           type="submit"
           disabled={isLoading}
           aria-busy={isLoading}
-          className="group relative w-full min-h-[52px] py-3.5 px-6 rounded-2xl font-bold text-base bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-blue-500/25 transition-all flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50 mt-3 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 border border-white/20 font-sans"
+          className="group relative w-full min-h-[52px] py-3.5 px-6 rounded-2xl font-bold text-base bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#800020] hover:from-[#66001a] hover:to-[#5c0017] dark:from-[#0047ff] dark:via-[#0038cc] dark:to-[#0047ff] dark:hover:from-[#1e5cff] dark:hover:to-[#0047ff] text-white shadow-xl shadow-blue-500/25 transition-all flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50 mt-3 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 border border-white/20 font-sans"
         >
           {/* Glowing edge sweep */}
           <span

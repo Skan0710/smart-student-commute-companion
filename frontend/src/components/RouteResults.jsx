@@ -425,10 +425,10 @@ export default function RouteResults({
 
           <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 text-center">
             <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
-              <Zap className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+              <Zap className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               Reliability
             </div>
-            <div className="text-xl sm:text-2xl font-extrabold text-indigo-700 dark:text-indigo-300 mt-1">
+            <div className="text-xl sm:text-2xl font-extrabold text-blue-700 dark:text-blue-300 mt-1">
               {formatReliability(activeRoute)}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">

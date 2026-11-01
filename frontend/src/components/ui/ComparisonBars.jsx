@@ -5,7 +5,7 @@ const BAR_VARIANTS = {
   sky: 'bg-sky-500',
   amber: 'bg-amber-500',
   rose: 'bg-rose-500',
-  indigo: 'bg-indigo-500',
+  cobalt: 'bg-blue-600',
   teal: 'bg-teal-500',
   slate: 'bg-slate-500',
 };

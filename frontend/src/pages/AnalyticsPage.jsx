@@ -447,7 +447,7 @@ export default function AnalyticsPage({
                 hint="Times connectivity dropped"
               />
               <StatTile
-                variant="indigo"
+                variant="sky"
                 value={formatDuration(offlineData.totalMs)}
                 label="Time offline"
                 hint="Cumulative on this device"

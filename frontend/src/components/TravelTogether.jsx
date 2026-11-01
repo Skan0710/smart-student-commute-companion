@@ -19,7 +19,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
             <Users className="w-5 h-5" />
           </div>
           <div>
@@ -34,7 +34,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
 
         <button
           onClick={onOpenCreateGroup}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#800020] hover:bg-[#68001a] dark:bg-[#0047ff] dark:hover:bg-[#1e5cff] text-white shadow-md shadow-blue-500/20 transition-all active:scale-95"
         >
           <Plus className="w-3.5 h-3.5 stroke-[3]" />
           <span>New Group</span>
@@ -57,7 +57,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       <div className="bg-slate-50 dark:bg-[#0a0c16]/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             Transit Meeting Points
           </span>
           <span className="text-[10px] text-slate-500 dark:text-slate-400">Public hubs only</span>
@@ -78,13 +78,13 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       {/* Groups List */}
       {groups.length === 0 ? (
         <EmptyState
-          icon={<Users className="w-6 h-6 text-indigo-700 dark:text-indigo-400" aria-hidden="true" />}
+          icon={<Users className="w-6 h-6 text-blue-700 dark:text-blue-400" aria-hidden="true" />}
           title="No commute groups currently active"
           description="Be the first to create a safe student auto-pool or transit travel buddy group for your college route!"
           action={
             <button
               onClick={onOpenCreateGroup}
-              className="touch-target px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+              className="touch-target px-4 py-2 rounded-xl text-xs font-semibold bg-[#800020] hover:bg-[#68001a] dark:bg-[#0047ff] dark:hover:bg-[#1e5cff] text-white transition-colors"
             >
               Start a Commute Group
             </button>
@@ -101,7 +101,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                 key={grp.id}
                 header={
                   <>
-                    <Badge variant="indigo" size="xs">
+                    <Badge variant="sky" size="xs">
                       {grp.mode}
                     </Badge>
                     <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-500/20">
@@ -156,9 +156,9 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
                     {grp.origin_area}
                   </MetaRow>
                   <MetaRow
-                    icon={<GraduationCap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                    icon={<GraduationCap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
                     label="Destination"
-                    valueClassName="text-indigo-700 dark:text-indigo-300 font-semibold"
+                    valueClassName="text-[#800020] dark:text-[#ccff00] font-semibold"
                   >
                     {grp.destination_college}
                   </MetaRow>

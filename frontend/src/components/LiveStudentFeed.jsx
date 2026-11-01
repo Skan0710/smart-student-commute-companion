@@ -138,7 +138,7 @@ export default function LiveStudentFeed({
                 title={rep.area}
                 subtitle={
                   <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                    by <span className="text-indigo-700 dark:text-indigo-300">{rep.pseudonym}</span>
+                    by <span className="text-blue-700 dark:text-blue-300">{rep.pseudonym}</span>
                   </span>
                 }
                 footer={

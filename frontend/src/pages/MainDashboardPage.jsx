@@ -29,20 +29,20 @@ const STAT_ACCENTS = {
     link: 'text-blue-700 dark:text-blue-400',
     hover: 'hover:border-blue-400 dark:hover:border-blue-500',
   },
-  indigo: {
-    chip: 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400',
-    link: 'text-indigo-700 dark:text-indigo-400',
-    hover: 'hover:border-indigo-400 dark:hover:border-indigo-500',
+  burgundy: {
+    chip: 'bg-[#800020]/10 dark:bg-[#0047ff]/20 text-[#800020] dark:text-[#ccff00]',
+    link: 'text-[#800020] dark:text-[#ccff00]',
+    hover: 'hover:border-[#800020]/40 dark:hover:border-[#0047ff]/50',
   },
   emerald: {
-    chip: 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400',
-    link: 'text-emerald-700 dark:text-emerald-400',
-    hover: 'hover:border-emerald-400 dark:hover:border-emerald-500',
+    chip: 'bg-emerald-50 dark:bg-emerald-900/40 text-[#586953] dark:text-emerald-400',
+    link: 'text-[#586953] dark:text-emerald-400',
+    hover: 'hover:border-[#586953]/40 dark:hover:border-emerald-500',
   },
-  violet: {
-    chip: 'bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400',
-    link: 'text-violet-700 dark:text-violet-400',
-    hover: 'hover:border-violet-400 dark:hover:border-violet-500',
+  sage: {
+    chip: 'bg-[#586953]/10 dark:bg-emerald-950/40 text-[#586953] dark:text-emerald-300',
+    link: 'text-[#586953] dark:text-emerald-300',
+    hover: 'hover:border-[#586953]/40 dark:hover:border-emerald-500',
   },
 };
 
@@ -260,7 +260,7 @@ export default function MainDashboardPage({
           onClick={() => onNavigate?.('academics')}
         />
         <StatCard
-          accent="indigo"
+          accent="burgundy"
           icon={Clock}
           label="Assignments Due"
           value={show(academicLoading, pendingAssignments.length)}
@@ -278,7 +278,7 @@ export default function MainDashboardPage({
           onClick={() => onNavigate?.('academics')}
         />
         <StatCard
-          accent="violet"
+          accent="sage"
           icon={Users}
           label="Student Travel Pools"
           value={show(communityLoading, journeyCount)}
@@ -389,7 +389,7 @@ export default function MainDashboardPage({
           onAction={() => onNavigate?.('planner')}
           actionClass="text-blue-700 dark:text-blue-400"
         >
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700/80 space-y-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-sky-50 dark:from-slate-800 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700/80 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Real-Time Live Transit Alerts
@@ -415,11 +415,11 @@ export default function MainDashboardPage({
 
         <Panel
           icon={Target}
-          chipClass="bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400"
+          chipClass="bg-[#800020]/10 dark:bg-[#0047ff]/20 text-[#800020] dark:text-[#ccff00]"
           title="Student Goals & Milestones"
           action="View All Goals"
           onAction={() => onNavigate?.('community')}
-          actionClass="text-violet-700 dark:text-violet-400"
+          actionClass="text-[#800020] dark:text-[#ccff00]"
         >
           {communityLoading ? (
             <RowSkeleton rows={2} />
@@ -434,7 +434,7 @@ export default function MainDashboardPage({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-semibold text-xs text-slate-900 dark:text-slate-100">{goal.title}</span>
-                    <span className="text-xs font-bold text-violet-700 dark:text-violet-400 tabular-nums">{goal.progress}%</span>
+                    <span className="text-xs font-bold text-[#800020] dark:text-[#ccff00] tabular-nums">{goal.progress}%</span>
                   </div>
                   <div
                     role="progressbar"
@@ -445,7 +445,7 @@ export default function MainDashboardPage({
                     className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"
                   >
                     <div
-                      className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] rounded-full"
                       style={{ width: `${goal.progress}%` }}
                     />
                   </div>

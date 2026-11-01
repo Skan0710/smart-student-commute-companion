@@ -5,7 +5,7 @@ const TRACK_VARIANTS = {
   sky: 'bg-sky-500',
   amber: 'bg-amber-500',
   rose: 'bg-rose-500',
-  indigo: 'bg-indigo-500',
+  cobalt: 'bg-blue-600',
   teal: 'bg-teal-500',
   slate: 'bg-slate-400',
 };
@@ -35,7 +35,7 @@ const TRACK_SIZES = {
  * @param {number} [props.max=100] - Maximum value (> 0)
  * @param {string} props.label - Visible label (also the accessible name)
  * @param {string} [props.displayValue] - Override the rendered value text
- * @param {'emerald'|'sky'|'amber'|'rose'|'indigo'|'teal'|'slate'} [props.variant='emerald'] - Fill color
+ * @param {'emerald'|'sky'|'amber'|'rose'|'cobalt'|'teal'|'slate'} [props.variant='emerald'] - Fill color
  * @param {'sm'|'md'|'lg'} [props.size='md'] - Track height
  * @param {boolean} [props.showValue=true] - Render the value text
  * @param {string} [props.hint] - Optional secondary line

@@ -41,9 +41,9 @@ const TIER_CONFIG = {
   SYNTHETIC: {
     label: 'Simulated Model',
     icon: Sparkles,
-    bg: 'bg-purple-500/10',
-    text: 'text-purple-700 dark:text-purple-400',
-    border: 'border-purple-500/30'
+    bg: 'bg-blue-500/10',
+    text: 'text-blue-700 dark:text-blue-400',
+    border: 'border-blue-500/30'
   }
 };
 

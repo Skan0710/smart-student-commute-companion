@@ -111,7 +111,7 @@ export default function DashboardOverview({
           value={count(groupsCount)}
           label="Ride groups"
           icon={<Users className="w-4 h-4" aria-hidden="true" />}
-          variant="indigo"
+          variant="sky"
           hint={isLoading ? 'Loading groups' : 'Student travel pools'}
         />
         <StatTile

@@ -84,12 +84,12 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit, isSubmitti
       isOpen={isOpen}
       onClose={onClose}
       title="Create Commute Coordination Group"
-      icon={<Users className="w-5 h-5 text-indigo-700 dark:text-indigo-400" />}
+      icon={<Users className="w-5 h-5 text-blue-700 dark:text-blue-400" />}
       size="lg"
     >
         <form onSubmit={handleSubmit} noValidate className="p-5 space-y-4">
-          <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-3 text-xs text-indigo-900 dark:text-indigo-300 flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3 text-xs text-blue-900 dark:text-blue-300 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-blue-700 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
             <span>
               Safe Area-Level meeting points only. Exact residential addresses are never displayed.
             </span>
@@ -198,7 +198,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit, isSubmitti
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/20 flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 active:scale-95 transition-all"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20 flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 transition-all"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
               <span>{isSubmitting ? 'Creating...' : 'Create Group'}</span>

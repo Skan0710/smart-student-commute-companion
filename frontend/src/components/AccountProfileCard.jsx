@@ -121,7 +121,7 @@ export default function AccountProfileCard({
       className="space-y-6 animate-fade-in font-sans"
     >
       {/* ─── Digital Student Campus ID Card ────────────────────────────── */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#800020] via-indigo-950 to-blue-950 text-white p-6 sm:p-8 shadow-2xl overflow-hidden border border-white/10">
+      <div className="relative rounded-3xl bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#1e2440] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-8 shadow-2xl overflow-hidden border border-white/10">
         {/* Background Ambient Elements */}
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
@@ -130,7 +130,7 @@ export default function AccountProfileCard({
           <div className="flex items-start sm:items-center gap-5 min-w-0">
             {/* Student Avatar */}
             <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-[#9c0028] via-indigo-600 to-teal-400 p-1 shadow-xl flex items-center justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-[#800020] via-[#586953] to-teal-400 dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#ccff00] p-1 shadow-xl flex items-center justify-center">
                 <div className="w-full h-full rounded-[22px] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider">
                   {initials || <UserRound className="w-10 h-10" />}
                 </div>
@@ -436,7 +436,7 @@ export default function AccountProfileCard({
           <div className="bg-white dark:bg-[#0c0f1e] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl p-6 space-y-4 shadow-sm md:col-span-2">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <Sparkles className="w-4 h-4 text-[#800020] dark:text-[#ccff00]" />
                 <span>App Theme &amp; Personalization</span>
               </h3>
               <span className="text-xs text-slate-400">Device Local</span>

@@ -226,11 +226,11 @@ export default function CampusChatbot({ onNavigate }) {
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Campus Assistant' : 'Open Campus Transit & Academic Assistant'}
         aria-expanded={isOpen}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[#800020] via-indigo-700 to-blue-600 hover:from-[#9c0028] hover:to-blue-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95 group focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-[#800020] hover:bg-[#66001a] dark:bg-[#0047ff] dark:hover:bg-[#0038cc] text-white shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95 group focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
       >
         <div className="relative">
           <Bot className="w-5 h-5 text-white" aria-hidden="true" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#800020] animate-pulse" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#ccff00] rounded-full border-2 border-[#800020] dark:border-[#0047ff] animate-pulse" />
         </div>
         <span className="text-xs font-bold tracking-wide">Campus Bot</span>
       </button>
@@ -243,7 +243,7 @@ export default function CampusChatbot({ onNavigate }) {
           className="fixed bottom-20 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[420px] h-[580px] max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-[#0c0f1e] border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden font-sans backdrop-blur-xl animate-fade-in"
         >
           {/* Header */}
-          <div className="px-5 py-4 bg-gradient-to-r from-[#800020] via-indigo-900 to-blue-900 text-white flex items-center justify-between shadow-sm shrink-0">
+          <div className="px-5 py-4 bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#4a5247] dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#070b18] text-white flex items-center justify-between shadow-sm shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
                 <Bot className="w-5 h-5 text-emerald-300" />

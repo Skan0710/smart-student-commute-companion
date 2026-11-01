@@ -11,7 +11,7 @@ import { readTransitSortPreference, writeTransitSortPreference } from '../utils/
 const ROUTE_TYPES = {
   0: { label: 'Tram / Light Rail', icon: TramFront, variant: 'teal' },
   1: { label: 'Metro', icon: TramFront, variant: 'sky' },
-  2: { label: 'Suburban Rail', icon: Train, variant: 'indigo' },
+  2: { label: 'Suburban Rail', icon: Train, variant: 'sky' },
   3: { label: 'Bus', icon: Bus, variant: 'amber' },
   4: { label: 'Ferry', icon: Ship, variant: 'emerald' },
 };
@@ -203,7 +203,7 @@ export default function TransitResults({
   const renderRoutes = () =>
     sortedRoutes.length === 0 ? (
       <EmptyState
-        icon={<Train className="w-6 h-6 text-indigo-700 dark:text-indigo-400" aria-hidden="true" />}
+        icon={<Train className="w-6 h-6 text-blue-700 dark:text-blue-400" aria-hidden="true" />}
         title="No lines matched this search"
         description="Try a line name such as Western Line, Harbour Line, or Metro Line 1."
         action={
@@ -226,7 +226,7 @@ export default function TransitResults({
           return (
             <DataCard
               key={route.route_id || `${route.route_short_name}-${route.route_long_name}`}
-              accent="bg-indigo-500"
+              accent="bg-blue-600"
               header={
                 <Badge variant={type.variant} size="xs" icon={<TypeIcon className="w-3 h-3" />}>
                   {type.label}
@@ -239,7 +239,7 @@ export default function TransitResults({
               }
               subtitle={
                 route.route_long_name && route.route_short_name ? (
-                  <span className="text-[11px] font-mono font-bold text-indigo-700 dark:text-indigo-300">
+                  <span className="text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300">
                     {route.route_short_name}
                   </span>
                 ) : null
@@ -253,7 +253,7 @@ export default function TransitResults({
             >
               <MetaList>
                 <MetaRow
-                  icon={<TypeIcon className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />}
+                  icon={<TypeIcon className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />}
                   label="Route type"
                 >
                   {type.label}

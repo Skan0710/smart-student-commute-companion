@@ -17,9 +17,9 @@ export default function SampleDataBanner({ onSignIn, what = 'data', className = 
   return (
     <div
       role="note"
-      className={`flex flex-wrap items-center gap-3 rounded-2xl border border-indigo-200 dark:border-indigo-400/30 bg-indigo-50 dark:bg-indigo-500/10 px-4 py-3 text-sm text-indigo-900 dark:text-indigo-100 ${className}`}
+      className={`flex flex-wrap items-center gap-3 rounded-2xl border border-blue-200 dark:border-blue-400/30 bg-blue-50 dark:bg-blue-500/10 px-4 py-3 text-sm text-blue-900 dark:text-blue-100 ${className}`}
     >
-      <Info className="w-4 h-4 shrink-0 text-indigo-700 dark:text-indigo-300" aria-hidden="true" />
+      <Info className="w-4 h-4 shrink-0 text-blue-700 dark:text-blue-300" aria-hidden="true" />
       <p className="flex-1 min-w-[220px]">
         <strong className="font-semibold">You're viewing sample data.</strong>{' '}
         Sign in to see and manage your own {what}.
@@ -28,7 +28,7 @@ export default function SampleDataBanner({ onSignIn, what = 'data', className = 
         <button
           type="button"
           onClick={onSignIn}
-          className="shrink-0 min-h-9 px-4 py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+          className="shrink-0 min-h-9 px-4 py-1.5 rounded-xl bg-[#800020] hover:bg-[#68001a] dark:bg-[#0047ff] dark:hover:bg-[#1e5cff] text-white text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
         >
           Sign in
         </button>

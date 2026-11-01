@@ -126,7 +126,7 @@ export default function TransitSearchPage({
                 value={routes.length}
                 label="Lines found"
                 icon={<Train className="w-4 h-4" aria-hidden="true" />}
-                variant="indigo"
+                variant="sky"
               />
             </div>
 
