@@ -151,7 +151,7 @@ export default function Tabs({
         className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300"
         style={{
           opacity: hoverX !== null ? 1 : 0,
-          background: `radial-gradient(85px circle at var(--tab-spotlight-x, 50%) 100%, var(--tab-spotlight-color, rgba(59, 130, 246, 0.30)) 0%, transparent 60%)`,
+          background: `radial-gradient(85px circle at var(--tab-spotlight-x, 50%) 100%, var(--tab-spotlight-color, rgba(255, 255, 255, 0.22)) 0%, transparent 60%)`,
         }}
       />
 

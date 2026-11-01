@@ -112,6 +112,10 @@ html {
   
   /* Focus Ring */
   --focus-ring-color: rgba(147, 197, 253, 0.4); /* blue-300/40 */
+
+  /* Tab & Navigation Spotlight in Dark Mode: Pure White */
+  --tab-spotlight-dynamic: rgba(255, 255, 255, 0.22);
+  --tab-ambience-dynamic: rgba(255, 255, 255, 0.85);
 }
 
 /* ============================================================

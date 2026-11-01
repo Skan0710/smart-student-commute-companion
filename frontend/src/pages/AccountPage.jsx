@@ -99,19 +99,20 @@ export default function AccountPage({
       : 'Signed out — browsing as a guest.';
 
   return (
-    <div className="space-y-5 max-w-3xl mx-auto w-full">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="space-y-6 max-w-4xl mx-auto w-full font-sans pb-10">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-[#d8d3c5]/80 dark:border-slate-800">
         <div className="min-w-0">
-          <h1
-            id="account-title"
-            className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"
-          >
-            <UserRound className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
-            Student Account
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Optional sign-in for your student profile. Every commute feature — planning,
-            live alerts, transit search — works without an account.
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#800020] dark:bg-blue-500" />
+            <h1
+              id="account-title"
+              className="text-2xl font-black tracking-tight text-slate-900 dark:text-white"
+            >
+              Student Profile &amp; Preferences
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Personalize your campus commute, department, and transit preferences for DJ Sanghvi College of Engineering.
           </p>
           {/* Session state, announced politely so screen-reader users hear
               sign-in / sign-out / verification changes without watching. */}
@@ -119,7 +120,7 @@ export default function AccountPage({
             id="account-status"
             role="status"
             aria-live="polite"
-            className="min-h-[1rem] text-xs text-slate-500 dark:text-slate-400 font-medium"
+            className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5"
           >
             {statusLine}
           </p>

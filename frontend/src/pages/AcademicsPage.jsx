@@ -10,9 +10,11 @@ import {
   Plus,
   ExternalLink,
   Sparkles,
-  Link2
-,  Camera,
-  UploadCloud
+  Link2,
+  Camera,
+  UploadCloud,
+  Trash2,
+  Check
 } from 'lucide-react';
 import {
   loadAcademicHub,
@@ -20,6 +22,8 @@ import {
   generateStudyPlan,
   createCourse,
   createAssignment,
+  updateAssignmentStatus,
+  deleteAssignment,
   createCalendarEvent,
   createStudyResource
 } from '../services/academics';
@@ -237,6 +241,75 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     }
   };
 
+  const handleToggleComplete = async (assignment) => {
+    const isCompleted = assignment.status === 'completed';
+    const nextStatus = isCompleted ? 'pending' : 'completed';
+
+    hub.setData((prev) => {
+      if (!prev?.assignments) return prev;
+      return {
+        ...prev,
+        assignments: prev.assignments.map((item) =>
+          item.id === assignment.id ? { ...item, status: nextStatus } : item
+        ),
+      };
+    });
+
+    if (canEdit && assignment.id) {
+      try {
+        await updateAssignmentStatus(assignment.id, nextStatus);
+        onNotify?.(
+          nextStatus === 'completed'
+            ? `"${assignment.title}" marked as completed!`
+            : `"${assignment.title}" marked as pending.`,
+          'success'
+        );
+      } catch (err) {
+        hub.setData((prev) => {
+          if (!prev?.assignments) return prev;
+          return {
+            ...prev,
+            assignments: prev.assignments.map((item) =>
+              item.id === assignment.id ? { ...item, status: assignment.status } : item
+            ),
+          };
+        });
+        onNotify?.(err?.message || 'Could not update assignment status.', 'error');
+      }
+    } else {
+      onNotify?.(
+        nextStatus === 'completed'
+          ? `"${assignment.title}" marked as completed!`
+          : `"${assignment.title}" marked as pending.`,
+        'success'
+      );
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId, title) => {
+    const previousAssignments = hub.data?.assignments || [];
+
+    hub.setData((prev) => {
+      if (!prev?.assignments) return prev;
+      return {
+        ...prev,
+        assignments: prev.assignments.filter((item) => item.id !== assignmentId),
+      };
+    });
+
+    if (canEdit && assignmentId) {
+      try {
+        await deleteAssignment(assignmentId);
+        onNotify?.(`Assignment "${title || ''}" removed.`, 'info');
+      } catch (err) {
+        hub.setData((prev) => ({ ...prev, assignments: previousAssignments }));
+        onNotify?.(err?.message || 'Could not remove assignment.', 'error');
+      }
+    } else {
+      onNotify?.(`Assignment "${title || ''}" removed.`, 'info');
+    }
+  };
+
   const subTabs = [
     { id: 'courses', label: 'Courses', icon: GraduationCap, count: courses.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, count: events.length },
@@ -401,6 +474,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                   <ul className="divide-y divide-slate-100 dark:divide-slate-800 list-none">
                     {assignments.map((assignment) => {
                       const badge = assignmentBadge(assignment);
+                      const isCompleted = assignment.status === 'completed';
                       return (
                         <li key={assignment.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="space-y-1 min-w-0">
@@ -410,7 +484,9 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                                   {assignment.subjectName || assignment.courseName || assignment.courseCode}
                                 </span>
                               )}
-                              <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">{assignment.title}</span>
+                              <span className={`font-semibold text-sm transition-all ${isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+                                {assignment.title}
+                              </span>
                             </div>
                             <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-3">
                               <span>Due: {assignment.dueDate}</span>
@@ -428,9 +504,49 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                               )}
                             </div>
                           </div>
-                          <span className={`shrink-0 self-start sm:self-center px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
-                            {badge.label}
-                          </span>
+
+                          {/* Interactive Actions: Mark Complete & Remove */}
+                          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleComplete(assignment)}
+                              title={isCompleted ? 'Mark as pending' : 'Mark as completed'}
+                              aria-label={isCompleted ? `Mark ${assignment.title} as pending` : `Mark ${assignment.title} as completed`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                                isCompleted
+                                  ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60'
+                                  : 'bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/80 dark:hover:bg-emerald-950/40 text-slate-700 hover:text-emerald-700 dark:text-slate-200 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700/60'
+                              }`}
+                            >
+                              {isCompleted ? (
+                                <>
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+                                  <span>Completed</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden="true" />
+                                  <span>Mark Complete</span>
+                                </>
+                              )}
+                            </button>
+
+                            {!isCompleted && (
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+                                {badge.label}
+                              </span>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
+                              title="Remove assignment"
+                              aria-label={`Remove assignment ${assignment.title}`}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all active:scale-95 border border-transparent hover:border-rose-200 dark:hover:border-rose-900/60"
+                            >
+                              <Trash2 className="w-4 h-4" aria-hidden="true" />
+                            </button>
+                          </div>
                         </li>
                       );
                     })}

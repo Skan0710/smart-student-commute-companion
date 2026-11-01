@@ -203,9 +203,9 @@ export function SpotlightNavbar({
           --ambience-color: rgba(128, 0, 32, 1);
         }
         .dark nav {
-          /* Dark Mode Colors: Electric Cobalt Blue + Acid Lime */
-          --spotlight-color: rgba(0, 71, 255, 0.35);
-          --ambience-color: rgba(204, 255, 0, 1);
+          /* Dark Mode Colors: Pure White Spotlight */
+          --spotlight-color: rgba(255, 255, 255, 0.22);
+          --ambience-color: rgba(255, 255, 255, 0.85);
         }
       `}</style>
         </div>

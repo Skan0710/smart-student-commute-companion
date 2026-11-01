@@ -337,6 +337,19 @@ export function createAssignment(assignmentData) {
   return request('/academic/assignments', { method: 'POST', body: JSON.stringify(assignmentData) });
 }
 
+export function updateAssignmentStatus(id, status) {
+  return request(`/academic/assignments/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteAssignment(id) {
+  return request(`/academic/assignments/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 export function createCalendarEvent(eventData) {
   return request('/calendar/events', { method: 'POST', body: JSON.stringify(eventData) });
 }

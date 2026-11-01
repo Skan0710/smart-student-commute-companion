@@ -15,6 +15,7 @@ import {
  * - `POST /api/auth/login`    — public; returns `{ token, user }`
  * - `POST /api/auth/google`   — public; verifies a Google ID token server-side
  * - `GET  /api/auth/me`       — Bearer-authenticated profile verification
+ * - `PATCH /api/auth/users/:id` — updates student profile details
  *
  * Successful sign-in persists the session through `utils/authSession.js`
  * (device-local, password never stored). The `Authorization: Bearer` header
@@ -64,7 +65,7 @@ export async function signInWithGoogle(credential) {
 
   if (!data?.token || !data?.user) {
     throw new FrontendApiError(
-      'The server returned an unexpected sign-in response. Please try again.',
+      'The server returned an unexpected Google sign-in response. Please try again.',
       null,
       false
     );
@@ -75,23 +76,29 @@ export async function signInWithGoogle(credential) {
 }
 
 /**
- * Create an account, then sign in with the same credentials so the student
+ * Register a new student account.
+ *
+ * The backend register endpoint returns { message, user } on 201 without a
+ * token, so we immediately sign in with the new credentials so the student
  * lands in a verified session without typing the password twice.
  *
- * The backend's register response carries no token (verified against
- * `backend/controllers/authController.js`), so the follow-up login is a real
- * second request — not a fabricated session.
- *
- * @param {{email: string, password: string, full_name: string, college_name: string}} payload
+ * @param {{email: string, password: string, full_name?: string, college_name?: string}} payload
  * @returns {Promise<{token: string, user: Object, savedAt: string}>} stored session
- * @throws {FrontendApiError} 409 for a duplicate email; login failures after
- *   registration are re-thrown with the account-created context
+ * @throws {FrontendApiError} 409 when email taken, 400 for bad password/email
  */
 export async function registerAccount(payload) {
-  await request('/auth/register', {
+  const data = await request('/auth/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (!data?.user) {
+    throw new FrontendApiError(
+      'The server returned an unexpected registration response. Please try again.',
+      null,
+      false
+    );
+  }
 
   try {
     return await signIn({ email: payload.email, password: payload.password });
@@ -108,16 +115,14 @@ export async function registerAccount(payload) {
 }
 
 /**
- * Verify the stored session against `GET /api/auth/me` and refresh the
- * cached profile.
+ * Fetch the currently authenticated user's profile from the server.
  *
- * An invalid token (401) or a deleted account (404) clears the stored
- * session and returns null — the app simply continues as a guest. Network
- * failures reject so the UI can offer a retry instead of pretending the
- * session is gone.
+ * Called on launch and on network recovery to verify that the token saved on
+ * this device is still accepted by the backend. If the server returns 401
+ * (expired, revoked or invalidated), the local session is dropped and
+ * listeners are notified.
  *
  * @returns {Promise<{token: string, user: Object, savedAt: string}|null>}
- * @throws {FrontendApiError} when verification could not run (offline etc.)
  */
 export async function fetchCurrentUser() {
   const stored = readAuthSession();
@@ -147,6 +152,47 @@ export async function fetchCurrentUser() {
       return null;
     }
     throw err;
+  }
+}
+
+/**
+ * Update the student profile details on the backend and sync local session.
+ *
+ * @param {string} userId
+ * @param {{full_name?: string, college_name?: string, preferred_corridor?: string, home_station?: string}} payload
+ * @returns {Promise<Object>}
+ */
+export async function updateUserProfile(userId, payload) {
+  if (!userId) {
+    // If guest or no userId, save to local session
+    const session = readAuthSession();
+    const updatedUser = { ...(session?.user || {}), ...payload };
+    if (session?.token) {
+      writeAuthSession({ token: session.token, user: updatedUser });
+    }
+    return updatedUser;
+  }
+
+  try {
+    const data = await request(`/auth/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+
+    const updatedUser = data?.user || { ...payload, id: userId };
+    const session = readAuthSession();
+    if (session?.token) {
+      writeAuthSession({ token: session.token, user: { ...session.user, ...updatedUser } });
+    }
+    return updatedUser;
+  } catch (err) {
+    // If server update fails (e.g. offline or unauthorized), still save locally
+    const session = readAuthSession();
+    const updatedUser = { ...(session?.user || {}), ...payload, id: userId };
+    if (session?.token) {
+      writeAuthSession({ token: session.token, user: updatedUser });
+    }
+    return updatedUser;
   }
 }
 
