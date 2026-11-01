@@ -1277,7 +1277,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
       <TimetableScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
-        onSaveTimetable={handleSaveTimetable}
+        onSaveTimetable={handleSaveScannedTimetable}
       />
     </div>
   );
