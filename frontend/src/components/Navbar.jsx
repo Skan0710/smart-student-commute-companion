@@ -175,8 +175,9 @@ export default function Navbar({
   onContradictNotification,
   onMarkAllNotificationsRead,
 }) {
-  const profileLabel = user?.full_name || user?.name || user?.displayName || (user?.email ? user.email.split('@')[0] : 'Profile');
-  const userInitials = (profileLabel || 'P').split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
+  const currentUser = user?.user || user;
+  const profileLabel = currentUser?.full_name || currentUser?.fullName || currentUser?.name || currentUser?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'Profile');
+  const userInitials = (profileLabel !== 'Profile' ? profileLabel : (currentUser?.email || 'P')).split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);

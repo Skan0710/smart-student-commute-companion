@@ -11,6 +11,8 @@ import {
   ExternalLink,
   Sparkles,
   Link2
+,  Camera,
+  UploadCloud
 } from 'lucide-react';
 import {
   loadAcademicHub,
@@ -22,6 +24,7 @@ import {
   createStudyResource
 } from '../services/academics';
 import useAsyncResource from '../hooks/useAsyncResource';
+import TimetableScannerModal from '../components/TimetableScannerModal';
 import { formatStatus } from '../utils/formatters';
 import {
   Tabs,
@@ -119,6 +122,8 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
   const [activeSubTab, setActiveSubTab] = useState('courses'); // 'courses' | 'calendar' | 'resources' | 'studyplans'
   const [openForm, setOpenForm] = useState(null); // 'course' | 'assignment' | 'event' | 'resource' | null
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannedEvents, setScannedEvents] = useState([]);
 
   const hub = useAsyncResource(loadAcademicHub, {
     errorMessage: 'Unable to load your academic data. Please check your connection and try again.',
@@ -132,7 +137,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
   const data = hub.data;
   const courses = data?.courses || [];
   const assignments = data?.assignments || [];
-  const events = data?.events || [];
+  const events = [...(data?.events || []), ...scannedEvents];
   const sessions = data?.sessions || [];
   const resources = data?.resources || [];
   const plan = data?.plan || null;
@@ -146,6 +151,69 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
       label: course.code ? `${course.code} – ${course.name}` : course.name,
     })),
   ];
+
+  const handleSaveScannedTimetable = async (slots) => {
+    const formatTimeDisplay = (time24) => {
+      if (!time24) return '09:00 AM';
+      const [h, m] = time24.split(':').map(Number);
+      const isPM = h >= 12;
+      const h12 = h % 12 || 12;
+      return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${isPM ? 'PM' : 'AM'}`;
+    };
+
+    const newCreatedEvents = slots.map((slot) => {
+      const timeText = `${formatTimeDisplay(slot.startTime)} – ${formatTimeDisplay(slot.endTime)}`;
+      return {
+        id: slot.id || `event-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        title: slot.subjectCode ? `${slot.subjectCode}: ${slot.title}` : slot.title,
+        time: `${slot.day ? `${slot.day} • ` : ''}${timeText}`,
+        location: slot.location || 'Classroom',
+        type: slot.eventType || 'lecture',
+      };
+    });
+
+    setScannedEvents((prev) => [...newCreatedEvents, ...prev]);
+
+    if (canEdit) {
+      for (const slot of slots) {
+        try {
+          const now = new Date();
+          const [startH, startM] = (slot.startTime || '09:00').split(':').map(Number);
+          const [endH, endM] = (slot.endTime || '10:00').split(':').map(Number);
+          const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startH, startM);
+          const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH, endM);
+          await createCalendarEvent({
+            title: slot.subjectCode ? `${slot.subjectCode}: ${slot.title}` : slot.title,
+            location: slot.location || null,
+            event_type: slot.eventType || 'lecture',
+            start_time: startDate.getTime(),
+            end_time: endDate.getTime(),
+          });
+        } catch (err) {
+          console.warn('Could not persist calendar event to backend:', err);
+        }
+      }
+      hub.load();
+    }
+
+    onNotify?.(`Timetable updated! ${slots.length} class slot${slots.length === 1 ? '' : 's'} added to your schedule.`, 'success');
+  };
+
+  const groupedResources = React.useMemo(() => {
+    const groups = {};
+    resources.forEach((resource) => {
+      const subjectName = resource.subjectName || resource.course || 'General Study Resources';
+      if (!groups[subjectName]) {
+        groups[subjectName] = {
+          name: subjectName,
+          code: resource.courseCode || '',
+          items: []
+        };
+      }
+      groups[subjectName].items.push(resource);
+    });
+    return Object.values(groups);
+  }, [resources]);
 
   // Persist a new record, refresh the screen and tell the student
   const saveAndRefresh = async (create, payload, successMessage) => {
@@ -173,7 +241,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     { id: 'courses', label: 'Courses', icon: GraduationCap, count: courses.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, count: events.length },
     { id: 'resources', label: 'Study Resources', icon: BookOpen, count: resources.length },
-    { id: 'studyplans', label: 'AI Planner', icon: Zap, badge: 'AI' },
+    { id: 'studyplans', label: 'Planner', icon: Zap },
   ];
 
   // ── Create forms ──────────────────────────────────────────────────────────
@@ -231,7 +299,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
             Academic &amp; Study Hub
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
-            Your courses, timetable, study resources and an AI-built weekly study plan in one place.
+            Your courses, timetable, study resources and an optimized weekly study plan in one place.
           </p>
         </div>
 
@@ -286,19 +354,22 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                       className={`p-5 rounded-2xl ${CARD_SURFACE} space-y-3 hover:border-blue-400 transition-all`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        {course.code ? (
-                          <span className="px-2 py-0.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
-                            {course.code}
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
+                            {course.name}
                           </span>
-                        ) : (
-                          <span />
-                        )}
                         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                           {course.credits} {course.credits === 1 ? 'credit' : 'credits'}
                         </span>
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{course.name}</h3>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{course.name}</h3>
+                          {course.code && (
+                            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                              ({course.code})
+                            </span>
+                          )}
+                        </div>
                         {course.faculty && (
                           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Faculty: {course.faculty}</p>
                         )}
@@ -334,9 +405,9 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                         <li key={assignment.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="space-y-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                              {assignment.courseCode && (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400">
-                                  {assignment.courseCode}
+                              {(assignment.subjectName || assignment.courseName || assignment.courseCode) && (
+                                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400">
+                                  {assignment.subjectName || assignment.courseName || assignment.courseCode}
                                 </span>
                               )}
                               <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">{assignment.title}</span>
@@ -371,75 +442,111 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
 
           {/* Schedule & Study Sessions */}
           {activeSubTab === 'calendar' && (
-            <TabPanel idPrefix="academics" tabId="calendar" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Today's timetable">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-400" aria-hidden="true" />
-                    <span>Today's Classes &amp; Events</span>
-                  </h2>
-                  {canEdit && <AddButton onClick={() => setOpenForm('event')}>Add class</AddButton>}
+            <TabPanel idPrefix="academics" tabId="calendar" className="space-y-6">
+              {/* Timetable OCR Scanner Banner */}
+              <div className={`p-5 sm:p-6 rounded-3xl ${CARD_SURFACE} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-blue-200/80 dark:border-blue-900/50 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-transparent dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-transparent shadow-xs`}>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                    <Camera className="w-6 h-6" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>Got a TimeTable?</span>
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                        Smart OCR
+                      </span>
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5">
+                      Upload it and we fetch your courses for you.
+                    </p>
+                  </div>
                 </div>
-                {events.length === 0 ? (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
-                    Nothing scheduled for today.
-                  </p>
-                ) : (
-                  <ul className="space-y-3 list-none">
-                    {events.map((event) => (
-                      <li key={event.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
-                        <div className="space-y-1 min-w-0">
-                          <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{event.title}</div>
-                          {event.location && <div className="text-xs text-slate-600 dark:text-slate-400">{event.location}</div>}
-                        </div>
-                        <span className="shrink-0 px-3 py-1 rounded-xl text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-                          {event.time}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+                <button
+                  type="button"
+                  onClick={() => setIsScannerOpen(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] shrink-0 self-stretch sm:self-auto justify-center"
+                >
+                  <UploadCloud className="w-4 h-4" aria-hidden="true" />
+                  <span>Upload Timetable</span>
+                </button>
+              </div>
 
-              <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Study sessions">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
-                  <span>Dedicated Study Sessions</span>
-                </h2>
-                {sessions.length === 0 ? (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
-                    No study sessions planned.
-                  </p>
-                ) : (
-                  <ul className="space-y-3 list-none">
-                    {sessions.map((session) => (
-                      <li key={session.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
-                        <div className="space-y-1 min-w-0">
-                          <div className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                            {session.subject ? `${session.subject}: ${session.topic}` : session.topic}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Today's timetable">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-400" aria-hidden="true" />
+                      <span>Today's Classes &amp; Events</span>
+                    </h2>
+                    {canEdit && <AddButton onClick={() => setOpenForm('event')}>Add class</AddButton>}
+                  </div>
+                  {events.length === 0 ? (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
+                      Nothing scheduled for today.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3 list-none">
+                      {events.map((event) => (
+                        <li key={event.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                          <div className="space-y-1 min-w-0">
+                            <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{event.title}</div>
+                            {event.location && <div className="text-xs text-slate-600 dark:text-slate-400">{event.location}</div>}
                           </div>
-                          {session.plannedDuration && (
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Duration: {session.plannedDuration}</div>
-                          )}
-                        </div>
-                        <span className="shrink-0 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
-                          {formatStatus(session.status)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+                          <span className="shrink-0 px-3 py-1 rounded-xl text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
+                            {event.time}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Study sessions">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
+                    <span>Dedicated Study Sessions</span>
+                  </h2>
+                  {sessions.length === 0 ? (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
+                      No study sessions planned.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3 list-none">
+                      {sessions.map((session) => (
+                        <li key={session.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                          <div className="space-y-1 min-w-0">
+                            <div className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                              {session.subject ? `${session.subject}: ${session.topic}` : session.topic}
+                            </div>
+                            {session.plannedDuration && (
+                              <div className="text-xs text-slate-600 dark:text-slate-400">Duration: {session.plannedDuration}</div>
+                            )}
+                          </div>
+                          <span className="shrink-0 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
+                            {formatStatus(session.status)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
             </TabPanel>
           )}
 
           {/* Study Resources */}
           {activeSubTab === 'resources' && (
-            <TabPanel idPrefix="academics" tabId="resources" className="space-y-4">
+            <TabPanel idPrefix="academics" tabId="resources" className="space-y-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Study resources</h2>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Study Resources by Subject</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Organised into individual subject rows to help distinguish between subjects and focus study
+                  </p>
+                </div>
                 {canEdit && <AddButton onClick={() => setOpenForm('resource')}>Add resource</AddButton>}
               </div>
+
               {resources.length === 0 ? (
                 <EmptyState
                   headingLevel={3}
@@ -449,43 +556,84 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                   action={canEdit ? <AddButton onClick={() => setOpenForm('resource')}>Add a resource</AddButton> : null}
                 />
               ) : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 list-none">
-                  {resources.map((resource) => (
-                    <li key={resource.id} className={`p-5 rounded-2xl ${CARD_SURFACE} space-y-3 flex flex-col justify-between hover:border-blue-400 transition-all`}>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          {resource.course ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400">
-                              {resource.course}
-                            </span>
-                          ) : (
-                            <span />
-                          )}
-                          {resource.size && <span className="text-[11px] text-slate-600 dark:text-slate-400">{resource.size}</span>}
+                <div className="space-y-6">
+                  {groupedResources.map((group) => (
+                    <section
+                      key={group.name}
+                      className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`}
+                      aria-label={`Resources for ${group.name}`}
+                    >
+                      {/* Subject Name Row Header */}
+                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 flex items-center justify-center font-bold text-xs shrink-0">
+                            <BookOpen className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                                {group.name}
+                              </h3>
+                              {group.code && (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800/60">
+                                  {group.code}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {group.items.length} {group.items.length === 1 ? 'study resource' : 'study resources'} available
+                            </p>
+                          </div>
                         </div>
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-snug">{resource.title}</h3>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">{resource.type}</p>
                       </div>
-                      {resource.link ? (
-                        <a
-                          href={resource.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full mt-2 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>Open resource</span>
-                          <span className="sr-only">(opens in a new tab)</span>
-                        </a>
-                      ) : (
-                        <span className="w-full mt-2 py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-xs font-medium text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1.5">
-                          <Link2 className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>{isSample ? 'Sample resource' : 'No link attached'}</span>
-                        </span>
-                      )}
-                    </li>
+
+                      {/* Individual Resources Under this Subject */}
+                      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 list-none">
+                        {group.items.map((resource) => (
+                          <li
+                            key={resource.id}
+                            className={`p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-violet-400 dark:hover:border-violet-600 transition-all shadow-xs`}
+                          >
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-100/80 dark:bg-violet-900/40 text-violet-800 dark:text-violet-300">
+                                  {resource.type}
+                                </span>
+                                {resource.size && (
+                                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                                    {resource.size}
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-snug">
+                                {resource.title}
+                              </h4>
+                              <p className="text-xs text-slate-600 dark:text-slate-400">{resource.course || group.name}</p>
+                            </div>
+
+                            {resource.link ? (
+                              <a
+                                href={resource.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full mt-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                                <span>Open resource</span>
+                                <span className="sr-only">(opens in a new tab)</span>
+                              </a>
+                            ) : (
+                              <span className="w-full mt-2 py-2 px-3 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+                                <Link2 className="w-3.5 h-3.5" aria-hidden="true" />
+                                <span>{isSample ? 'Sample resource' : 'No link attached'}</span>
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
                   ))}
-                </ul>
+                </div>
               )}
             </TabPanel>
           )}
@@ -512,7 +660,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
                 >
                   <Zap className={`w-4 h-4 ${isGeneratingPlan ? 'animate-spin' : ''}`} aria-hidden="true" />
-                  <span>{isGeneratingPlan ? 'Generating…' : plan ? 'Recalculate AI Plan' : 'Generate AI Plan'}</span>
+                  <span>{isGeneratingPlan ? 'Calculating…' : plan ? 'Recalculate Plan' : 'Generate Plan'}</span>
                 </button>
               </div>
 

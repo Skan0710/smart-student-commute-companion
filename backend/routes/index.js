@@ -79,6 +79,9 @@ function createApiRouter(io) {
   // 9. Demo Reset routes
   router.use(createDemoRoutes(io));
 
+  // 10. Campus & Transit Chatbot
+  router.use('/chat', require('./chatRoutes'));
+
   return router;
 }
 

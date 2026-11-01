@@ -10,6 +10,7 @@ const assignmentController = require('../controllers/assignmentController');
 const goalController = require('../controllers/goalController');
 const productivityController = require('../controllers/productivityController');
 const studentController = require('../controllers/studentController');
+const timetableOcrController = require('../controllers/timetableOcrController');
 const { authenticate } = require('../middleware/authMiddleware');
 const { searchAbuseSafeguard } = require('../middleware/searchSafeguard');
 const {
@@ -37,6 +38,13 @@ const {
 
 function createAcademicRoutes() {
   const router = express.Router();
+
+  // Timetable OCR Scanner (Available to all students)
+  router.post(
+    '/academic/timetable/scan',
+    timetableOcrController.handleTimetableOcr
+  );
+
 
   // All academic routes require student authentication
   router.use('/academic', authenticate);

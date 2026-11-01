@@ -37,7 +37,7 @@ html {
   --radius-full: 9999px;
   
   /* Surface Colors - Light Theme Default */
-  --color-surface-base: #f8fafc;      /* Page background: #F8FAFC */
+  --color-surface-base: #f7f5f0;      /* Page background: #F8FAFC */
   --color-surface-elevated: #ffffff;  /* Content surfaces: #FFFFFF */
   --color-surface-raised: #f1f5f9;    /* slate-100 - Nested items */
   --color-surface-overlay: #e2e8f0;   /* slate-200 - Hover / active */
@@ -649,25 +649,15 @@ html.lenis, html.lenis body {
 
 
 /* ============================================================
-   APP BACKDROP - ambient gradient mesh behind every screen
+   APP BACKDROP - Cream Beige background (dotted pattern removed)
    ============================================================ */
 .app-backdrop {
-  background-color: #cbd5e1;
-  background-image:
-    radial-gradient(rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
-    radial-gradient(900px 480px at 8% -8%, rgba(99, 102, 241, 0.08), transparent 60%),
-    radial-gradient(760px 420px at 98% 2%, rgba(14, 165, 233, 0.08), transparent 60%);
-  background-size: 24px 24px, auto, auto;
-  background-attachment: fixed;
+  background-color: #f7f5f0 !important;
+  background-image: none !important;
 }
 .dark .app-backdrop {
-  background-color: #070b18;
-  background-image:
-    radial-gradient(rgba(255, 255, 255, 0.16) 1.25px, transparent 1.25px),
-    radial-gradient(900px 520px at 8% -10%, rgba(99, 102, 241, 0.20), transparent 60%),
-    radial-gradient(760px 460px at 98% 0%, rgba(14, 165, 233, 0.13), transparent 60%);
-  background-size: 24px 24px, auto, auto;
-  background-attachment: fixed;
+  background-color: #070b18 !important;
+  background-image: none !important;
 }
 /* Suppress accidental focus border/ring on mouse click while preserving keyboard focus */
 button:focus:not(:focus-visible),

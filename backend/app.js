@@ -38,7 +38,7 @@ function createApp(options = {}) {
   }));
 
   // 2. Request body parsing (explicit size cap)
-  app.use(express.json({ limit: '100kb' }));
+  app.use(express.json({ limit: '25mb' }));
 
   // 2b. Abuse protection (rate limits + signup honeypot), mounted before routes
   const rateLimiters = createRateLimiters(options.rateLimits);

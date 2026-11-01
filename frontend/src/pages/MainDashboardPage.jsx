@@ -203,7 +203,7 @@ export default function MainDashboardPage({
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#800020] via-[#5c0017] to-[#38000e] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-10 shadow-2xl shadow-[#800020]/20 dark:shadow-[#0047ff]/25 border border-white/10 dark:border-[#1e2440]">
         <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 w-80 h-80 rounded-full bg-white/10 blur-3xl"></div>
         <div aria-hidden="true" className="pointer-events-none absolute right-24 -bottom-32 w-72 h-72 rounded-full bg-sky-400/20 blur-3xl"></div>
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]"></div>
+        
         <div className="relative z-10 max-w-3xl space-y-3">
           <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-white leading-[1.1]">
             Your Complete Student Platform

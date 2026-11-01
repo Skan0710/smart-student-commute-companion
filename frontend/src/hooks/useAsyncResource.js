@@ -35,8 +35,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
  *   errorMessage: 'Unable to load live updates. Please try again.',
  * });
  */
-export default function useAsyncResource(loadFn, { errorMessage } = {}) {
-  const [data, setDataState] = useState(null);
+export default function useAsyncResource(loadFn, { initialData = null, errorMessage } = {}) {
+  const [data, setDataState] = useState(initialData);
   const [status, setStatus] = useState('idle'); // idle | loading | refreshing | success | error
   const [error, setError] = useState(null);
 

@@ -43,9 +43,9 @@ const SAMPLE_COURSES = [
 ];
 
 const SAMPLE_ASSIGNMENTS = [
-  { id: 'sample-a1', title: 'Dynamic Programming & Graph Algorithms Problem Set', courseCode: 'CS 301', dueDate: 'Tomorrow, 11:59 PM', priority: 'high', status: 'pending', estimatedHours: 3 },
-  { id: 'sample-a2', title: 'SQL Query Optimization & Indexing Lab Sheet', courseCode: 'CS 302', dueDate: 'Thursday, 5:00 PM', priority: 'medium', status: 'in_progress', estimatedHours: 2 },
-  { id: 'sample-a3', title: 'Kernel Threading and Synchronization Demo', courseCode: 'CS 305', dueDate: 'Next Monday', priority: 'low', status: 'completed', estimatedHours: 4 },
+  { id: 'sample-a1', title: 'Dynamic Programming & Graph Algorithms Problem Set', courseCode: 'CS 301', subjectName: 'Design and Analysis of Algorithms', courseName: 'Design and Analysis of Algorithms', dueDate: 'Tomorrow, 11:59 PM', priority: 'high', status: 'pending', estimatedHours: 3 },
+  { id: 'sample-a2', title: 'SQL Query Optimization & Indexing Lab Sheet', courseCode: 'CS 302', subjectName: 'Database Management Systems', courseName: 'Database Management Systems', dueDate: 'Thursday, 5:00 PM', priority: 'medium', status: 'in_progress', estimatedHours: 2 },
+  { id: 'sample-a3', title: 'Kernel Threading and Synchronization Demo', courseCode: 'CS 305', subjectName: 'Operating Systems & Virtualization', courseName: 'Operating Systems & Virtualization', dueDate: 'Next Monday', priority: 'low', status: 'completed', estimatedHours: 4 },
 ];
 
 const SAMPLE_EVENTS = [
@@ -60,10 +60,10 @@ const SAMPLE_SESSIONS = [
 ];
 
 const SAMPLE_RESOURCES = [
-  { id: 'sample-r1', title: 'Mumbai University Algorithms Question Bank (2020-2025)', type: 'Document', size: '4.2 MB', course: 'CS 301', link: null },
-  { id: 'sample-r2', title: 'Distributed Systems & Microservices Cheatsheet', type: 'Reference', size: '1.1 MB', course: 'CS 305', link: null },
-  { id: 'sample-r3', title: 'Database Normalization & Transaction Isolation Notes', type: 'Note', size: '2.8 MB', course: 'CS 302', link: null },
-  { id: 'sample-r4', title: 'React & Tailwind Modern Patterns Starter Repo', type: 'Link', size: '', course: 'CS 308', link: null },
+  { id: 'sample-r1', title: 'Mumbai University Algorithms Question Bank (2020-2025)', type: 'Document', size: '4.2 MB', course: 'Design and Analysis of Algorithms', subjectName: 'Design and Analysis of Algorithms', courseCode: 'CS 301', link: null },
+  { id: 'sample-r2', title: 'Distributed Systems & Microservices Cheatsheet', type: 'Reference', size: '1.1 MB', course: 'Operating Systems & Virtualization', subjectName: 'Operating Systems & Virtualization', courseCode: 'CS 305', link: null },
+  { id: 'sample-r3', title: 'Database Normalization & Transaction Isolation Notes', type: 'Note', size: '2.8 MB', course: 'Database Management Systems', subjectName: 'Database Management Systems', courseCode: 'CS 302', link: null },
+  { id: 'sample-r4', title: 'React & Tailwind Modern Patterns Starter Repo', type: 'Link', size: '', course: 'Web Computing & Modern Frameworks', subjectName: 'Web Computing & Modern Frameworks', courseCode: 'CS 308', link: null },
 ];
 
 const SAMPLE_PLAN = {
@@ -88,6 +88,11 @@ const courseLabelOf = (courseMap, courseId) => {
   return course ? course.code || course.name : '';
 };
 
+const courseNameOf = (courseMap, courseId) => {
+  const course = courseMap.get(courseId);
+  return course ? course.name || course.code : '';
+};
+
 function normalizeCourse(course) {
   return {
     id: course.id,
@@ -102,10 +107,15 @@ function normalizeCourse(course) {
 }
 
 function normalizeAssignment(assignment, courseMap) {
+  const cId = assignment.courseId || assignment.course_id || assignment.courseCode || assignment.course_code;
+  const course = courseMap.get(cId) || (cId != null ? courseMap.get(String(cId)) : null) || (assignment.courseCode ? courseMap.get(assignment.courseCode) : null);
+  const subjectName = course?.name || assignment.subjectName || assignment.courseName || assignment.subject || courseNameOf(courseMap, cId);
   return {
     id: assignment.id,
     title: assignment.title,
-    courseCode: courseLabelOf(courseMap, assignment.courseId),
+    courseCode: course?.code || assignment.courseCode || assignment.course_code || courseLabelOf(courseMap, cId),
+    courseName: subjectName || course?.name || '',
+    subjectName: subjectName || course?.name || '',
     dueDate: formatDueDate(assignment.dueDate),
     dueAt: assignment.dueDate,
     priority: assignment.priority,
@@ -137,12 +147,16 @@ function normalizeSession(session, courseMap) {
 }
 
 function normalizeResource(resource, courseMap) {
+  const course = courseMap.get(resource.courseId);
+  const subjectName = course?.name || (resource.course && !resource.course.startsWith('CS') ? resource.course : '') || courseLabelOf(courseMap, resource.courseId) || 'General Study Resources';
   return {
     id: resource.id,
     title: resource.title,
     type: RESOURCE_TYPE_LABELS[resource.resourceType] || titleCase(resource.resourceType) || 'Resource',
     size: formatFileSize(resource.fileSize),
-    course: courseLabelOf(courseMap, resource.courseId),
+    course: courseLabelOf(courseMap, resource.courseId) || subjectName,
+    subjectName: course?.name || resource.subjectName || subjectName,
+    courseCode: course?.code || resource.courseCode || '',
     link: resource.url || null,
   };
 }
@@ -215,7 +229,13 @@ export async function loadAcademicHub() {
   ]);
 
   const rawCourses = activeCourses(coursesRes);
-  const courseMap = new Map(rawCourses.map((course) => [course.id, course]));
+  const courseMap = new Map();
+  for (const c of rawCourses) {
+    if (c.id) courseMap.set(c.id, c);
+    if (c.id != null) courseMap.set(String(c.id), c);
+    if (c.code) courseMap.set(c.code, c);
+    if (c.course_code) courseMap.set(c.course_code, c);
+  }
 
   return {
     courses: rawCourses.map(normalizeCourse),
@@ -255,7 +275,13 @@ export async function loadAcademicSnapshot() {
   ]);
 
   const rawCourses = activeCourses(coursesRes);
-  const courseMap = new Map(rawCourses.map((course) => [course.id, course]));
+  const courseMap = new Map();
+  for (const c of rawCourses) {
+    if (c.id) courseMap.set(c.id, c);
+    if (c.id != null) courseMap.set(String(c.id), c);
+    if (c.code) courseMap.set(c.code, c);
+    if (c.course_code) courseMap.set(c.course_code, c);
+  }
 
   return {
     courses: rawCourses.map(normalizeCourse),
@@ -309,5 +335,12 @@ export function generateStudyPlan(preferences) {
   return request('/student/study-plans/generate', {
     method: 'POST',
     body: JSON.stringify(preferences || {}),
+  });
+}
+
+export function scanTimetableOcr(payload) {
+  return request('/academic/timetable/scan', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 }

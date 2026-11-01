@@ -1,0 +1,458 @@
+import React, { useState, useRef } from 'react';
+import {
+  Camera,
+  UploadCloud,
+  FileImage,
+  Sparkles,
+  Trash2,
+  Plus,
+  Clock,
+  MapPin,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  AlertTriangle,
+  X,
+  RefreshCw,
+  Eye,
+  FileText
+} from 'lucide-react';
+import { scanTimetableOcr } from '../services/academics';
+
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable }) {
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanError, setScanError] = useState(null);
+  const [extractedSlots, setExtractedSlots] = useState([]);
+  const [rawOcrText, setRawOcrText] = useState('');
+  const [showRawText, setShowRawText] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const fileInputRef = useRef(null);
+
+  if (!isOpen) return null;
+
+  const handleFileSelect = (selectedFile) => {
+    if (!selectedFile) return;
+    if (!selectedFile.type.startsWith('image/')) {
+      setScanError('Please select a valid image file (PNG, JPG, or WebP).');
+      return;
+    }
+    setScanError(null);
+    setFile(selectedFile);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewUrl(e.target.result);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleRunOcr = async () => {
+    if (!previewUrl) {
+      setScanError('Please upload a timetable image first.');
+      return;
+    }
+
+    setIsScanning(true);
+    setScanError(null);
+
+    try {
+      const response = await scanTimetableOcr({ image: previewUrl });
+      if (response && response.items) {
+        setExtractedSlots(response.items);
+        setRawOcrText(response.rawText || '');
+        if (response.items.length === 0) {
+          setScanError('Tesseract OCR could not automatically identify class timings. You can add slots manually or review raw OCR text.');
+        }
+      } else {
+        setScanError('Unable to extract timetable slots from image. Please try another angle or photo.');
+      }
+    } catch (err) {
+      console.error('Timetable OCR scan failed:', err);
+      setScanError(err.message || 'Failed to scan image using local Tesseract OCR.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleSlotChange = (index, field, value) => {
+    setExtractedSlots((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleDeleteSlot = (index) => {
+    setExtractedSlots((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddManualSlot = () => {
+    const newSlot = {
+      id: `manual-${Math.random().toString(36).slice(2, 9)}`,
+      subjectCode: '',
+      title: 'New Class',
+      day: 'Monday',
+      startTime: '09:00',
+      endTime: '10:00',
+      location: 'Hall 402',
+      eventType: 'lecture'
+    };
+    setExtractedSlots((prev) => [...prev, newSlot]);
+  };
+
+  const handleSaveAll = () => {
+    if (extractedSlots.length === 0) {
+      setScanError('No timetable slots to save. Please scan or add at least one class.');
+      return;
+    }
+    onSaveTimetable?.(extractedSlots);
+    onClose?.();
+  };
+
+  const handleReset = () => {
+    setFile(null);
+    setPreviewUrl(null);
+    setExtractedSlots([]);
+    setRawOcrText('');
+    setScanError(null);
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ocr-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm overflow-y-auto"
+    >
+      <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-3xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 font-sans">
+        {/* Header */}
+        <div className="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-700 dark:text-blue-400 shrink-0">
+              <Camera className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <h2 id="ocr-modal-title" className="text-lg font-extrabold text-slate-900 dark:text-white truncate">
+                Scan College Timetable
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                Uses device Tesseract OCR to extract subject codes, days, and class timings
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Content Body */}
+        <div className="p-6 overflow-y-auto space-y-6 flex-1" style={{ scrollbarWidth: 'thin' }}>
+          {scanError && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <span>{scanError}</span>
+            </div>
+          )}
+
+          {/* Step 1: Image Upload / Dropzone */}
+          {extractedSlots.length === 0 ? (
+            <div className="space-y-4">
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
+                  isDragOver
+                    ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 scale-[0.99]'
+                    : previewUrl
+                    ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50/20 dark:bg-emerald-950/10'
+                    : 'border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50/60 dark:bg-slate-900/40'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                />
+
+                {previewUrl ? (
+                  <div className="space-y-3 max-w-sm">
+                    <img
+                      src={previewUrl}
+                      alt="Timetable preview"
+                      className="max-h-48 rounded-2xl mx-auto shadow-md border border-slate-200 dark:border-slate-700 object-contain"
+                    />
+                    <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      <FileImage className="w-4 h-4 text-emerald-600" />
+                      <span className="truncate max-w-[200px]">{file?.name || 'timetable.png'}</span>
+                      <span className="text-slate-400">({(file?.size ? (file.size / 1024).toFixed(1) : '150')} KB)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500">Click to choose a different image</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 rounded-3xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center justify-center mx-auto shadow-sm">
+                      <UploadCloud className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                        Drag and drop your timetable photo here, or <span className="text-blue-600 dark:text-blue-400 underline">browse</span>
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Supports PNG, JPG, or WebP (photo of college board, printed sheet, or screenshot)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {previewUrl && (
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    Clear Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunOcr}
+                    disabled={isScanning}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all disabled:opacity-50"
+                  >
+                    <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
+                    <span>{isScanning ? 'Running Tesseract OCR…' : 'Extract Timetable with OCR'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Step 2: Extracted & Editable Schedule Slots */
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-300">
+                      OCR Extracted {extractedSlots.length} Class Slots
+                    </h3>
+                    <p className="text-[11px] text-emerald-800/80 dark:text-emerald-400/80">
+                      You can edit the subject code, name, day, timing, or room before saving to your schedule.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:underline"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Scan another photo</span>
+                </button>
+              </div>
+
+              {/* Editable Slots List */}
+              <div className="space-y-3">
+                {extractedSlots.map((slot, index) => (
+                  <div
+                    key={slot.id || index}
+                    className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40 space-y-3 hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                      {/* Subject Code */}
+                      <div className="sm:col-span-3">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                          Code
+                        </label>
+                        <input
+                          type="text"
+                          value={slot.subjectCode || ''}
+                          onChange={(e) => handleSlotChange(index, 'subjectCode', e.target.value)}
+                          placeholder="e.g. CS 301"
+                          className="w-full px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white uppercase focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+
+                      {/* Subject Name / Title */}
+                      <div className="sm:col-span-4">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                          Subject Name
+                        </label>
+                        <input
+                          type="text"
+                          value={slot.title || ''}
+                          onChange={(e) => handleSlotChange(index, 'title', e.target.value)}
+                          placeholder="e.g. Design & Analysis of Algorithms"
+                          className="w-full px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+
+                      {/* Day of Week */}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                          Day
+                        </label>
+                        <select
+                          value={slot.day || 'Monday'}
+                          onChange={(e) => handleSlotChange(index, 'day', e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        >
+                          {DAYS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Start & End Times */}
+                      <div className="sm:col-span-2 flex items-center gap-1.5">
+                        <div className="flex-1">
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                            Start
+                          </label>
+                          <input
+                            type="time"
+                            value={slot.startTime || '09:00'}
+                            onChange={(e) => handleSlotChange(index, 'startTime', e.target.value)}
+                            className="w-full px-2 py-1.5 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                            End
+                          </label>
+                          <input
+                            type="time"
+                            value={slot.endTime || '10:00'}
+                            onChange={(e) => handleSlotChange(index, 'endTime', e.target.value)}
+                            className="w-full px-2 py-1.5 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Delete Action */}
+                      <div className="sm:col-span-1 flex items-end justify-center pt-4 sm:pt-0">
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSlot(index)}
+                          className="p-2 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                          title="Delete slot"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Room / Location Row */}
+                    <div className="flex items-center gap-2 pt-1 border-t border-slate-200/50 dark:border-slate-800/50">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <input
+                        type="text"
+                        value={slot.location || ''}
+                        onChange={(e) => handleSlotChange(index, 'location', e.target.value)}
+                        placeholder="Location or room (e.g. Lab 402, Hall B)"
+                        className="w-full text-xs text-slate-600 dark:text-slate-300 bg-transparent placeholder-slate-400 border-none outline-none focus:ring-0"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add row manually */}
+              <button
+                type="button"
+                onClick={handleAddManualSlot}
+                className="w-full py-2.5 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-all"
+              >
+                <Plus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>Add Another Class Slot Manually</span>
+              </button>
+
+              {/* Raw OCR Text Disclosure */}
+              {rawOcrText && (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 bg-slate-50 dark:bg-slate-900/30 text-xs space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowRawText(!showRawText)}
+                    className="flex items-center justify-between w-full font-bold text-slate-700 dark:text-slate-300"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Inspect Raw Tesseract OCR Output</span>
+                    </span>
+                    <span className="text-[11px] text-blue-600 dark:text-blue-400 underline">
+                      {showRawText ? 'Hide' : 'View'}
+                    </span>
+                  </button>
+
+                  {showRawText && (
+                    <pre className="mt-2 p-3 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] font-mono whitespace-pre-wrap text-slate-700 dark:text-slate-300 max-h-40 overflow-y-auto">
+                      {rawOcrText}
+                    </pre>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer Actions */}
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-950/40 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            Cancel
+          </button>
+
+          {extractedSlots.length > 0 && (
+            <button
+              type="button"
+              onClick={handleSaveAll}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Save &amp; Update Schedule ({extractedSlots.length})</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

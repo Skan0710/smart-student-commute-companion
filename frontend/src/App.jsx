@@ -7,6 +7,7 @@ import { NAV_ITEMS, SECONDARY_SCREENS } from './components/Navbar';
 import CreateReportModal from './components/CreateReportModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import FeedbackModal from './components/FeedbackModal';
+import CampusChatbot from './components/CampusChatbot';
 import PreferencesDialog from './components/PreferencesDialog';
 import PwaStatusBanner from './components/PwaStatusBanner';
 import InstallPromoBanner from './components/InstallPromoBanner';
@@ -84,7 +85,7 @@ import {
   fetchCurrentUser,
   signOut,
 } from './services/auth';
-import { AUTH_SESSION_EXPIRED_EVENT } from './utils/authSession';
+import { AUTH_SESSION_EXPIRED_EVENT, readAuthSession } from './utils/authSession';
 import {
   clearShareTargetData,
   getShareTargetData,
@@ -252,7 +253,7 @@ export default function App() {
       setLastVerifiedAt(session ? new Date().toISOString() : null);
       return session;
     },
-    { errorMessage: 'Unable to verify your saved session. Check your connection and try again.' }
+    { initialData: readAuthSession(), errorMessage: 'Unable to verify your saved session. Check your connection and try again.' }
   );
 
   // Client-side personalization preferences (device-local, no backend sync)
@@ -1309,7 +1310,7 @@ export default function App() {
 
   // Navbar props
   const navbarProps = {
-    user: sessionResource?.data?.user || sessionResource?.data,
+    user: sessionResource?.data?.user || (sessionResource?.data?.email ? sessionResource?.data : null) || readAuthSession()?.user || null,
     onResetDemo: handleResetDemo,
     isResetting,
     activeTab,
@@ -1356,6 +1357,9 @@ export default function App() {
 
       {/* Floating notification region (dismissible queue) */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
+
+      {/* Always-accessible Campus & Transit Chatbot */}
+      <CampusChatbot onNavigate={navigateToScreen} />
 
       {/* Client-side personalization controls */}
       <PreferencesDialog
