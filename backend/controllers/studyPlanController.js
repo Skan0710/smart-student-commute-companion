@@ -11,6 +11,7 @@
  */
 
 const { studyPlanningService } = require('../services');
+const { generateAiPlanExplanation } = require('../services/aiStudyPlanExplanationService');
 const { success, created } = require('../utils/apiResponse');
 
 /**
@@ -76,7 +77,23 @@ async function getCurrentPlan(req, res, next) {
       });
     }
 
-    return success(res, current);
+    let aiExplanation = null;
+    try {
+      const rawAssignments = studyPlanningService.assignmentRepo.findByUserId(studentId);
+      aiExplanation = await generateAiPlanExplanation({
+        plan: current.plan,
+        items: current.items,
+        assignments: rawAssignments || [],
+        summary: current.summary
+      });
+    } catch (e) {
+      console.warn('Could not compute AI plan explanation:', e.message);
+    }
+
+    return success(res, {
+      ...current,
+      aiExplanation
+    });
   } catch (err) {
     next(err);
   }

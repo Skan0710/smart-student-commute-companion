@@ -1,17 +1,9 @@
 /**
  * Chat Controller - Campus & Transit Assistant
  *
- * Provides student-focused answers for Mumbai transit, DJSCE campus navigation,
- * timetable management, and study planning.
+ * Uses Groq (Llama 3.3 70B) for ultra-fast, intelligent student assistance.
+ * Falls back to local grounded Mumbai transit & campus knowledge if GROQ_API_KEY is not provided.
  */
-
-const { GoogleGenAI } = (() => {
-  try {
-    return require('@google/genai');
-  } catch (e) {
-    return { GoogleGenAI: null };
-  }
-})();
 
 const KNOWLEDGE_BASE = [
   {
@@ -80,6 +72,67 @@ function generateLocalAnswer(prompt) {
 Try asking: *"How to reach college from Vikhroli?"* or *"How does the timetable scanner work?"*`;
 }
 
+async function callGroqChat(userMessage, conversationHistory = []) {
+  const groqApiKey = process.env.GROQ_API_KEY;
+  if (!groqApiKey) return null;
+
+  const systemPrompt = `You are the AI Campus & Transit Assistant for Dwarkadas J. Sanghvi College of Engineering (DJSCE) located in Vile Parle West, Mumbai.
+You provide friendly, accurate, and concise guidance for college students regarding:
+1. Commuting in Mumbai (Western Line local trains to Vile Parle station, Mumbai Metro Lines 1, 2A, 7, 3, and BEST buses especially route A-422 from Vikhroli to Erla/Vile Parle).
+2. DJSCE campus landmarks (Irla, Cooper Hospital, Mithibai/NMIMS junction, Prime Mall).
+3. Timetable OCR scanning (students can upload timetable photos to auto-extract course slots using device Tesseract OCR).
+4. Academic and study planning.
+Formatting: Use markdown bolding and bullet points. Keep answers practical, crisp, and student-friendly.`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  if (Array.isArray(conversationHistory)) {
+    conversationHistory.slice(-4).forEach(m => {
+      if (m.sender === 'user') messages.push({ role: 'user', content: m.text });
+      else if (m.sender === 'bot') messages.push({ role: 'assistant', content: m.text });
+    });
+  }
+
+  messages.push({ role: 'user', content: userMessage });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqApiKey.trim()}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        temperature: 0.5,
+        max_tokens: 650
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.warn(`Groq API error (${response.status}):`, errText);
+      return null;
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content || null;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.warn('Groq fetch failed or timed out:', err.message);
+    return null;
+  }
+}
+
 async function handleChat(req, res, next) {
   try {
     const { message, conversationHistory = [] } = req.body;
@@ -87,30 +140,15 @@ async function handleChat(req, res, next) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (apiKey && GoogleGenAI) {
-      try {
-        const ai = new GoogleGenAI({ apiKey });
-        const systemPrompt = `You are a helpful, smart student transit assistant for DJ Sanghvi College of Engineering (DJSCE) in Vile Parle West, Mumbai.
-You provide concise, accurate commuting tips (Western line local trains, Metro 1/2A/3, BEST buses like A-422, shared autos) and college academic guidance.
-Keep responses concise, friendly, and well-formatted with markdown bullet points.`;
-
-        const response = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
-          contents: [
-            { role: 'user', parts: [{ text: `${systemPrompt}\n\nStudent question: ${message}` }] }
-          ]
-        });
-
-        const reply = response.text || generateLocalAnswer(message);
-        return res.json({ reply, source: 'ai' });
-      } catch (err) {
-        console.warn('Gemini chat error, falling back to local knowledge base:', err.message);
+    // Try Groq API first if key is configured
+    if (process.env.GROQ_API_KEY) {
+      const groqReply = await callGroqChat(message, conversationHistory);
+      if (groqReply) {
+        return res.json({ reply: groqReply, source: 'groq-llama-3.3-70b' });
       }
     }
 
-    // Deterministic grounded assistant fallback
+    // Grounded fallback if Groq key is absent or request fails
     const reply = generateLocalAnswer(message);
     return res.json({ reply, source: 'grounded-engine' });
   } catch (err) {
@@ -121,4 +159,3 @@ Keep responses concise, friendly, and well-formatted with markdown bullet points
 module.exports = {
   handleChat
 };
-

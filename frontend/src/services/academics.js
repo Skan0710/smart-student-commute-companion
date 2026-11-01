@@ -70,9 +70,21 @@ const SAMPLE_PLAN = {
   id: 'sample-plan',
   title: 'Weekly Academic Mastery Plan (Mid-Term Prep)',
   status: 'active',
-  allocatedHours: 6,
+  allocatedHours: 7,
   completedHours: 3.5,
-  targetCompletion: 58,
+  targetCompletion: 50,
+  aiExplanation: {
+    provider: 'Gemini 1.5 Flash AI',
+    executiveSummary: 'Personalized 7-hour study strategy balancing upcoming algorithm deadlines, lab deliverables, and daily commute routines.',
+    requirementsBreakdown: 'Current requirements include 3 core deliverables: Dynamic Programming problem set (high urgency), SQL Indexing lab sheet, and Kernel Threading demo. Total focused work required: 7 hours.',
+    strategyWhy: '• Spaced Cognitive Focus: Intensive algorithmic problem solving is scheduled early in the week when focus is highest.\n• 24-Hour Buffer: Work sessions conclude at least one full day ahead of due dates to allow proofreading and submission.\n• Timetable Harmony: Study blocks are slotted directly around your class hours without calendar clashes.',
+    commuteStudyTips: '• Transit Study: Review SQL query optimization notes and data structure cheatsheets on your mobile while commuting via the A-422 bus or Western Line locals.',
+    keyMilestones: [
+      'Complete Dynamic Programming problem set before Tuesday deadline.',
+      'Execute SQL indexing lab sheet with 2-hour pre-submission buffer.',
+      'Draft and verify Kernel threading simulator code before weekend.'
+    ]
+  },
   items: [
     { id: 'sample-p1', title: 'Complete Dynamic Programming Problems 1-15', duration: '2 h', day: 'Monday', status: 'completed', priority: 'high', minutes: 120 },
     { id: 'sample-p2', title: 'Revise SQL Joins and Query Optimization', duration: '1 h 30 min', day: 'Tuesday', status: 'completed', priority: 'medium', minutes: 90 },
@@ -190,6 +202,8 @@ function normalizeStudyPlan(response) {
     title: plan.title,
     status: plan.status,
     items,
+    summary: response.summary || null,
+    aiExplanation: response.aiExplanation || plan.aiExplanation || response.summary?.aiExplanation || null,
     allocatedHours: roundToTenth(totalMinutes / 60),
     completedHours: roundToTenth(doneMinutes / 60),
     targetCompletion: totalMinutes > 0 ? Math.round((doneMinutes / totalMinutes) * 100) : null,

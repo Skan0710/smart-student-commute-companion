@@ -241,7 +241,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     { id: 'courses', label: 'Courses', icon: GraduationCap, count: courses.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, count: events.length },
     { id: 'resources', label: 'Study Resources', icon: BookOpen, count: resources.length },
-    { id: 'studyplans', label: 'Planner', icon: Zap },
+    { id: 'studyplans', label: 'AI Planner', icon: Sparkles, badge: 'AI' },
   ];
 
   // ── Create forms ──────────────────────────────────────────────────────────
@@ -299,7 +299,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
             Academic &amp; Study Hub
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
-            Your courses, timetable, study resources and an optimized weekly study plan in one place.
+            Your courses, timetable, study resources and an AI-optimized weekly study plan in one place.
           </p>
         </div>
 
@@ -645,7 +645,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                 <div>
                   <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 text-xs font-bold">
                     <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>Work scheduling engine</span>
+                    <span>Gemini AI Study Planning Engine</span>
                   </div>
                   <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {plan?.title || 'Weekly Study Plan'}
@@ -660,7 +660,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
                 >
                   <Zap className={`w-4 h-4 ${isGeneratingPlan ? 'animate-spin' : ''}`} aria-hidden="true" />
-                  <span>{isGeneratingPlan ? 'Calculating…' : plan ? 'Recalculate Plan' : 'Generate Plan'}</span>
+                  <span>{isGeneratingPlan ? 'Generating AI Plan…' : plan ? 'Recalculate AI Plan' : 'Generate AI Plan'}</span>
                 </button>
               </div>
 
@@ -689,6 +689,81 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                       <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1 tabular-nums">{plan.completedHours} hrs</div>
                     </div>
                   </div>
+
+                                    {/* AI Strategy & Requirements Briefing Card */}
+                  {plan.aiExplanation && (
+                    <div className="rounded-3xl border border-indigo-200/90 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/40 dark:from-indigo-950/40 dark:via-[#0b0e1d] dark:to-purple-950/20 p-5 sm:p-6 space-y-4 shadow-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 dark:border-indigo-900/50 pb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <Sparkles className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              <span>AI Strategy &amp; Requirements Rationale</span>
+                            </h3>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              Analyzed against current assignments, deadlines, and transit timetable
+                            </p>
+                          </div>
+                        </div>
+                        <span className="self-start sm:self-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
+                          {plan.aiExplanation.provider || 'Gemini 1.5 Flash AI'}
+                        </span>
+                      </div>
+
+                      {plan.aiExplanation.executiveSummary && (
+                        <p className="text-xs sm:text-sm font-medium text-indigo-950 dark:text-indigo-200 bg-indigo-100/50 dark:bg-indigo-950/60 rounded-2xl p-3.5 border border-indigo-200/60 dark:border-indigo-900/40 leading-relaxed">
+                          "{plan.aiExplanation.executiveSummary}"
+                        </p>
+                      )}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Current Requirements & Deadlines */}
+                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1.5 shadow-2xs">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+                            <span>📋 Current Requirements &amp; Deadlines</span>
+                          </h4>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {plan.aiExplanation.requirementsBreakdown}
+                          </p>
+                        </div>
+
+                        {/* Why this Plan: AI Rationale */}
+                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1.5 shadow-2xs">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+                            <span>🧠 Why This Plan? (Scheduling Rationale)</span>
+                          </h4>
+                          <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                            {plan.aiExplanation.strategyWhy}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Commute Study Tips & Milestones */}
+                      {(plan.aiExplanation.commuteStudyTips || (plan.aiExplanation.keyMilestones && plan.aiExplanation.keyMilestones.length > 0)) && (
+                        <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 space-y-2">
+                          {plan.aiExplanation.commuteStudyTips && (
+                            <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                              {plan.aiExplanation.commuteStudyTips}
+                            </p>
+                          )}
+                          {plan.aiExplanation.keyMilestones && plan.aiExplanation.keyMilestones.length > 0 && (
+                            <div className="pt-2 border-t border-amber-200/50 dark:border-amber-900/30">
+                              <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200 uppercase tracking-wider">
+                                Action Milestones:
+                              </span>
+                              <ul className="list-disc list-inside text-xs text-amber-900/90 dark:text-amber-300/90 mt-1 space-y-0.5">
+                                {plan.aiExplanation.keyMilestones.map((m, idx) => (
+                                  <li key={idx}>{m}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">Scheduled focus work items</h3>
