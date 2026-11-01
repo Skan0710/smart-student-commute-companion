@@ -85,6 +85,21 @@ const envSchema = z.object({
     .optional()
     .default(''),
 
+  SUPABASE_URL: z
+    .string()
+    .optional()
+    .default(''),
+
+  SUPABASE_ANON_KEY: z
+    .string()
+    .optional()
+    .default(''),
+
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .optional()
+    .default(''),
+
   // Reverse-proxy trust: 'false' (default), 'true', a hop count (e.g. '1'), or
   // an Express trust-proxy subnet list. Needed for correct client IPs
   // (rate limiting) and for HTTPS detection behind a TLS-terminating proxy.
@@ -250,6 +265,12 @@ const config = {
   jwtExpiresIn: 86400, // 24 hours in seconds
   database: {
     path: resolvedDbPath
+  },
+  supabase: {
+    url: (validatedConfig.SUPABASE_URL || process.env.SUPABASE_URL || '').trim(),
+    anonKey: (validatedConfig.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim(),
+    serviceRoleKey: (validatedConfig.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim(),
+    isConfigured: Boolean((validatedConfig.SUPABASE_URL || process.env.SUPABASE_URL) && ((validatedConfig.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) || (validatedConfig.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY)))
   },
 
   /**

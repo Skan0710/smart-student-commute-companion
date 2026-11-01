@@ -3,6 +3,7 @@ const { Server } = require('socket.io');
 const config = require('./config');
 const { db, closeConnection } = require('./db/database');
 const { createApp } = require('./app');
+const { isSupabaseConfigured } = require('./db/supabase');
 const { reminderScheduler } = require('./services/reminderScheduler');
 const { resolveChannel } = require('./utils/socketChannels');
 
@@ -117,7 +118,7 @@ async function startServer(port = config.port, host = config.host) {
       console.log(` Socket.IO: Ready for Live Student Reports`);
       console.log(` Environment: ${config.nodeEnv}`);
       console.log(` Gemini AI: ${config.geminiApiKey ? 'Configured (Active)' : 'Not configured (Deterministic fallback active)'}`);
-      console.log(` Database: SQLite (${config.database.path})`);
+      console.log(` Database: ${isSupabaseConfigured() ? `Supabase PostgreSQL (Active: ${config.supabase?.url})` : `SQLite (${config.database.path})`}`);
       console.log(`=======================================================`);
 
       // Due reminders and commute disruption alerts are only ever delivered by
