@@ -275,6 +275,14 @@ export async function confirmReport(reportId) {
  * Mark a live report as resolved/contradicted (crowdsourced voting)
  * @param {string} reportId - Report ID to contradict
  */
+export async function clearPastLiveReports() {
+  return request('/live-reports/clear-past', { method: 'POST' });
+}
+
+export async function clearAllLiveReports() {
+  return request('/live-reports/clear-all', { method: 'POST' });
+}
+
 export async function contradictReport(reportId) {
   return request(`/live-reports/${reportId}/contradict`, {
     method: 'POST',

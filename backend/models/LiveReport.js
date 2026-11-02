@@ -31,7 +31,9 @@ class LiveReport {
   static create(input) {
     const now = Date.now();
     const durationMinutes = input.durationObservedMinutes || 60;
-    const expires_at = input.expires_at || (now + durationMinutes * 60 * 1000);
+    const endOfToday = new Date(now).setHours(23, 59, 59, 999);
+    const calculatedExpiry = input.expires_at || (now + durationMinutes * 60 * 1000);
+    const expires_at = Math.min(calculatedExpiry, endOfToday);
     const id = input.id || `rep-${now}-${Math.random().toString(36).substring(2, 6)}`;
 
     return new LiveReport({

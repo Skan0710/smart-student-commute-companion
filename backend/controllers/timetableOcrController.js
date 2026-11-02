@@ -1,10 +1,11 @@
 /**
  * Timetable OCR Controller
  *
- * Exposes endpoint to receive an image payload (base64 or multipart) and invoke local Tesseract OCR.
+ * Exposes endpoint to receive an image payload (base64) or direct text payload,
+ * invokes multi-pass Tesseract OCR and AI timetable analysis.
  */
 
-const { scanTimetableImage, parseTimetableText } = require('../services/timetableOcrService');
+const { scanTimetableImage, processTimetableText } = require('../services/timetableOcrService');
 
 async function handleTimetableOcr(req, res, next) {
   try {
@@ -12,12 +13,13 @@ async function handleTimetableOcr(req, res, next) {
 
     // Direct text parse mode for manual testing or text paste
     if (text && typeof text === 'string') {
-      const items = parseTimetableText(text);
+      const result = await processTimetableText(text);
       return res.status(200).json({
         status: 'success',
-        count: items.length,
-        items,
-        rawText: text
+        count: result.items.length,
+        items: result.items,
+        rawText: text,
+        parser: result.parser
       });
     }
 
@@ -29,7 +31,7 @@ async function handleTimetableOcr(req, res, next) {
       });
     }
 
-    // Extract base64 buffer from data URL if needed (e.g. data:image/png;base64,iVBOR...)
+    // Extract base64 buffer from data URL if needed
     const base64Data = image.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
@@ -48,6 +50,7 @@ async function handleTimetableOcr(req, res, next) {
       count: result.count,
       items: result.items,
       rawText: result.rawText,
+      parser: result.parser,
       tesseractPath: result.tesseractPath
     });
   } catch (error) {
@@ -63,4 +66,3 @@ async function handleTimetableOcr(req, res, next) {
 module.exports = {
   handleTimetableOcr
 };
-

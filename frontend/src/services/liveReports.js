@@ -20,6 +20,8 @@ import {
   postLiveReport,
   confirmReport,
   contradictReport,
+  clearPastLiveReports,
+  clearAllLiveReports,
   FrontendApiError,
 } from './api';
 
@@ -68,6 +70,20 @@ export function voteStillHappening(reportId) {
  */
 export function voteCleared(reportId) {
   return contradictReport(reportId);
+}
+
+/**
+ * Clears past-day reports so yesterday's disruptions never alter today's travel.
+ */
+export async function clearPastReports() {
+  return clearPastLiveReports();
+}
+
+/**
+ * Clears all active disruption reports on demand.
+ */
+export async function clearAllReports() {
+  return clearAllLiveReports();
 }
 
 // ─── Commute Disruption Alerts (Backend Day 20) ─────────────────────────────

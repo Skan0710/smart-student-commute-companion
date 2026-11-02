@@ -26,10 +26,11 @@ class ReportRepository {
   findActive(currentTime = Date.now()) {
     const stmt = this.database.prepare(`
       SELECT * FROM live_commute_reports 
-      WHERE status = 'active' AND expires_at > ? 
+      WHERE status = 'active' AND expires_at > ? AND created_at >= ?
       ORDER BY created_at DESC
     `);
-    const rows = stmt.all(currentTime);
+    const startOfToday = new Date(currentTime).setHours(0, 0, 0, 0);
+    const rows = stmt.all(currentTime, startOfToday);
     return rows.map(r => LiveReport.fromRow(r));
   }
 
@@ -51,6 +52,14 @@ class ReportRepository {
     if (status !== 'all') {
       conditions.push('status = ?');
       params.push(status);
+      if (status === 'active' && !options.includePastDays) {
+        const currentTime = Date.now();
+        const startOfToday = new Date(currentTime).setHours(0, 0, 0, 0);
+        conditions.push('created_at >= ?');
+        params.push(startOfToday);
+        conditions.push('expires_at > ?');
+        params.push(currentTime);
+      }
     }
 
     if (options.mode) {
@@ -273,6 +282,39 @@ class ReportRepository {
 
     executeTx();
     return changes > 0;
+  }
+
+  /**
+   * Clears / expires all reports from yesterday or earlier so they never
+   * alter today's travel routes or clutter live disruption feeds.
+   *
+   * @param {number} [currentTime=Date.now()]
+   * @returns {{ clearedCount: number }}
+   */
+  clearPastDayReports(currentTime = Date.now()) {
+    const startOfToday = new Date(currentTime).setHours(0, 0, 0, 0);
+    const stmt = this.database.prepare(`
+      UPDATE live_commute_reports
+      SET status = 'expired'
+      WHERE status = 'active' AND (created_at < ? OR expires_at <= ?)
+    `);
+    const info = stmt.run(startOfToday, currentTime);
+    return { clearedCount: info.changes || 0 };
+  }
+
+  /**
+   * Resets / clears all active reports (e.g. manual user/admin reset).
+   *
+   * @returns {{ clearedCount: number }}
+   */
+  clearAllActiveReports() {
+    const stmt = this.database.prepare(`
+      UPDATE live_commute_reports
+      SET status = 'expired'
+      WHERE status = 'active'
+    `);
+    const info = stmt.run();
+    return { clearedCount: info.changes || 0 };
   }
 }
 

@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search as SearchIcon, RefreshCw, AlertTriangle, AlertCircle, MapPin, ShieldAlert, CheckCircle2, X } from 'lucide-react';
+import { Search as SearchIcon, RefreshCw, AlertTriangle, AlertCircle, MapPin, ShieldAlert, CheckCircle2, X, Clock, Trash2 } from 'lucide-react';
 import LiveStudentFeed from '../components/LiveStudentFeed';
 import { LoadingState, ErrorState, EmptyState, SearchInput, FilterBar, Select, StatTile, Alert, RouteBadge, StatusIndicator } from '../components/ui';
 import { applyListControls, buildActiveFilters } from '../utils/listControls';
-import { listCommuteAlerts, dismissAlert } from '../services/liveReports';
+import { listCommuteAlerts, dismissAlert, clearPastReports } from '../services/liveReports';
 
 const IMPACT_LABELS = { low: 'Low', medium: 'Medium', high: 'High' };
 const MODE_LABELS = {
@@ -44,6 +44,23 @@ export default function LiveAlertsPage({
   const [officialAlerts, setOfficialAlerts] = useState([]);
   const [dismissingId, setDismissingId] = useState(null);
   const [dismissError, setDismissError] = useState(null);
+  const [isClearing, setIsClearing] = useState(false);
+  const [clearMsg, setClearMsg] = useState(null);
+
+  const handleClearPastReports = async () => {
+    setIsClearing(true);
+    setClearMsg(null);
+    try {
+      const res = await clearPastReports();
+      setClearMsg(res?.message || 'Past day reports cleared!');
+      onRefresh?.();
+      setTimeout(() => setClearMsg(null), 4000);
+    } catch (err) {
+      setClearMsg('Could not clear past reports.');
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;

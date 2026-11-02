@@ -300,36 +300,38 @@ export default function AccountProfileCard({
             </div>
 
             {/* Student Identity Information */}
-            <div className="min-w-0 space-y-1.5">
+            <div className="min-w-0 space-y-2">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h2
                   id="account-profile-heading"
-                  className="text-xl sm:text-2xl font-black text-white tracking-tight truncate"
+                  className="text-xl sm:text-2xl font-black text-white tracking-tight truncate drop-shadow-sm"
                 >
                   {displayName}
                 </h2>
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 backdrop-blur-md">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-400/25 text-emerald-100 border border-emerald-300/40 backdrop-blur-md shadow-sm">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-300" />
                   Verified Student
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-300 font-medium flex items-center gap-2 truncate">
-                <Building className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>{collegeName}</span>
+              <p className="text-xs sm:text-sm text-white/95 font-medium flex items-center gap-2 truncate">
+                <Building className="w-4 h-4 text-amber-300 dark:text-sky-300 shrink-0 drop-shadow-sm" />
+                <span className="drop-shadow-sm">{collegeName}</span>
               </p>
 
-              <div className="flex items-center gap-3 text-xs text-slate-400 flex-wrap pt-0.5">
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+              <div className="flex items-center gap-3 text-xs text-white/90 flex-wrap pt-0.5">
+                <span className="flex items-center gap-1.5 text-white/90 font-medium">
+                  <Mail className="w-3.5 h-3.5 text-white/75" />
                   {user?.email || 'student@djsanghvi.edu'}
                 </span>
-                <span className="text-slate-600">•</span>
-                <span className="text-teal-300 font-medium">{department}</span>
+                <span className="text-white/40">•</span>
+                <span className="text-teal-200 dark:text-[#ccff00] font-bold">{department}</span>
                 {studentId && (
                   <>
-                    <span className="text-slate-600">•</span>
-                    <span className="font-mono text-slate-400">ID: {studentId}</span>
+                    <span className="text-white/40">•</span>
+                    <span className="font-mono text-white font-semibold px-2.5 py-0.5 rounded-lg bg-black/30 dark:bg-white/15 border border-white/20 shadow-inner">
+                      ID: {studentId}
+                    </span>
                   </>
                 )}
               </div>
@@ -341,16 +343,16 @@ export default function AccountProfileCard({
             <button
               type="button"
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold border border-white/20 transition-all shadow-md active:scale-95"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-bold border border-white/35 backdrop-blur-md transition-all shadow-md active:scale-95"
             >
               {isEditing ? (
                 <>
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 text-white" />
                   <span>Cancel</span>
                 </>
               ) : (
                 <>
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4 text-white" />
                   <span>Edit Profile</span>
                 </>
               )}
@@ -359,10 +361,10 @@ export default function AccountProfileCard({
               <button
                 type="button"
                 onClick={onRequestSignOut}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs sm:text-sm font-bold border border-rose-500/30 transition-all shadow-md active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-rose-600/35 hover:bg-rose-600/50 text-white text-xs sm:text-sm font-bold border border-rose-300/40 backdrop-blur-md transition-all shadow-md active:scale-95"
                 title="Sign out of student profile"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4 text-rose-200" />
                 <span>Sign out</span>
               </button>
             )}
@@ -569,25 +571,25 @@ export default function AccountProfileCard({
             </div>
 
             <dl className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Full Name</dt>
-                <dd className="font-bold text-slate-900 dark:text-slate-100">{displayName}</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Full Name</dt>
+                <dd className="font-bold text-slate-950 dark:text-white">{displayName}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Registered Email</dt>
-                <dd className="font-semibold text-slate-900 dark:text-slate-100">{user?.email || 'student@djsanghvi.edu'}</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Registered Email</dt>
+                <dd className="font-semibold text-slate-950 dark:text-white">{user?.email || 'student@djsanghvi.edu'}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Department</dt>
-                <dd className="font-semibold text-teal-600 dark:text-teal-400">{department}</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Department</dt>
+                <dd className="font-bold text-teal-700 dark:text-teal-300">{department}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Student Roll / ID</dt>
-                <dd className="font-mono font-semibold text-slate-900 dark:text-slate-100">{studentId}</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Student Roll / ID</dt>
+                <dd className="font-mono font-bold text-slate-950 dark:text-white px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10">{studentId}</dd>
               </div>
               <div className="flex items-center justify-between py-1.5">
-                <dt className="text-slate-500 dark:text-slate-400">Campus Destination</dt>
-                <dd className="font-medium text-slate-800 dark:text-slate-200">Vile Parle (West), Mumbai</dd>
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Campus Destination</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white">Vile Parle (West), Mumbai</dd>
               </div>
             </dl>
           </div>
@@ -599,31 +601,31 @@ export default function AccountProfileCard({
                 <Train className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>Daily Commute Configuration</span>
               </h3>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                 Transit Settings
               </span>
             </div>
 
             <dl className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Home / Base Station</dt>
-                <dd className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Home / Base Station</dt>
+                <dd className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5" />
                   {homeStation}
                 </dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Primary Corridor</dt>
-                <dd className="font-medium text-slate-800 dark:text-slate-200">{corridor}</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Primary Corridor</dt>
+                <dd className="font-semibold text-slate-900 dark:text-white">{corridor}</dd>
               </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-50 dark:border-white/10">
-                <dt className="text-slate-500 dark:text-slate-400">Max Walking Tolerance</dt>
-                <dd className="font-semibold text-slate-900 dark:text-slate-100">{walkingTolerance} minutes</dd>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-white/10">
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Max Walking Tolerance</dt>
+                <dd className="font-bold text-slate-950 dark:text-white">{walkingTolerance} minutes</dd>
               </div>
               <div className="flex items-center justify-between py-1.5">
-                <dt className="text-slate-500 dark:text-slate-400">Railway Concession</dt>
-                <dd className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-                  <BookmarkCheck className="w-3 h-3" />
+                <dt className="text-slate-600 dark:text-slate-300 font-medium">Railway Concession</dt>
+                <dd className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 shadow-sm">
+                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Eligible (Admin Office)
                 </dd>
               </div>

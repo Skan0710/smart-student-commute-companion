@@ -7,7 +7,9 @@ const {
   confirmReport,
   contradictReport,
   updateReport,
-  deleteReport
+  deleteReport,
+  clearPastReports,
+  clearAllReports
 } = require('../controllers/reportController');
 const { authenticate, optionalAuthenticate } = require('../middleware/authMiddleware');
 const {
@@ -38,6 +40,8 @@ function createReportRoutes(io) {
     validate({ params: idParamSchema }),
     deleteReport(io)
   );
+  router.post('/live-reports/clear-past', clearPastReports);
+  router.post('/live-reports/clear-all', clearAllReports);
   router.post('/live-reports/:id/confirm', optionalAuthenticate, validate({ params: idParamSchema }), confirmReport(io));
   router.post('/live-reports/:id/contradict', optionalAuthenticate, validate({ params: idParamSchema }), contradictReport(io));
 

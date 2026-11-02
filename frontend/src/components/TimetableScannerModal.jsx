@@ -32,6 +32,9 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
   const [rawOcrText, setRawOcrText] = useState('');
   const [showRawText, setShowRawText] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [inputMode, setInputMode] = useState('image');
+  const [pastedText, setPastedText] = useState('');
+  const [parserType, setParserType] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -116,8 +119,12 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
   };
 
   const handleRunOcr = async () => {
-    if (!previewUrl) {
-      setScanError('Please upload a timetable image first.');
+    if (inputMode === 'image' && !previewUrl) {
+      setScanError('Please upload or paste a timetable image first.');
+      return;
+    }
+    if (inputMode === 'text' && !pastedText.trim()) {
+      setScanError('Please enter or paste your timetable text first.');
       return;
     }
 
@@ -125,19 +132,21 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
     setScanError(null);
 
     try {
-      const response = await scanTimetableOcr({ image: previewUrl });
+      const payload = inputMode === 'text' ? { text: pastedText } : { image: previewUrl };
+      const response = await scanTimetableOcr(payload);
       if (response && response.items) {
         setExtractedSlots(response.items);
         setRawOcrText(response.rawText || '');
+        setParserType(response.parser || null);
         if (response.items.length === 0) {
-          setScanError('Tesseract OCR could not automatically identify class timings. You can add slots manually or review raw OCR text.');
+          setScanError('Could not identify class timings from the provided input. You can add slots manually or edit text.');
         }
       } else {
-        setScanError('Unable to extract timetable slots from image. Please try another angle or photo.');
+        setScanError('Unable to extract timetable slots. Please try another photo or paste text.');
       }
     } catch (err) {
-      console.error('Timetable OCR scan failed:', err);
-      setScanError(err.message || 'Failed to scan image using local Tesseract OCR.');
+      console.error('Timetable scan failed:', err);
+      setScanError(err.message || 'Failed to analyze timetable. Please try again.');
     } finally {
       setIsScanning(false);
     }
@@ -229,13 +238,89 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
             </div>
           )}
 
-          {/* Step 1: Image Upload / Dropzone */}
+          {/* Mode Switcher Tabs */}
+          {extractedSlots.length === 0 && (
+            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-3">
+              <button
+                type="button"
+                onClick={() => { setInputMode('image'); setScanError(null); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  inputMode === 'image'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Camera className="w-4 h-4" />
+                <span>Photo / Image Upload</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setInputMode('text'); setScanError(null); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  inputMode === 'text'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>Paste Text / Schedule Grid</span>
+              </button>
+            </div>
+          )}
+
+          {/* Step 1: Image Upload or Text Input */}
           {extractedSlots.length === 0 ? (
             <div className="space-y-4">
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
+              {inputMode === 'text' ? (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-xs text-blue-900 dark:text-blue-200 space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      AI Timetable Reasoner Active
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Paste rows, tabular schedule data, or WhatsApp messages. AI expands course codes (DWM, AI, YPOO, TCS, CN) and resolves days and time slots automatically.
+                    </p>
+                  </div>
+
+                  <textarea
+                    rows={8}
+                    value={pastedText}
+                    onChange={(e) => setPastedText(e.target.value)}
+                    placeholder={`Paste your timetable text or table here, e.g.:
+Monday | 09:00 - 10:00 | DWM (CR 67)
+Monday | 10:00 - 11:00 | AI (CR 67)
+Monday | 11:15 - 01:15 | DWM Lab (Lab 3)
+Tuesday | 09:00 - 10:00 | CN (CR 67)
+Tuesday | 10:00 - 11:00 | TCS (CR 67)`}
+                    className="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed"
+                  />
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setPastedText('')}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      Clear Text
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRunOcr}
+                      disabled={isScanning || !pastedText.trim()}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs sm:text-sm shadow-md transition-all"
+                    >
+                      <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
+                      <span>{isScanning ? 'AI Analyzing Subjects & Grid...' : 'Analyze Timetable with AI'}</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
                   isDragOver
@@ -320,9 +405,11 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all disabled:opacity-50"
                   >
                     <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
-                    <span>{isScanning ? 'Running Tesseract OCR…' : 'Extract Timetable with OCR'}</span>
+                    <span>{isScanning ? 'AI Analyzing Subjects & Grid…' : 'Extract Timetable with AI & OCR'}</span>
                   </button>
                 </div>
+              )}
+              </div>
               )}
             </div>
           ) : (
@@ -332,9 +419,17 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <div>
-                    <h3 className="text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-300">
-                      OCR Extracted {extractedSlots.length} Class Slots
-                    </h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-300">
+                        Extracted {extractedSlots.length} Class Slots
+                      </h3>
+                      {parserType?.startsWith('ai') && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          AI Verified Subjects & Grid
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-emerald-800/80 dark:text-emerald-400/80">
                       You can edit the subject code, name, day, timing, or room before saving to your schedule.
                     </p>

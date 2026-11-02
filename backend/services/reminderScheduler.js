@@ -176,6 +176,13 @@ class ReminderScheduler {
       } catch (err) {
         console.error('[ReminderScheduler] Error during scheduled commute alert tick:', err.message);
       }
+
+      try {
+        const { reportRepository } = require('../repositories/ReportRepository');
+        reportRepository.clearPastDayReports();
+      } catch (err) {
+        console.error('[ReminderScheduler] Error during past-day report expiration tick:', err.message);
+      }
     }, intervalMs);
 
     // Unref timer so node process can cleanly exit if needed

@@ -251,6 +251,25 @@ class ReportService {
 
     return this.repo.delete(id);
   }
+
+  /**
+   * Clears all reports from yesterday or earlier so they never alter today's commute.
+   *
+   * @param {number} [currentTime=Date.now()]
+   * @returns {{ clearedCount: number }}
+   */
+  clearPastReports(currentTime = Date.now()) {
+    return this.repo.clearPastDayReports(currentTime);
+  }
+
+  /**
+   * Clears all active disruption reports on demand.
+   *
+   * @returns {{ clearedCount: number }}
+   */
+  clearAllReports() {
+    return this.repo.clearAllActiveReports();
+  }
 }
 
 module.exports = {

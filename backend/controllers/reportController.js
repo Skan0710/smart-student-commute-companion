@@ -174,6 +174,30 @@ function deleteReport(io) {
   return handler;
 }
 
+function clearPastReports(req, res, next) {
+  try {
+    const result = reportService.clearPastReports();
+    return success(res, {
+      message: 'Cleared past day reports successfully',
+      clearedCount: result.clearedCount
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function clearAllReports(req, res, next) {
+  try {
+    const result = reportService.clearAllReports();
+    return success(res, {
+      message: 'All active reports have been cleared',
+      clearedCount: result.clearedCount
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getLiveReports,
   getReport,
@@ -183,5 +207,7 @@ module.exports = {
   contradictReport,
   updateReport,
   deleteReport,
+  clearPastReports,
+  clearAllReports,
   reportSchema
 };
