@@ -63,7 +63,6 @@ import {
   writeThemePreference,
   applyTheme,
 } from './utils/uiPreferences';
-import { resetDemoState } from './services/api';
 import {
   readQueueState,
   enqueueReport,
@@ -192,7 +191,6 @@ export default function App() {
   // True only AFTER a live-stream disconnect/connect failure (never on first paint)
   const [isConnectionLost, setIsConnectionLost] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
 
   // Toast queue — capped so rapid events never bury the screen; each entry
   // owns its auto-dismiss timer so overlapping toasts can't cancel each other
@@ -1079,25 +1077,6 @@ export default function App() {
     showToast('Feedback recorded. Thank you!');
   };
 
-  // Demo Reset (ref-guarded against duplicate submissions)
-  const resetInFlightRef = useRef(false);
-  const handleResetDemo = async () => {
-    if (resetInFlightRef.current) return;
-    resetInFlightRef.current = true;
-    setIsResetting(true);
-    try {
-      await resetDemoState();
-      await Promise.all([reportsResource.load(), groupsResource.load()]);
-      await handlePlan(false);
-      showToast('Hackathon demo reset to baseline state!');
-    } catch (err) {
-      showToast(err.message, 'error');
-    } finally {
-      resetInFlightRef.current = false;
-      setIsResetting(false);
-    }
-  };
-
   // Render helper for active feature page
   const renderTabContent = () => {
     switch (activeTab) {
@@ -1326,8 +1305,6 @@ export default function App() {
   // Navbar props
   const navbarProps = {
     user: sessionResource?.data?.user || (sessionResource?.data?.email ? sessionResource?.data : null) || readAuthSession()?.user || null,
-    onResetDemo: handleResetDemo,
-    isResetting,
     activeTab,
     setActiveTab,
     onNavigateScreen: navigateToScreen,

@@ -16,7 +16,7 @@ import {
   X,
   SlidersHorizontal
 } from 'lucide-react';
-import { ConfirmDialog, UnreadCountBadge } from './ui';
+import { UnreadCountBadge } from './ui';
 import ThemeToggle from './ThemeToggle';
 import SpotlightNavbar from './ui/spotlight-navbar';
 import Logo from './Logo';
@@ -177,8 +177,6 @@ export const SECONDARY_SCREENS = [
 
 export default function Navbar({
   user = null,
-  onResetDemo,
-  isResetting,
   activeTab,
   setActiveTab,
   onNavigateScreen,
@@ -215,7 +213,6 @@ export default function Navbar({
   const userInitials = (profileLabel !== 'Profile' ? profileLabel : (effectiveUser?.email || 'P')).split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isConfirmingReset, setIsConfirmingReset] = useState(false);
   const menuButtonRef = useRef(null);
   const mobileNavRef = useRef(null);
   const bellButtonRef = useRef(null);
@@ -248,12 +245,6 @@ export default function Navbar({
     };
   }, [isNotificationsOpen]);
   
-
-  const handleConfirmReset = () => {
-    setIsConfirmingReset(false);
-    setMobileMenuOpen(false);
-    onResetDemo?.();
-  };
 
   // Close mobile menu on Escape key press
   useEffect(() => {
@@ -603,18 +594,6 @@ export default function Navbar({
           );
         })}
       </nav>
-
-      {/* Reset demo confirmation dialog */}
-      <ConfirmDialog
-        isOpen={isConfirmingReset}
-        onCancel={() => setIsConfirmingReset(false)}
-        onConfirm={handleConfirmReset}
-        title="Reset demo environment?"
-        message="This will restore all live reports, commute groups, and demo data to the baseline state. This action cannot be undone."
-        confirmLabel="Reset Demo"
-        destructive
-        isPending={isResetting}
-      />
     </>
   );
 }
