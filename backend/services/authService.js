@@ -6,6 +6,7 @@
  */
 
 const { userRepository } = require('../repositories/UserRepository');
+const { getSupabaseClient } = require('../db/supabase');
 const { ConflictError, UnauthorizedError, NotFoundError } = require('../errors');
 const { signToken } = require('../utils/token');
 const crypto = require('crypto');
@@ -86,7 +87,7 @@ class AuthService {
    * @param {object} user - User model instance
    * @returns {{ user: object, token: string }}
    */
-  _issueSession(user) {
+  _issueSession(user, supaSession = null) {
     const token = signToken({
       sub: user.id,
       email: user.email,
@@ -97,7 +98,9 @@ class AuthService {
 
     return {
       user: user.toSafeObject(),
-      token
+      token,
+      supabase_token: supaSession?.access_token || null,
+      supabase_refresh_token: supaSession?.refresh_token || null
     };
   }
 
@@ -123,6 +126,7 @@ class AuthService {
         password: `${crypto.randomBytes(32).toString('base64url')}Aa1`,
         full_name: displayName.length >= 2 ? displayName.slice(0, 100) : 'Student',
         college_name: 'Not specified',
+        profile_picture: profile.picture || profile.avatar_url || null,
         role: 'student'
       });
     }

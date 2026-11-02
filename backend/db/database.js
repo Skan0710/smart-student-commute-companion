@@ -109,12 +109,14 @@ function initDb(overrideDb) {
       full_name TEXT NOT NULL,
       college_name TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'student',
+      profile_picture TEXT,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
   `);
+  ensureColumnExists(activeDb, 'users', 'profile_picture', 'TEXT');
 
   // 7. Student Domain Relationships (Day 6)
   activeDb.exec(`

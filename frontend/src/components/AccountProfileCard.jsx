@@ -270,25 +270,27 @@ export default function AccountProfileCard({
                   )}
                 </div>
 
-                {/* Hover overlay with camera indicator */}
-                <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
-                  <Camera className="w-6 h-6 text-white drop-shadow-md" />
-                  <span className="text-[10px] font-bold text-white mt-1 drop-shadow">Photo</span>
+                {/* Hover overlay with camera indicator and remove option */}
+                <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200 gap-1.5 p-1 select-none">
+                  <div className="flex items-center gap-1 text-white">
+                    <Camera className="w-4 h-4 text-white drop-shadow" />
+                    <span className="text-[11px] font-bold drop-shadow">Change</span>
+                  </div>
+                  {profilePicture && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={handleRemovePhoto}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRemovePhoto(e); }}
+                      title="Remove profile picture"
+                      className="px-2 py-0.5 rounded-md bg-rose-600 hover:bg-rose-700 text-[10px] font-bold text-white shadow-xs transition-colors"
+                      aria-label="Remove profile picture"
+                    >
+                      Remove
+                    </span>
+                  )}
                 </div>
               </button>
-
-              {/* Delete photo quick button */}
-              {profilePicture && (
-                <button
-                  type="button"
-                  onClick={handleRemovePhoto}
-                  title="Remove profile picture"
-                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-lg border-2 border-slate-900 transition-all hover:scale-110 z-20"
-                  aria-label="Remove profile picture"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
             </div>
 
             {/* Student Identity Information */}

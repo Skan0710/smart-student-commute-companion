@@ -112,7 +112,7 @@ export default function AccountPage({
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Personalize your campus commute, department, and transit preferences for DJ Sanghvi College of Engineering.
+            Personalize your campus commute, department, and transit preferences for your college.
           </p>
           {/* Session state, announced politely so screen-reader users hear
               sign-in / sign-out / verification changes without watching. */}

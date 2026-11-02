@@ -15,9 +15,28 @@ const { created, success } = require('../utils/apiResponse');
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
-function register(req, res, next) {
+async function register(req, res, next) {
   try {
     const user = authService.register(req.body);
+
+    // Sync account creation to Supabase Authentication if configured
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        await supabase.auth.admin.createUser({
+          email: req.body.email.trim().toLowerCase(),
+          password: req.body.password,
+          email_confirm: true,
+          user_metadata: {
+            full_name: req.body.full_name,
+            college_name: req.body.college_name
+          }
+        });
+      }
+    } catch (supaErr) {
+      console.warn('[Supabase Auth Sync]', supaErr.message);
+    }
+
     return created(res, {
       message: 'Account registered successfully',
       user
@@ -34,13 +53,61 @@ function register(req, res, next) {
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
-function login(req, res, next) {
+async function login(req, res, next) {
   try {
-    const { user, token } = authService.login(req.body);
+    let sessionResult;
+    try {
+      sessionResult = authService.login(req.body);
+    } catch (localErr) {
+      // If user not in local database, verify if registered directly in Supabase
+      const supabase = getSupabaseClient();
+      if (supabase && localErr.statusCode === 401) {
+        const { data: supaAuth, error: supaErr } = await supabase.auth.signInWithPassword({
+          email: req.body.email,
+          password: req.body.password
+        });
+        if (supaAuth?.user && !supaErr) {
+          const meta = supaAuth.user.user_metadata || {};
+          const createdUser = authService.userRepo.create({
+            email: req.body.email,
+            password: req.body.password,
+            full_name: meta.full_name || req.body.email.split('@')[0],
+            college_name: meta.college_name || 'Not specified',
+            profile_picture: meta.avatar_url || meta.picture || null,
+            role: 'student'
+          });
+          sessionResult = authService._issueSession(createdUser, supaAuth.session);
+        } else {
+          throw localErr;
+        }
+      } else {
+        throw localErr;
+      }
+    }
+
+    // Attempt to acquire Supabase tokens if available
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase && !sessionResult.supabase_token) {
+        const { data: supaAuth } = await supabase.auth.signInWithPassword({
+          email: req.body.email,
+          password: req.body.password
+        });
+        if (supaAuth?.session) {
+          sessionResult.supabase_token = supaAuth.session.access_token;
+          sessionResult.supabase_refresh_token = supaAuth.session.refresh_token;
+        }
+      }
+    } catch (e) {
+      // Non-fatal
+    }
+
     return success(res, {
       message: 'Login successful',
-      token,
-      user
+      token: sessionResult.token,
+      user: sessionResult.user,
+      supabase_token: sessionResult.supabase_token || null,
+      supabase_refresh_token: sessionResult.supabase_refresh_token || null
     });
   } catch (err) {
     next(err);

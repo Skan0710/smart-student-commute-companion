@@ -55,8 +55,8 @@ class UserRepository {
     const row = user.toRow();
 
     const stmt = this.database.prepare(`
-      INSERT INTO users (id, email, password_hash, full_name, college_name, role, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (id, email, password_hash, full_name, college_name, profile_picture, role, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -65,6 +65,7 @@ class UserRepository {
       row.password_hash,
       row.full_name,
       row.college_name,
+      row.profile_picture || null,
       row.role,
       row.created_at,
       row.updated_at
@@ -84,7 +85,7 @@ class UserRepository {
     const existing = this.findById(id);
     if (!existing) return null;
 
-    const allowed = ['full_name', 'college_name', 'password_hash', 'role'];
+    const allowed = ['full_name', 'college_name', 'password_hash', 'role', 'profile_picture'];
     const setClauses = [];
     const params = [];
 

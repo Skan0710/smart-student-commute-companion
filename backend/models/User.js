@@ -75,6 +75,7 @@ class User {
       password_hash: row.password_hash,
       full_name: row.full_name,
       college_name: row.college_name,
+      profile_picture: row.profile_picture || null,
       role: row.role || 'student',
       created_at: Number(row.created_at),
       updated_at: Number(row.updated_at)

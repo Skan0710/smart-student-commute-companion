@@ -766,6 +766,7 @@ select:focus:not(:focus-visible) {
   border-bottom-color: #ccff00 !important;
 }
 
+.dark .spotlight-nav,
 .dark .spotlight-nav-bg,
 .dark nav.spotlight-nav-bg {
   border-color: #ccff00 !important;
@@ -775,13 +776,16 @@ select:focus:not(:focus-visible) {
 .dark [class*="rounded-2xl"][class*="border"],
 .dark [class*="rounded-3xl"][class*="border"],
 .dark [class*="rounded-xl"][class*="border"],
-.dark section[class*="border"] {
-  border-color: rgba(204, 255, 0, 0.5);
+.dark section[class*="border"],
+.dark fieldset[class*="border"],
+.dark [role="region"][class*="border"],
+.dark [role="dialog"][class*="border"] {
+  border-color: #ccff00 !important;
 }
 
 .dark .card:hover,
 .dark [class*="rounded-2xl"][class*="border"]:hover,
 .dark [class*="rounded-3xl"][class*="border"]:hover,
 .dark [class*="rounded-xl"][class*="border"]:hover {
-  border-color: #ccff00;
+  border-color: #ccff00 !important;
 }

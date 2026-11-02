@@ -5,6 +5,7 @@ import securityHeaders from './vite-plugins/securityHeaders.js';
 
 export default defineConfig({
   plugins: [react(), securityHeaders()],
+  envDir: path.resolve(__dirname, '..'),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

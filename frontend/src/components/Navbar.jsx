@@ -20,6 +20,7 @@ import { ConfirmDialog, UnreadCountBadge } from './ui';
 import ThemeToggle from './ThemeToggle';
 import SpotlightNavbar from './ui/spotlight-navbar';
 import Logo from './Logo';
+import { readAuthSession } from '../utils/authSession';
 
 /**
  * 5 Core Tabs:
@@ -207,8 +208,9 @@ export default function Navbar({
     return () => window.removeEventListener('auth-session-change', handleAuthChange);
   }, []);
 
-  const effectiveUser = liveUser?.user || liveUser || user?.user || user;
-  const userPhoto = effectiveUser?.profile_picture || effectiveUser?.avatar_url || user?.profile_picture || user?.avatar_url;
+  const sessionStored = typeof window !== 'undefined' ? readAuthSession()?.user : null;
+  const effectiveUser = liveUser?.user || liveUser || sessionStored || user?.user || user;
+  const userPhoto = effectiveUser?.profile_picture || effectiveUser?.avatar_url || sessionStored?.profile_picture || user?.profile_picture || user?.avatar_url;
   const profileLabel = effectiveUser?.full_name || effectiveUser?.fullName || effectiveUser?.name || effectiveUser?.displayName || (effectiveUser?.email ? effectiveUser.email.split('@')[0] : 'Profile');
   const userInitials = (profileLabel !== 'Profile' ? profileLabel : (effectiveUser?.email || 'P')).split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
