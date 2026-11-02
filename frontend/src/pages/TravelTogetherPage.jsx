@@ -69,10 +69,10 @@ export default function TravelTogetherPage({
     <div className="space-y-5">
       <header className="pb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white tracking-tight">
             Travel Together
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
             Safe student grouping for auto-pooling and local train buddies
           </p>
         </div>

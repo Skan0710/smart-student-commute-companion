@@ -91,6 +91,8 @@ function mapPersonalizedRoute(route, index, { isPrimary = false, tradeOffs = [] 
     id: route.journeyId || route.id || `route-${index + 1}`,
     title: route.title || route.summary || buildRouteTitle(route),
     subtitle: route.subtitle || [route.origin, route.destination].filter(Boolean).join(' → '),
+    origin: route.origin || null,
+    destination: route.destination || null,
     primaryMode: route.primaryMode || route.mode || 'transit',
     durationMinutes: pickNumber(
       route.totalTravelTimeMinutes,
@@ -159,6 +161,17 @@ function normalizeCommuteResponse(rawResponse) {
     .map(toText)
     .filter(Boolean);
 
+  const rawQuery = rawResponse.query || data.query || null;
+  const rawContext = rawResponse.queryContext || data.queryContext || null;
+  const origin = rawQuery?.origin || rawContext?.origin || primary?.origin || data.origin || null;
+  const destination = rawQuery?.destination || rawContext?.destination || primary?.destination || data.destination || null;
+  const query = rawQuery || (origin || destination ? {
+    origin,
+    destination,
+    desiredArrivalTime: rawContext?.targetArrivalTime || data.targetArrivalTime || data.desiredArrivalTime || '09:00',
+    preference: rawContext?.appliedPreferences?.routePreference || data.preference || 'balanced'
+  } : null);
+
   return {
     success: data.hasFeasibleRoute !== false,
     recommendation: primary ? {
@@ -188,7 +201,7 @@ function normalizeCommuteResponse(rawResponse) {
     weather: data.environmentalContext?.weather || null,
     scheduleContext: data.scheduleContext || null,
     departureAdvice: data.departureAdvice || null,
-    query: rawResponse.query || data.query || (data.origin ? { origin: data.origin, destination: data.destination } : null),
+    query,
   };
 }
 
@@ -215,7 +228,40 @@ export async function requestPlan(planData) {
         useSchedule: true
       });
       if (res) {
-        return normalizeCommuteResponse(res);
+        const normalized = normalizeCommuteResponse(res);
+        if (normalized?.recommendation?.route && !normalized.recommendation.route.geometry) {
+          try {
+            const standardRes = await Promise.resolve(planCommute(planData)).catch(() => null);
+            if (standardRes?.recommendation?.route?.geometry) {
+              normalized.recommendation.route.geometry = standardRes.recommendation.route.geometry;
+            }
+            if ((!normalized.recommendation.route.transitStations || normalized.recommendation.route.transitStations.length === 0) &&
+                standardRes?.recommendation?.route?.transitStations?.length > 0) {
+              normalized.recommendation.route.transitStations = standardRes.recommendation.route.transitStations;
+            }
+            if (standardRes?.query) {
+              normalized.query = {
+                ...(normalized.query || {}),
+                origin: standardRes.query.origin || normalized.query?.origin,
+                destination: standardRes.query.destination || normalized.query?.destination
+              };
+            }
+            if (Array.isArray(normalized.alternatives) && Array.isArray(standardRes?.alternatives)) {
+              normalized.alternatives.forEach((alt, idx) => {
+                const matchedStandard = standardRes.alternatives[idx];
+                if (matchedStandard) {
+                  if (!alt.geometry && matchedStandard.geometry) alt.geometry = matchedStandard.geometry;
+                  if ((!alt.transitStations || alt.transitStations.length === 0) && matchedStandard.transitStations) {
+                    alt.transitStations = matchedStandard.transitStations;
+                  }
+                }
+              });
+            }
+          } catch {
+            // standard enrichment failure is non-critical
+          }
+        }
+        return normalized;
       }
     } catch (err) {
       // On any non-critical API failure or missing profile, seamlessly fall back to /plan

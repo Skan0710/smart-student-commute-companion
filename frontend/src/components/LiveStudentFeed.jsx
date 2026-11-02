@@ -25,6 +25,7 @@ export default function LiveStudentFeed({
   onOpenCreateReport, 
   isConnected 
 }) {
+  const safeFeedReports = Array.isArray(reports) ? reports : (Array.isArray(reports?.reports) ? reports.reports : []);
   const [votingId, setVotingId] = useState(null);
 
   const handleVote = async (reportId, action) => {
@@ -89,7 +90,7 @@ export default function LiveStudentFeed({
       </div>
 
       {/* Reports Feed */}
-      {reports.length === 0 ? (
+      {safeFeedReports.length === 0 ? (
         <EmptyState
           icon={<Radio className="w-6 h-6 text-slate-500 dark:text-slate-400" aria-hidden="true" />}
           title="All corridors operating smoothly"
@@ -105,7 +106,7 @@ export default function LiveStudentFeed({
         />
       ) : (
         <div className="space-y-3 max-h-[540px] overflow-y-auto pr-1">
-          {reports.map((rep) => {
+          {safeFeedReports.map((rep) => {
             const isConfirming = votingId === `${rep.id}-confirm`;
             const isContradicting = votingId === `${rep.id}-contradict`;
 
@@ -127,10 +128,10 @@ export default function LiveStudentFeed({
                     <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                        {rep.ageFormatted}
+                        {rep.ageFormatted || 'Recent'}
                       </span>
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                        (w: {rep.freshnessWeight?.toFixed(2) || '1.0'})
+                        (w: {typeof rep.freshnessWeight === 'number' ? rep.freshnessWeight.toFixed(2) : (Number(rep.freshnessWeight) ? Number(rep.freshnessWeight).toFixed(2) : '1.0')})
                       </span>
                     </div>
                   </>

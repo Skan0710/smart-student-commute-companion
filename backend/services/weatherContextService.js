@@ -148,27 +148,6 @@ class WeatherContextService {
           'Doppler Radar Precipitation Nowcast Model'
         ).toJSON(),
         createdAt: currentTime - 10 * 60 * 1000
-      }),
-
-      // 4. SYNTHETIC: Severe Storm Simulation
-      new WeatherCondition({
-        id: 'wx-simulation-severe-storm',
-        condition: WEATHER_CONDITIONS.SEVERE,
-        temperatureC: 24,
-        feelsLikeC: 26,
-        humidity: 98,
-        precipitationProbability: 99,
-        precipitationMm: 65,
-        windSpeedKmh: 68,
-        description: 'Monsoon Commute Simulation Model: Severe cyclonic downpour and gale gusts',
-        area: 'Greater Mumbai Coastal Region',
-        startTime: currentTime,
-        expiryTime: twoHoursAhead,
-        confidence: 'HIGH',
-        provenance: DataProvenance.synthetic(
-          'Monsoon Commute Extreme Weather Simulation Engine'
-        ).toJSON(),
-        createdAt: currentTime
       })
     ];
   }

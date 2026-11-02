@@ -85,9 +85,11 @@ export default function LiveAlertsPage({
     }
   };
 
+  const safeReports = Array.isArray(reports) ? reports : (Array.isArray(reports?.reports) ? reports.reports : []);
+
   const visibleReports = useMemo(
     () =>
-      applyListControls(reports, {
+      applyListControls(safeReports, {
         query,
         queryFields: ['area', 'message', 'route_name', 'pseudonym'],
         filters: { impact, mode },
@@ -98,10 +100,10 @@ export default function LiveAlertsPage({
             ? (r) => r.ageMinutes ?? 0
             : sortBy === 'impact'
             ? (r) => ({ high: 3, medium: 2, low: 1 }[r.impact] ?? 0)
-            : (r) => r.freshnessWeight ?? 1,
+            : (r) => (typeof r.freshnessWeight === 'number' ? r.freshnessWeight : Number(r.freshnessWeight) || 1),
         sortDir: sortBy === 'oldest' ? 'asc' : 'desc',
       }),
-    [reports, query, impact, mode, sortBy]
+    [safeReports, query, impact, mode, sortBy]
   );
 
   const activeFilters = buildActiveFilters(
@@ -117,7 +119,7 @@ export default function LiveAlertsPage({
     setMode('all');
   };
 
-  const showNoMatches = !isLoading && !loadError && reports.length > 0 && visibleReports.length === 0;
+  const showNoMatches = !isLoading && !loadError && safeReports.length > 0 && visibleReports.length === 0;
 
   return (
     <div className="space-y-5">
@@ -145,22 +147,22 @@ export default function LiveAlertsPage({
       </header>
 
       {/* Quick summary of the loaded report set */}
-      {!isLoading && !loadError && reports.length > 0 && (
+      {!isLoading && !loadError && safeReports.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <StatTile
-            value={reports.length}
+            value={safeReports.length}
             label="Active alerts"
             icon={<AlertTriangle className="w-4 h-4" aria-hidden="true" />}
             variant="amber"
           />
           <StatTile
-            value={reports.filter((r) => r.impact === 'high').length}
+            value={safeReports.filter((r) => r.impact === 'high').length}
             label="High impact"
             icon={<AlertCircle className="w-4 h-4" aria-hidden="true" />}
             variant="rose"
           />
           <StatTile
-            value={new Set(reports.map((r) => r.area)).size}
+            value={new Set(safeReports.map((r) => r.area)).size}
             label="Areas affected"
             icon={<MapPin className="w-4 h-4" aria-hidden="true" />}
             variant="sky"

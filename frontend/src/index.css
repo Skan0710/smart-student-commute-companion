@@ -87,9 +87,9 @@ html {
   --color-surface-overlay: #475569;   /* slate-600 - Hover / active */
   
   /* Border Colors */
-  --color-border-subtle: #2d3748;     /* slate-700/80 */
-  --color-border-default: #3e4c63;    /* Borders: #3e4c63 */
-  --color-border-emphasis: #5a6b87;   /* slate-500 */
+  --color-border-subtle: rgba(204, 255, 0, 0.35);     /* slate-700/80 */
+  --color-border-default: #ccff00;    /* Borders: #3e4c63 */
+  --color-border-emphasis: #ccff00;   /* slate-500 */
   
   /* Text Colors */
   --color-text-primary: #f8fafc;      /* Primary text: #F8FAFC */
@@ -669,7 +669,7 @@ input[type="range"]:focus-visible {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
   }
   .dark .spotlight-nav-shadow {
-    box-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -758,4 +758,30 @@ select:focus:not(:focus-visible) {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+
+/* Dark Mode Borders: Acid Lime for Navbar and all card/content boxes */
+.dark header {
+  border-bottom-color: #ccff00 !important;
+}
+
+.dark .spotlight-nav-bg,
+.dark nav.spotlight-nav-bg {
+  border-color: #ccff00 !important;
+}
+
+.dark .card,
+.dark [class*="rounded-2xl"][class*="border"],
+.dark [class*="rounded-3xl"][class*="border"],
+.dark [class*="rounded-xl"][class*="border"],
+.dark section[class*="border"] {
+  border-color: rgba(204, 255, 0, 0.5);
+}
+
+.dark .card:hover,
+.dark [class*="rounded-2xl"][class*="border"]:hover,
+.dark [class*="rounded-3xl"][class*="border"]:hover,
+.dark [class*="rounded-xl"][class*="border"]:hover {
+  border-color: #ccff00;
 }

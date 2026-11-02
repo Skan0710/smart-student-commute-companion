@@ -39,7 +39,7 @@ const transitIcon = createCustomIcon('#f59e0b', 'Station', '<svg width="12" heig
  */
 const AREA_COORDINATES = [
   { match: ['andheri'], lat: 19.1197, lon: 72.8464 },
-  { match: ['powai', 'jvlr', 'iit bombay'], lat: 19.122, lon: 72.905 },
+  { match: ['powai', 'jvlr', 'iit', 'iit bombay'], lat: 19.122, lon: 72.905 },
   { match: ['dadar'], lat: 19.0178, lon: 72.8478 },
   { match: ['ghatkopar'], lat: 19.0864, lon: 72.9081 },
   { match: ['bandra'], lat: 19.0596, lon: 72.8295 },
@@ -49,25 +49,45 @@ const AREA_COORDINATES = [
   { match: ['malad'], lat: 19.1864, lon: 72.8493 },
   { match: ['goregaon'], lat: 19.1663, lon: 72.8526 },
   { match: ['jogeshwari'], lat: 19.1361, lon: 72.849 },
-  { match: ['vile parle', 'parle', 'dj sanghvi', 'djsce', 'sanghvi'], lat: 19.099, lon: 72.8445 },
+  { match: ['vile parle', 'parle', 'dj sanghvi', 'djsce', 'sanghvi', 'mithibai', 'nmims'], lat: 19.099, lon: 72.8445 },
+  { match: ['khar', 'khar road'], lat: 19.0699, lon: 72.8394 },
   { match: ['santacruz'], lat: 19.0817, lon: 72.8417 },
   { match: ['matunga'], lat: 19.027, lon: 72.857 },
   { match: ['sion'], lat: 19.039, lon: 72.8619 },
   { match: ['wadala'], lat: 19.0176, lon: 72.8561 },
   { match: ['mahim'], lat: 19.041, lon: 72.84 },
   { match: ['lower parel', 'parel'], lat: 18.993, lon: 72.83 },
+  { match: ['prabhadevi', 'elphinstone'], lat: 19.013, lon: 72.83 },
+  { match: ['currey road'], lat: 18.995, lon: 72.833 },
+  { match: ['charni road'], lat: 18.952, lon: 72.818 },
   { match: ['churchgate'], lat: 18.9322, lon: 72.8264 },
   { match: ['marine lines'], lat: 18.944, lon: 72.823 },
   { match: ['mumbai central'], lat: 18.969, lon: 72.8196 },
+  { match: ['byculla'], lat: 18.977, lon: 72.833 },
   { match: ['csmt', 'cst', 'fort'], lat: 18.9398, lon: 72.8355 },
   { match: ['colaba'], lat: 18.9067, lon: 72.8147 },
   { match: ['versova'], lat: 19.131, lon: 72.818 },
+  { match: ['juhu'], lat: 19.103, lon: 72.826 },
+  { match: ['vidyavihar'], lat: 19.0798, lon: 72.8973 },
   { match: ['vikhroli'], lat: 19.11, lon: 72.927 },
+  { match: ['kanjurmarg'], lat: 19.13, lon: 72.932 },
+  { match: ['bhandup'], lat: 19.145, lon: 72.937 },
   { match: ['mulund'], lat: 19.1726, lon: 72.9425 },
   { match: ['thane'], lat: 19.186, lon: 72.975 },
+  { match: ['dahisar'], lat: 19.256, lon: 72.86 },
+  { match: ['mira road'], lat: 19.281, lon: 72.856 },
+  { match: ['bhayandar'], lat: 19.301, lon: 72.852 },
+  { match: ['vasai'], lat: 19.382, lon: 72.832 },
+  { match: ['virar'], lat: 19.468, lon: 72.802 },
   { match: ['chembur'], lat: 19.0522, lon: 72.9005 },
   { match: ['vashi'], lat: 19.0771, lon: 72.998 },
+  { match: ['sanpada'], lat: 19.065, lon: 73.008 },
+  { match: ['nerul'], lat: 19.033, lon: 73.016 },
+  { match: ['belapur', 'cbd belapur'], lat: 19.019, lon: 73.04 },
+  { match: ['kharghar'], lat: 19.047, lon: 73.069 },
   { match: ['airoli'], lat: 19.159, lon: 72.999 },
+  { match: ['ghansoli'], lat: 19.125, lon: 73.0 },
+  { match: ['kopar khairane'], lat: 19.102, lon: 73.007 },
   { match: ['panvel'], lat: 18.9894, lon: 73.1175 },
 ];
 
@@ -164,6 +184,7 @@ function FitBoundsToRoutes({ bounds }) {
   const map = useMap();
   useEffect(() => {
     if (bounds && bounds.isValid()) {
+      map.invalidateSize();
       map.fitBounds(bounds, { padding: [45, 45], maxZoom: 15 });
     }
   }, [bounds, map]);
@@ -177,16 +198,6 @@ export default function MapView({
 }) {
   // Default coordinates: Central Mumbai
   const defaultCenter = [19.0760, 72.8777];
-
-  const originCoord = useMemo(() => {
-    if (!planResult?.query) return null;
-    return resolvePoint(planResult.query.origin);
-  }, [planResult]);
-
-  const destCoord = useMemo(() => {
-    if (!planResult?.query) return null;
-    return resolvePoint(planResult.query.destination);
-  }, [planResult]);
 
   const allRoutes = useMemo(() => {
     if (!planResult) return [];
@@ -209,23 +220,36 @@ export default function MapView({
     );
   }, [allRoutes, selectedRouteId]);
 
+  const originCoord = useMemo(() => {
+    const raw =
+      planResult?.query?.origin ||
+      selectedRoute?.origin ||
+      planResult?.recommendation?.route?.origin ||
+      'Andheri East';
+    return resolvePoint(raw);
+  }, [planResult, selectedRoute]);
+
+  const destCoord = useMemo(() => {
+    const raw =
+      planResult?.query?.destination ||
+      selectedRoute?.destination ||
+      planResult?.recommendation?.route?.destination ||
+      'IIT Bombay Powai';
+    return resolvePoint(raw);
+  }, [planResult, selectedRoute]);
+
   // Guaranteed points for the selected route
   const selectedRoutePoints = useMemo(() => {
-    if (!selectedRoute) return [];
-    return getRoutePoints(selectedRoute, originCoord, destCoord);
-  }, [selectedRoute, originCoord, destCoord]);
-
-  // Compute bounding box for map
-  const bounds = useMemo(() => {
-    const latLngs = [];
-    if (originCoord) latLngs.push(originCoord);
-    if (destCoord) latLngs.push(destCoord);
-    if (selectedRoutePoints.length > 0) {
-      selectedRoutePoints.forEach((pt) => latLngs.push(pt));
+    if (!selectedRoute) {
+      if (originCoord && destCoord) return [originCoord, destCoord];
+      return [];
     }
-    if (latLngs.length === 0) return null;
-    return L.latLngBounds(latLngs);
-  }, [originCoord, destCoord, selectedRoutePoints]);
+    const pts = getRoutePoints(selectedRoute, originCoord, destCoord);
+    if (pts.length < 2 && originCoord && destCoord) {
+      return [originCoord, destCoord];
+    }
+    return pts;
+  }, [selectedRoute, originCoord, destCoord]);
 
   const stationsToDisplay = useMemo(() => {
     const list = selectedRoute?.transitStations || selectedRoute?.stations || [];
@@ -236,6 +260,21 @@ export default function MapView({
       })
       .filter(Boolean);
   }, [selectedRoute]);
+
+  // Compute bounding box for map
+  const bounds = useMemo(() => {
+    const latLngs = [];
+    if (originCoord) latLngs.push(originCoord);
+    if (destCoord) latLngs.push(destCoord);
+    if (selectedRoutePoints.length > 0) {
+      selectedRoutePoints.forEach((pt) => latLngs.push(pt));
+    }
+    if (stationsToDisplay.length > 0) {
+      stationsToDisplay.forEach((s) => latLngs.push(s.coord));
+    }
+    if (latLngs.length === 0) return null;
+    return L.latLngBounds(latLngs);
+  }, [originCoord, destCoord, selectedRoutePoints, stationsToDisplay]);
 
   const routeColor = useMemo(() => {
     const mode = selectedRoute?.primaryMode || selectedRoute?.mode || 'transit';

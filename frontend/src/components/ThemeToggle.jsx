@@ -17,7 +17,32 @@ export default function ThemeToggle({
   onToggle,
   className = '',
 }) {
-  const isDark = theme === 'dark';
+  const [effectiveDark, setEffectiveDark] = React.useState(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return theme === 'dark';
+  });
+
+  React.useEffect(() => {
+    const update = () => {
+      if (typeof document !== 'undefined') {
+        setEffectiveDark(document.documentElement.classList.contains('dark'));
+      } else {
+        setEffectiveDark(theme === 'dark');
+      }
+    };
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('app-theme-change', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('app-theme-change', update);
+    };
+  }, [theme]);
+
+  const isDark = effectiveDark;
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
 
   const handleToggleClick = () => {
@@ -39,7 +64,7 @@ export default function ThemeToggle({
       onClick={handleToggleClick}
       className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#0047ff] focus:ring-offset-2 focus:ring-offset-[#f7f5f0] dark:focus:ring-offset-[#030408] ${
         isDark
-          ? 'bg-[#0a0c16] border border-[#1e2440] shadow-inner'
+          ? 'bg-[#0a0c16] border border-[#ccff00]/60 shadow-inner'
           : 'bg-[#edeae2] border border-[#d8d3c5] shadow-inner'
       } ${className}`}
     >

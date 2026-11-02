@@ -180,27 +180,6 @@ class TransportAvailabilityService {
           'Emergency traction power block announcement'
         ).toJSON(),
         createdAt: currentTime
-      }),
-
-      // 6. SYNTHETIC: Baseline Available Operations
-      new ServiceStatusRecord({
-        id: 'avail-metro-line1-normal',
-        serviceId: 'Line-1-Main',
-        lineIdentifier: 'Line-1',
-        mode: TRANSPORT_MODES.METRO,
-        area: 'Andheri - Ghatkopar',
-        status: SERVICE_AVAILABILITY_STATUSES.AVAILABLE,
-        expectedDelayMinutes: 0,
-        addedWaitMinutes: 0,
-        uncertaintyLevel: 'LOW',
-        reason: 'Normal operations with 4-minute standard peak headways',
-        effectiveTime: currentTime,
-        expiryTime: twoHoursAhead,
-        confidence: 'HIGH',
-        provenance: DataProvenance.synthetic(
-          'Transport Availability Simulation Model'
-        ).toJSON(),
-        createdAt: currentTime
       })
     ];
   }

@@ -117,6 +117,22 @@ export const SECONDARY_SCREENS = [
     route: { tab: 'planner', subTab: 'alerts' }
   },
   {
+    id: 'alerts',
+    label: 'Live Alerts',
+    shortLabel: 'Feed',
+    icon: Bell,
+    description: 'Crowd-sourced disruption reports',
+    route: { tab: 'planner', subTab: 'alerts' }
+  },
+  {
+    id: 'livealerts',
+    label: 'Live Alerts',
+    shortLabel: 'Feed',
+    icon: Bell,
+    description: 'Crowd-sourced disruption reports',
+    route: { tab: 'planner', subTab: 'alerts' }
+  },
+  {
     id: 'together',
     label: 'Travel Together',
     shortLabel: 'Together',
@@ -175,9 +191,26 @@ export default function Navbar({
   onContradictNotification,
   onMarkAllNotificationsRead,
 }) {
-  const currentUser = user?.user || user;
-  const profileLabel = currentUser?.full_name || currentUser?.fullName || currentUser?.name || currentUser?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'Profile');
-  const userInitials = (profileLabel !== 'Profile' ? profileLabel : (currentUser?.email || 'P')).split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
+  const [liveUser, setLiveUser] = useState(user);
+  useEffect(() => {
+    setLiveUser(user);
+  }, [user]);
+
+  useEffect(() => {
+    const handleAuthChange = (e) => {
+      const updated = e.detail;
+      if (updated) {
+        setLiveUser((prev) => ({ ...(prev || {}), ...(updated?.user || updated) }));
+      }
+    };
+    window.addEventListener('auth-session-change', handleAuthChange);
+    return () => window.removeEventListener('auth-session-change', handleAuthChange);
+  }, []);
+
+  const effectiveUser = liveUser?.user || liveUser || user?.user || user;
+  const userPhoto = effectiveUser?.profile_picture || effectiveUser?.avatar_url || user?.profile_picture || user?.avatar_url;
+  const profileLabel = effectiveUser?.full_name || effectiveUser?.fullName || effectiveUser?.name || effectiveUser?.displayName || (effectiveUser?.email ? effectiveUser.email.split('@')[0] : 'Profile');
+  const userInitials = (profileLabel !== 'Profile' ? profileLabel : (effectiveUser?.email || 'P')).split(/\s+/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
@@ -258,7 +291,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#1e2440] transition-colors duration-150 font-sans shadow-xs">
+      <header className="sticky top-0 z-50 w-full bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#ccff00] transition-colors duration-150 font-sans shadow-xs">
         {/* Main Navbar Bar - Enlarged height & padding */}
         <div className="max-w-[1700px] mx-auto px-4 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 min-h-[74px]">
 
@@ -269,19 +302,12 @@ export default function Navbar({
             className="flex items-center gap-3 text-left select-none group min-w-0 flex-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Smart Student Companion — go to dashboard"
           >
-            <Logo className="w-10 h-10 sm:w-11 sm:h-11" />
+            <Logo className="w-10 h-10 sm:w-11 sm:h-11 shrink-0" />
             <div className="min-w-0">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
-                  Smart Student Companion
-                </span>
-                <span className="hidden 2xl:inline px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-[#800020]/10 text-[#800020] dark:bg-[#0047ff]/20 dark:text-[#ccff00] border border-[#800020]/25 dark:border-[#ccff00]/30 shrink-0">
-                  MUMBAI
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 hidden xl:block truncate font-medium">
-                Academic Hub • Route Planning • Safety Pools • Campus Life
-              </p>
+              <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
+                Smart Student Companion
+              </span>
+              <span className="hidden 2xl:inline" aria-hidden="true" />
             </div>
           </button>
 
@@ -432,18 +458,18 @@ export default function Navbar({
             <button
               type="button"
               onClick={() => handleSelectTab('account')}
-              aria-label={user ? `Signed in as ${profileLabel}. Open profile` : 'Open student account and profile'}
+              aria-label={effectiveUser ? `Signed in as ${profileLabel}. Open profile` : 'Open student account and profile'}
               aria-current={activeTab === 'account' ? 'page' : undefined}
               className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
-                  ? 'bg-[#800020] text-white border-[#800020] shadow-lg shadow-[#800020]/30 dark:bg-[#0047ff] dark:border-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
-                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-white/20 text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#0047ff] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
+                  ? 'bg-[#800020] text-white border-[#800020] shadow-md dark:bg-[#0047ff] dark:border-[#ccff00] dark:text-white'
+                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#ccff00]/50 text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#ccff00] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#800020] to-[#586953] dark:from-[#0047ff] dark:to-[#ccff00] flex items-center justify-center text-white shrink-0 font-bold text-xs overflow-hidden">
-                {user?.profile_picture ? (
-                  <img src={user.profile_picture} alt={profileLabel} className="w-full h-full object-cover rounded-full" />
-                ) : user ? (
+              <div className="w-8 h-8 rounded-full bg-[#800020] dark:bg-[#0047ff] border border-white/25 dark:border-[#ccff00]/60 flex items-center justify-center text-white shrink-0 font-bold text-xs overflow-hidden">
+                {userPhoto ? (
+                  <img src={userPhoto} alt={profileLabel} className="w-full h-full object-cover rounded-full" />
+                ) : effectiveUser ? (
                   <span>{userInitials}</span>
                 ) : (
                   <UserRound className="w-4 h-4" aria-hidden="true" />

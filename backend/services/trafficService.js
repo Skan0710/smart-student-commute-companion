@@ -129,25 +129,6 @@ class TrafficService {
           'HIGH'
         ).toJSON(),
         createdAt: currentTime
-      }),
-
-      // 4. SYNTHETIC: Prototype rush-hour model for Link Road
-      new TrafficCondition({
-        id: 'traf-seed-link-road',
-        area: 'Link Road',
-        level: TRAFFIC_LEVELS.MODERATE,
-        expectedDelayMinutes: 6,
-        description: 'Moderate morning rush traffic simulated on Link Road between Lokhandwala and Juhu Circle',
-        affectedModes: ['auto', 'shared_auto', 'bus'],
-        startTime: currentTime - 5 * 60 * 1000,
-        expiryTime: currentTime + duration2h,
-        confidence: 'MEDIUM',
-        provenance: DataProvenance.synthetic(
-          'Rush-Hour Road Congestion Model',
-          'Synthetic peak traffic model for Western Suburbs',
-          'MEDIUM'
-        ).toJSON(),
-        createdAt: currentTime
       })
     ];
 

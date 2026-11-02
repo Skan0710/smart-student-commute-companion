@@ -164,6 +164,7 @@ export default function AccountProfileCard({
         };
         updateUserProfile(user?.id, updatedUser).then((res) => {
           onProfileUpdated?.(res);
+          window.dispatchEvent(new CustomEvent('auth-session-change', { detail: res }));
           setSaveSuccess(true);
           setTimeout(() => setSaveSuccess(false), 3000);
         }).catch(() => {});
@@ -183,6 +184,7 @@ export default function AccountProfileCard({
     };
     updateUserProfile(user?.id, updatedUser).then((res) => {
       onProfileUpdated?.(res);
+      window.dispatchEvent(new CustomEvent('auth-session-change', { detail: res }));
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     }).catch(() => {});
@@ -214,6 +216,7 @@ export default function AccountProfileCard({
     try {
       await updateUserProfile(user?.id, updatedUser);
       onProfileUpdated?.(updatedUser);
+      window.dispatchEvent(new CustomEvent('auth-session-change', { detail: updatedUser }));
       setSaveSuccess(true);
       setIsEditing(false);
       setTimeout(() => setSaveSuccess(false), 4000);
@@ -241,11 +244,7 @@ export default function AccountProfileCard({
       />
 
       {/* ─── Digital Student Campus ID Card ────────────────────────────── */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#1e2440] dark:from-[#0047ff] dark:via-[#020d33] dark:to-[#030408] text-white p-6 sm:p-8 shadow-2xl overflow-hidden border border-white/20 dark:border-white/25">
-        {/* Background Ambient Elements */}
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
-
+      <div className="relative rounded-3xl bg-[#800020] dark:bg-[#0c0f1e] text-white p-6 sm:p-8 shadow-md overflow-hidden border border-[#800020] dark:border-[#ccff00]">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-5 min-w-0">
             {/* Student Avatar with Photo Upload & Removal Controls */}
@@ -253,26 +252,26 @@ export default function AccountProfileCard({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="block relative rounded-3xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+                className="block relative rounded-2xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 overflow-hidden"
                 title="Click to add or change profile picture"
                 aria-label="Change profile picture"
               >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-[#800020] via-[#586953] to-teal-400 dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#ccff00] p-1 shadow-xl flex items-center justify-center transition-transform group-hover:scale-105">
-                  <div className="w-full h-full rounded-[22px] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider overflow-hidden">
-                    {profilePicture ? (
-                      <img
-                        src={profilePicture}
-                        alt={displayName}
-                        className="w-full h-full object-cover rounded-[22px]"
-                      />
-                    ) : (
-                      initials || <UserRound className="w-10 h-10 text-white/90" />
-                    )}
-                  </div>
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-900 border border-white/20 dark:border-[#ccff00]/40 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
+                  {profilePicture ? (
+                    <img
+                      src={profilePicture}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider">
+                      {initials || <UserRound className="w-10 h-10 text-white/90" />}
+                    </div>
+                  )}
                 </div>
 
                 {/* Hover overlay with camera indicator */}
-                <div className="absolute inset-0 rounded-3xl bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
+                <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
                   <Camera className="w-6 h-6 text-white drop-shadow-md" />
                   <span className="text-[10px] font-bold text-white mt-1 drop-shadow">Photo</span>
                 </div>
@@ -290,13 +289,6 @@ export default function AccountProfileCard({
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
-
-              <span
-                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center shadow-md z-10"
-                title="Active Verified Session"
-              >
-                <Check className="w-3.5 h-3.5 text-white" />
-              </span>
             </div>
 
             {/* Student Identity Information */}

@@ -160,7 +160,7 @@ export default function Tabs({
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-0 w-full h-[2.5px] z-[1]"
         style={{
-          background: `radial-gradient(65px circle at var(--tab-ambience-x, 50%) 0%, var(--tab-ambience-color, rgba(59, 130, 246, 1)) 0%, transparent 100%)`,
+          background: `radial-gradient(65px circle at var(--tab-ambience-x, 50%) 0%, var(--tab-ambience-color, rgba(255, 255, 255, 0.95)) 0%, transparent 100%)`,
         }}
       />
 

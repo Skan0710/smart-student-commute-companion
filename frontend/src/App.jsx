@@ -146,7 +146,8 @@ export default function App() {
   }, []);
 
   const handleToggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const isCurrentlyDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+    const nextTheme = isCurrentlyDark ? 'light' : 'dark';
     writeThemePreference(nextTheme);
     setTheme(nextTheme);
     applyTheme(nextTheme);
@@ -1134,6 +1135,9 @@ export default function App() {
           />
         );
 
+      case 'alerts':
+      case 'feed':
+      case 'livealerts':
       case 'planner':
         return (
           <PlannerPage
