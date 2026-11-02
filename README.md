@@ -188,4 +188,4 @@ For detailed specifications, see:
 5. Click **Post Report** to broadcast a new report—it immediately renders via Socket.IO without page reload.
 6. Switch to **Travel Together** to view or create student commute buddy groups.
 7. Rate the recommendation with thumbs up/down and feedback tags.
-8. Click **Reset Demo** in the header to return the environment to its initial state.
+8. To return the environment to its initial state, call `POST /api/demo/reset` (the in-app Reset Demo button was removed in the 5-tab redesign).
