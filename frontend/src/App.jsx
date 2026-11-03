@@ -1346,7 +1346,10 @@ export default function App() {
           onOpenHub={() => navigateToScreen('installshare')}
           activeTab={activeTab}
         />
-        {renderTabContent()}
+        {/* Keyed per screen so each one eases in; the planner's aliases share one key to keep its state */}
+        <div key={['alerts', 'feed', 'livealerts'].includes(activeTab) ? 'planner' : activeTab} className="page-enter">
+          {renderTabContent()}
+        </div>
       </MainLayout>
 
       {/* Floating notification region (dismissible queue) */}

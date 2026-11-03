@@ -2288,8 +2288,9 @@ if (
 // Responsive navigation locks: the header must shrink instead of overflowing a phone
 if (
   navContent &&
-  navContent.includes('min-w-0 flex-1 rounded-2xl') &&
-  navContent.includes('hidden 2xl:inline') &&
+  // brand lockup is dropped where the nav pill needs the room; a spacer keeps controls right-aligned on phones
+  navContent.includes('hidden min-[400px]:block lg:hidden min-[1360px]:block') &&
+  navContent.includes('flex-1 min-w-0 lg:hidden') &&
   navContent.includes('aria-current')
 ) {
   pass('Header brand shrinks on narrow screens and the active nav item exposes aria-current');

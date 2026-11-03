@@ -91,8 +91,8 @@ export default function AppShell({
         footer
       ) : (
         <footer className="border-t border-slate-200 dark:border-slate-900 bg-white/90 dark:bg-slate-950/90 px-4 sm:px-6 py-4 text-xs text-slate-500 dark:text-slate-400 mt-auto backdrop-blur-md">
-          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-            <div className="flex items-center gap-2">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left lg:pr-32">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Companion</span>
               <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>

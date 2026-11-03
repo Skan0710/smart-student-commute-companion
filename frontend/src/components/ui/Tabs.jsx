@@ -102,6 +102,35 @@ export default function Tabs({
     }
   }, [activeTab]);
 
+  // Edge fades tell the student there is more to scroll to; they only show when the strip overflows.
+  useEffect(() => {
+    const nav = listRef.current;
+    if (!nav) return undefined;
+    const update = () => {
+      const max = nav.scrollWidth - nav.clientWidth;
+      nav.dataset.fadeStart = nav.scrollLeft > 4 ? 'true' : 'false';
+      nav.dataset.fadeEnd = max > 4 && nav.scrollLeft < max - 4 ? 'true' : 'false';
+    };
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      nav.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [tabs.length]);
+
+  // Keep the selected tab visible (deep links and arrow keys can select an off-screen one)
+  useEffect(() => {
+    const nav = listRef.current;
+    const activeEl = nav?.querySelector(`[data-tab-id="${activeTab}"]`);
+    if (!nav || !activeEl) return;
+    const left = activeEl.offsetLeft - 24;
+    const right = activeEl.offsetLeft + activeEl.offsetWidth + 24;
+    if (left < nav.scrollLeft) nav.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+    else if (right > nav.scrollLeft + nav.clientWidth) nav.scrollTo({ left: right - nav.clientWidth, behavior: 'smooth' });
+  }, [activeTab]);
+
   const handleKeyDown = (e) => {
     const enabled = tabs.filter((t) => !t.disabled);
     if (enabled.length === 0) return;
@@ -139,7 +168,7 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-[#fbf9f5] dark:bg-[#070913] border border-[#d8d3c5] dark:border-white/20 shadow-md shadow-slate-900/5 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-x-auto max-w-full font-sans transition-all ${className}`}
+      className={`relative inline-flex flex-nowrap items-center gap-1 rounded-full p-1.5 bg-[#fbf9f5] dark:bg-[#070913] border border-[#d8d3c5] dark:border-white/20 shadow-md shadow-slate-900/5 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-x-auto max-w-full font-sans transition-all scroll-fade-x no-scrollbar ${className}`}
       style={{
         '--tab-spotlight-color': 'var(--tab-spotlight-dynamic, rgba(128, 0, 32, 0.22))',
         '--tab-ambience-color': 'var(--tab-ambience-dynamic, rgba(128, 0, 32, 1))',

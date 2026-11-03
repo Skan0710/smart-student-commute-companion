@@ -282,7 +282,7 @@ export default function CommunityGoalsPage({ onNavigate, onNotify }) {
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans">
       {/* Top Banner & Tab Controls */}
-      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-3xl ${CARD_SURFACE}`}>
+      <div className={`flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 p-6 rounded-3xl ${CARD_SURFACE}`}>
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Community &amp; Student Goals

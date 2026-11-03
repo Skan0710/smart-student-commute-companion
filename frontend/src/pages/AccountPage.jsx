@@ -102,8 +102,8 @@ export default function AccountPage({
     <div className="space-y-6 max-w-4xl mx-auto w-full font-sans pb-10">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-[#d8d3c5]/80 dark:border-slate-800">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#800020] dark:bg-blue-500" />
+          <div className="flex items-start gap-2.5">
+            <span aria-hidden="true" className="mt-[0.7rem] w-2.5 h-2.5 shrink-0 rounded-full bg-[#800020] dark:bg-blue-500" />
             <h1
               id="account-title"
               className="text-2xl font-black tracking-tight text-slate-900 dark:text-white"

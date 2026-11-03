@@ -140,7 +140,7 @@ export function SpotlightNavbar({
                                     handleItemClick(item, idx);
                                 }}
                                 className={cn(
-                                    "px-4 py-2 text-sm sm:text-[15px] font-semibold transition-colors duration-200 rounded-full flex items-center gap-2 whitespace-nowrap",
+                                    "px-3 xl:px-4 py-2 text-sm sm:text-[15px] font-semibold transition-colors duration-200 rounded-full flex items-center gap-2 whitespace-nowrap",
                                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#800020] dark:focus-visible:ring-[#0047ff]",
                                     // Active vs Inactive Text
                                     activeIndex === idx
@@ -151,8 +151,8 @@ export function SpotlightNavbar({
                                 {item.icon && React.createElement(item.icon, { className: "w-3.5 h-3.5 shrink-0", "aria-hidden": true } as React.ComponentProps<"svg">)}
                                 {item.compactLabel ? (
                                     <>
-                                        <span className="xl:hidden">{item.compactLabel}</span>
-                                        <span className="hidden xl:inline">{item.label}</span>
+                                        <span className="2xl:hidden">{item.compactLabel}</span>
+                                        <span className="hidden 2xl:inline">{item.label}</span>
                                     </>
                                 ) : (
                                     <span>{item.label}</span>

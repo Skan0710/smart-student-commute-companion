@@ -292,20 +292,28 @@ export default function Navbar({
           <button
             type="button"
             onClick={() => handleSelectTab('dashboard')}
-            className="flex items-center gap-3 text-left select-none group min-w-0 flex-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex items-center gap-3 text-left select-none group shrink-0 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Smart Student Companion — go to dashboard"
+            title="Smart Student Companion"
           >
-            <Logo className="w-10 h-10 sm:w-11 sm:h-11 shrink-0" />
-            <div className="min-w-0">
-              <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
-                Smart Student Companion
+            <Logo className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3" />
+            {/* Two-line lockup. It is dropped where the nav pill needs the room (laptops
+                between 1024 and ~1360px) instead of colliding with it. */}
+            <span className="hidden min-[400px]:block lg:hidden min-[1360px]:block leading-tight" aria-hidden="true">
+              <span className="block font-extrabold text-sm sm:text-base min-[1360px]:text-lg tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
+                Smart Student
               </span>
-              <span className="hidden 2xl:inline" aria-hidden="true" />
-            </div>
+              <span className="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.16em] text-[#586953] dark:text-slate-400">
+                Companion
+              </span>
+            </span>
           </button>
 
+          {/* Spacer keeps the controls right-aligned on mobile, where the pill is hidden */}
+          <div className="flex-1 min-w-0 lg:hidden" aria-hidden="true" />
+
           {/* Desktop Primary Navigation with Spotlight Navbar */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
+          <div className="hidden lg:flex items-center gap-2 shrink min-w-0">
             <SpotlightNavbar
               items={spotlightNavItems}
               activeIndex={currentSpotlightIndex >= 0 ? currentSpotlightIndex : -1}
@@ -468,7 +476,7 @@ export default function Navbar({
                   <UserRound className="w-4 h-4" aria-hidden="true" />
                 )}
               </div>
-              <span className="hidden sm:inline max-w-[130px] truncate">{profileLabel}</span>
+              <span className="hidden sm:inline lg:hidden min-[1360px]:inline max-w-[130px] truncate">{profileLabel}</span>
             </button>
 
             {/* Mobile Hamburger Toggle Button */}

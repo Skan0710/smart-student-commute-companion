@@ -18,7 +18,9 @@ import {
   HelpCircle,
   Edit3,
   CheckSquare,
-  Square
+  Square,
+  MapPin,
+  UserRound
 } from 'lucide-react';
 import {
   loadAcademicHub,
@@ -529,7 +531,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
   return (
     <div className="max-w-[1650px] mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans">
       {/* Academics Hub Header */}
-      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-3xl ${CARD_SURFACE}`}>
+      <div className={`flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 p-6 rounded-3xl ${CARD_SURFACE}`}>
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Academic &amp; Study Hub
@@ -584,36 +586,36 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                 />
               ) : (
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 list-none">
-                  {courses.map((course) => (
+                  {courses.map((course, index) => (
                     <li
                       key={course.id}
-                      className={`p-5 rounded-2xl ${CARD_SURFACE} space-y-3 hover:border-blue-400 transition-all`}
+                      style={{ '--i': index }}
+                      className={`rise lift p-5 rounded-2xl ${CARD_SURFACE} space-y-3 hover:border-blue-400`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
-                            {course.name}
-                          </span>
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono tracking-wide bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
+                          {course.code || 'Course'}
+                        </span>
+                        <span className="shrink-0 text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                           {course.credits} {course.credits === 1 ? 'credit' : 'credits'}
                         </span>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{course.name}</h3>
-                          {course.code && (
-                            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                              ({course.code})
-                            </span>
+                      <h3 className="font-bold text-base text-slate-900 dark:text-white leading-snug">{course.name}</h3>
+                      {(course.faculty || course.room) && (
+                        <ul className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-1.5 text-xs text-slate-600 dark:text-slate-400 list-none">
+                          {course.faculty && (
+                            <li className="flex items-center gap-2">
+                              <UserRound className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                              <span>{course.faculty}</span>
+                            </li>
                           )}
-                        </div>
-                        {course.faculty && (
-                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Faculty: {course.faculty}</p>
-                        )}
-                      </div>
-                      {course.room && (
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
-                          Room: {course.room}
-                        </div>
+                          {course.room && (
+                            <li className="flex items-center gap-2">
+                              <MapPin className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                              <span>{course.room}</span>
+                            </li>
+                          )}
+                        </ul>
                       )}
                     </li>
                   ))}

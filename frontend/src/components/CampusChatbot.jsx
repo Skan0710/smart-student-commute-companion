@@ -226,13 +226,13 @@ export default function CampusChatbot({ onNavigate }) {
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Campus Assistant' : 'Open Campus Transit & Academic Assistant'}
         aria-expanded={isOpen}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-[#800020] hover:bg-[#66001a] dark:bg-[#0047ff] dark:hover:bg-[#0038cc] text-white shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95 group focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+        className="fixed right-4 sm:right-6 bottom-[calc(4.9rem+env(safe-area-inset-bottom))] lg:bottom-6 z-40 flex items-center gap-2 p-3.5 sm:px-4 sm:py-3 rounded-full bg-[#800020] hover:bg-[#66001a] dark:bg-[#0047ff] dark:hover:bg-[#0038cc] text-white shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95 group focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
       >
         <div className="relative">
           <Bot className="w-5 h-5 text-white" aria-hidden="true" />
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#ccff00] rounded-full border-2 border-[#800020] dark:border-[#0047ff] animate-pulse" />
         </div>
-        <span className="text-xs font-bold tracking-wide">Campus Bot</span>
+        <span className="hidden sm:inline text-xs font-bold tracking-wide">Campus Bot</span>
       </button>
 
       {/* Floating Chat Modal Window */}
@@ -240,7 +240,7 @@ export default function CampusChatbot({ onNavigate }) {
         <aside
           role="dialog"
           aria-label="Campus Transit and Academic Chatbot"
-          className="fixed bottom-20 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[420px] h-[580px] max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-[#0c0f1e] border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden font-sans backdrop-blur-xl animate-fade-in"
+          className="fixed bottom-[calc(8.5rem+env(safe-area-inset-bottom))] lg:bottom-20 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[420px] h-[580px] max-h-[calc(100dvh-11rem)] lg:max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-[#0c0f1e] border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden font-sans backdrop-blur-xl animate-fade-in"
         >
           {/* Header */}
           <div className="px-5 py-4 bg-gradient-to-r from-[#800020] via-[#5c0017] to-[#4a5247] dark:from-[#0047ff] dark:via-[#002f99] dark:to-[#070b18] text-white flex items-center justify-between shadow-sm shrink-0">

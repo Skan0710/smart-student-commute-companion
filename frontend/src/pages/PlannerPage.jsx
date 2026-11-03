@@ -144,6 +144,27 @@ export default function PlannerPage({
       {/* Subpage 1: Main Route Planner Form & Results */}
       {subTab === 'planner' && (
         <TabPanel idPrefix="planner" tabId="planner" className="space-y-6">
+          {/* The form leads: planning a route is why a student opens this screen. */}
+          <PlannerForm
+            formData={formData}
+            setFormData={setFormData}
+            onPlan={onPlan}
+            isLoading={isPlanning}
+            onSaveCommute={onSaveCommute}
+            isCommuteSaved={isCommuteSaved}
+          />
+
+          <section aria-label="Route recommendations" aria-busy={isPlanning}>
+            <RouteResults
+              planResult={planResult}
+              selectedRouteId={selectedRouteId}
+              setSelectedRouteId={setSelectedRouteId}
+              onOpenFeedback={onOpenFeedback}
+              maxBudgetRupees={formData.maxBudgetRupees}
+            />
+          </section>
+
+          {/* Context (saved commutes, alerts, next class) follows the task instead of delaying it */}
           {showDashboardOverview && (
             <DashboardOverview
               savedCommutesCount={savedCommutesCount}
@@ -167,25 +188,6 @@ export default function PlannerPage({
               arrivalTarget={formData.desiredArrivalTime || null}
             />
           )}
-
-          <PlannerForm
-            formData={formData}
-            setFormData={setFormData}
-            onPlan={onPlan}
-            isLoading={isPlanning}
-            onSaveCommute={onSaveCommute}
-            isCommuteSaved={isCommuteSaved}
-          />
-
-          <section aria-label="Route recommendations" aria-busy={isPlanning}>
-            <RouteResults
-              planResult={planResult}
-              selectedRouteId={selectedRouteId}
-              setSelectedRouteId={setSelectedRouteId}
-              onOpenFeedback={onOpenFeedback}
-              maxBudgetRupees={formData.maxBudgetRupees}
-            />
-          </section>
         </TabPanel>
       )}
 

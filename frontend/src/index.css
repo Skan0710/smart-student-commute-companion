@@ -789,3 +789,86 @@ select:focus:not(:focus-visible) {
 .dark [class*="rounded-xl"][class*="border"]:hover {
   border-color: #ffffff !important;
 }
+
+
+/* ============================================================
+   SCROLLABLE STRIPS (tabs, chips)
+   ============================================================ */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.scroll-fade-x[data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+.scroll-fade-x[data-fade-start='true'] {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent);
+}
+.scroll-fade-x[data-fade-start='true'][data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+}
+
+/* ============================================================
+   MOTION - entrances, hover feedback, live indicators
+   Everything here is decoration on top of already-usable UI, and the global
+   prefers-reduced-motion rule above collapses all of it to ~0ms.
+   ============================================================ */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes live-ping {
+  0%       { transform: scale(1);   opacity: 0.55; }
+  75%,100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes route-flow {
+  to { stroke-dashoffset: -64; }
+}
+@keyframes sheen {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to   { transform: translateX(220%)  skewX(-18deg); }
+}
+
+/* Staggered entrance: <el className="rise" style={{ '--i': index }}> */
+.rise {
+  animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+/* Whole-screen entrance when the student switches tab */
+.page-enter { animation: rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* Progress bars grow from the left instead of snapping in */
+.bar-grow { transform-origin: left center; animation: grow-x 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: 250ms; }
+
+/* Cards that respond to the pointer (hover only on devices that have one) */
+.lift { transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 220ms ease, border-color 200ms ease; }
+.lift:active { transform: scale(0.985); }
+@media (hover: hover) {
+  .lift:hover { transform: translateY(-3px); box-shadow: 0 18px 38px -18px rgba(31, 36, 33, 0.35); }
+  .dark .lift:hover { box-shadow: 0 18px 38px -16px rgba(0, 71, 255, 0.45); }
+}
+
+/* Pulsing dot used for "live" data: <span class="live-dot"><i/></span> */
+.live-dot { position: relative; display: inline-flex; width: 0.6rem; height: 0.6rem; }
+.live-dot::before, .live-dot > i { content: ''; border-radius: 9999px; background: currentColor; }
+.live-dot > i { position: relative; width: 100%; height: 100%; }
+.live-dot::before { position: absolute; inset: 0; animation: live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.live-dot[data-still='true']::before { animation: none; opacity: 0; }
+
+/* Dashed route line that "flows" - decorative */
+.route-flow { stroke-dasharray: 8 12; animation: route-flow 3.2s linear infinite; }
+
+/* Light sweep across a primary button on hover */
+.btn-sheen { position: relative; overflow: hidden; isolation: isolate; }
+.btn-sheen::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+}
+@media (hover: hover) { .btn-sheen:hover::after { animation: sheen 700ms ease; } }
