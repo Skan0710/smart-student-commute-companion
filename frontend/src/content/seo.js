@@ -8,7 +8,7 @@
  * it those tags are omitted rather than pointing at an invented hostname.
  */
 
-import { SITE_NAME, SOCIAL_IMAGE, PAGES, ABOUT, getBreadcrumbTrail } from './siteContent.js';
+import { SITE_NAME, SOCIAL_IMAGE, PAGES, ABOUT, FAQS, getBreadcrumbTrail } from './siteContent.js';
 
 /** Validated origin ("https://example.org") or '' when unset/invalid. */
 export function normalizeSiteUrl(raw) {
@@ -66,7 +66,7 @@ export function buildSeoTags(page, { siteUrl = '', jsonLd = [] } = {}) {
   }
 
   tags.push(
-    { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary' } },
+    { tag: 'meta', attrs: { name: 'twitter:card', content: image ? 'summary_large_image' : 'summary' } },
     { tag: 'meta', attrs: { name: 'twitter:title', content: page.title } },
     { tag: 'meta', attrs: { name: 'twitter:description', content: page.description } }
   );
@@ -154,18 +154,20 @@ export function buildPageJsonLd(pageId, siteUrl) {
   const origin = normalizeSiteUrl(siteUrl);
   const data = [];
 
+  const faqPage = (items) => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+    })),
+  });
+
   // Marked up only because the same questions and answers are visible on the
   // page. (Search engines may or may not show them as rich results.)
-  if (pageId === 'about') {
-    data.push({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: ABOUT.faqs.map((faq) => ({
-        '@type': 'Question',
-        name: faq.question,
-        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
-      })),
-    });
+  if (pageId === 'about' || pageId === 'faq') {
+    data.push(faqPage(FAQS));
   }
 
   // The rest needs absolute URLs, which need the real production origin.
@@ -174,7 +176,11 @@ export function buildPageJsonLd(pageId, siteUrl) {
   const breadcrumbs = buildBreadcrumbJsonLd(getBreadcrumbTrail(pageId), origin);
   if (breadcrumbs) data.push(breadcrumbs);
 
-  if (pageId === 'about') {
+  // The product is a free-to-open web application for college students in
+  // Mumbai. It is not a business with a street address, so LocalBusiness /
+  // Organization (which require one) are deliberately not used; nothing here
+  // is invented (no ratings, reviews, prices or contact details).
+  if (pageId === 'home' || pageId === 'about') {
     data.push({
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
@@ -183,7 +189,11 @@ export function buildPageJsonLd(pageId, siteUrl) {
       description: PAGES.home.description,
       applicationCategory: 'TravelApplication',
       operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
       inLanguage: 'en-IN',
+      areaServed: { '@type': 'City', name: 'Mumbai', containedInPlace: { '@type': 'Country', name: 'India' } },
+      audience: { '@type': 'EducationalAudience', educationalRole: 'student', audienceType: 'College students in Mumbai' },
+      image: `${origin}${SOCIAL_IMAGE.path}`,
     });
   }
   return data;

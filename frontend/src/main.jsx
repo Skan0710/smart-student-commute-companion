@@ -7,6 +7,7 @@ import { resolveRoute } from './utils/publicRoutes.js';
 import './index.css';
 import { validateConfig } from './config/index.js';
 import { registerServiceWorker } from './utils/registerSW.js';
+import { observeDecorativeIcons } from './utils/decorativeIcons.js';
 
 // Smooth scrolling is owned by the useSmoothScroll hook (App / PublicSite): it
 // no-ops on touch devices and under prefers-reduced-motion, and tears down on
@@ -67,6 +68,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ConsentBanner />
   </React.StrictMode>,
 );
+
+// Lucide icons are decorative next to their labels: keep them out of the accessibility tree
+observeDecorativeIcons();
 
 // Register service worker after app renders
 registerServiceWorker().catch(error => {

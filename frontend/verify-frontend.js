@@ -2499,7 +2499,7 @@ const { resolveRoute, listPrerenderedPages } = await import(new URL('./src/utils
 const seoModule = await import(new URL('./src/content/seo.js', import.meta.url).href);
 const contentModule = await import(new URL('./src/content/siteContent.js', import.meta.url).href);
 const { buildSeoTags, buildPageJsonLd, normalizeSiteUrl } = seoModule;
-const { PAGES, ABOUT, NOT_FOUND, FOOTER_LINKS } = contentModule;
+const { PAGES, ABOUT, NOT_FOUND, FOOTER_LINKS, SOCIAL_IMAGE } = contentModule;
 
 // -- Routing: unknown URLs are never "successful" app pages
 const routingCases = [
@@ -2543,7 +2543,7 @@ const has = (tags, key, val) => tags.some((t) => (t.attrs?.rel === key || t.attr
 if (
   !has(noOrigin, 'canonical') && !has(noOrigin, 'og:url') && !has(noOrigin, 'og:image') && !has(noOrigin, 'twitter:image') &&
   has(withOrigin, 'canonical', 'https://example.org/about') &&
-  has(withOrigin, 'og:image', 'https://example.org/icons/icon-maskable-512x512.png') &&
+  has(withOrigin, 'og:image', 'https://example.org/og-image.png') &&
   !has(buildSeoTags(PAGES.notFound, { siteUrl: 'https://example.org' }), 'canonical') &&
   normalizeSiteUrl('javascript:alert(1)') === ''
 ) {
@@ -2708,15 +2708,18 @@ const sourceBlob = [];
   }
 })('src');
 sourceBlob.push(readFile('index.html') || '');
-const backendBlob = ['aiPlannerService', 'geocodingService', 'routingService', 'weatherService', 'googleIdentityService']
-  .map((n) => { try { return fs.readFileSync(path.join(__dirname, '../backend/services', n + '.js'), 'utf8'); } catch { return ''; } }).join('\n');
+const backendBlob = [
+  ...['aiPlannerService', 'geocodingService', 'routingService', 'weatherService', 'googleIdentityService', 'timetableOcrService'].map((n) => `services/${n}`),
+  ...['chatController', 'aiStudyPlanController'].map((n) => `controllers/${n}`),
+]
+  .map((n) => { try { return fs.readFileSync(path.join(__dirname, '../backend', n + '.js'), 'utf8'); } catch { return ''; } }).join('\n');
 const codeBlob = sourceBlob.join('\n') + '\n' + backendBlob;
 const allParties = [...THIRD_PARTIES.fromBrowser, ...THIRD_PARTIES.fromServer, ...THIRD_PARTIES.optional];
 const missingParties = allParties.filter((p) => !codeBlob.includes(p.code)).map((p) => p.name);
 const missingKeys = DEVICE_STORAGE.filter((s) => !codeBlob.includes(s.key)).map((s) => s.key);
 const sourceNoCookies = !/document\.cookie/.test(sourceBlob.join('\n'));
 if (missingParties.length === 0 && missingKeys.length === 0 && sourceNoCookies) {
-  pass('Every third party and storage key named in the privacy policy exists in the code; the app sets no cookies');
+  pass('Every third party and storage key named in the privacy policy exists in the code; client code never reads cookies');
 } else {
   fail('Privacy policy is out of sync with the code. Missing parties: ' + missingParties.join(', ') + '; keys: ' + missingKeys.join(', '));
 }
@@ -2744,6 +2747,138 @@ if (
   pass('Privacy policy is routed, prerendered, in the sitemap list and linked from every footer');
 } else {
   fail('Privacy policy is not reachable from the footer/routing');
+}
+
+// ---- SEO: metadata, social card, robots, structured data, alt text, analytics --------
+{
+  const pages = Object.values(PAGES).filter((page) => !page.noindex);
+  const titles = pages.map((page) => page.title);
+  const descriptions = pages.map((page) => page.description);
+  if (
+    pages.length >= 5 &&
+    ['/', '/about', '/faq', '/privacy', '/terms'].every((route) => pages.some((page) => page.path === route)) &&
+    new Set(titles).size === titles.length &&
+    new Set(descriptions).size === descriptions.length &&
+    titles.every((t) => t.length >= 10 && t.length <= 60) &&
+    descriptions.every((d) => d.length >= 70 && d.length <= 160)
+  ) {
+    pass('Every public page (/, /about, /faq, /privacy, /terms) has a unique title (<= 60 chars) and description (<= 160 chars)');
+  } else {
+    fail('Public page titles/descriptions are missing, duplicated or the wrong length');
+  }
+
+  const ogPath = path.join(__dirname, 'public/og-image.png');
+  let ogSize = null;
+  if (fs.existsSync(ogPath)) {
+    const header = fs.readFileSync(ogPath).subarray(0, 24);
+    if (header.toString('latin1', 1, 4) === 'PNG') ogSize = [header.readUInt32BE(16), header.readUInt32BE(20)];
+  }
+  const cardTags = buildSeoTags(PAGES.home, { siteUrl: 'https://example.org' });
+  const tagValue = (key) => cardTags.find((t) => t.attrs?.property === key || t.attrs?.name === key)?.attrs.content;
+  if (
+    ogSize && ogSize[0] === 1200 && ogSize[1] === 630 &&
+    SOCIAL_IMAGE.path === '/og-image.png' && SOCIAL_IMAGE.width === 1200 && SOCIAL_IMAGE.height === 630 &&
+    tagValue('og:title') === PAGES.home.title && tagValue('og:description') === PAGES.home.description &&
+    tagValue('og:url') === 'https://example.org/' && tagValue('og:image') === 'https://example.org/og-image.png' &&
+    tagValue('twitter:card') === 'summary_large_image' && tagValue('twitter:image') === 'https://example.org/og-image.png' &&
+    SOCIAL_IMAGE.alt.length > 20
+  ) {
+    pass('Open Graph and Twitter large-card tags are complete and public/og-image.png is a real 1200x630 PNG');
+  } else {
+    fail('Social share card is missing, the wrong size, or its tags are incomplete');
+  }
+
+  const robotsTxt = readFile('public/robots.txt') || '';
+  const robotsRules = robotsTxt.split('\n').map((line) => line.trim());
+  if (
+    robotsRules.includes('User-agent: *') && robotsRules.includes('Allow: /') &&
+    ['/api/', '/app/', '/account/', '/socket.io/'].every((route) => robotsRules.includes(`Disallow: ${route}`)) &&
+    !robotsRules.some((line) => /^Disallow:\s*\/(about|faq|privacy|terms)?\s*$/.test(line))
+  ) {
+    pass('robots.txt allows the public pages and disallows /api/, /app/, /account/ and the socket endpoint');
+  } else {
+    fail('robots.txt rules are wrong');
+  }
+
+  const publicPaths = ['/about', '/faq', '/privacy', '/terms'];
+  if (
+    publicPaths.every((route) =>
+      listPrerenderedPages().some((page) => page.path === route) &&
+      resolveRoute(route).page.path === route &&
+      FOOTER_LINKS.some((link) => link.href === route)) &&
+    resolveRoute('/faq/').id === 'faq' && resolveRoute('/nope').id === 'notfound'
+  ) {
+    pass('About, FAQ, Privacy and Terms are routed, prerendered (sitemap) and linked from every footer');
+  } else {
+    fail('A public page is not routed, prerendered or linked');
+  }
+
+  const homeLd = buildPageJsonLd('home', 'https://example.org');
+  const webApp = homeLd.find((d) => d['@type'] === 'WebApplication');
+  const faqPageLd = buildPageJsonLd('faq', '').find((d) => d['@type'] === 'FAQPage');
+  if (
+    webApp && webApp.areaServed?.name === 'Mumbai' && webApp.url === 'https://example.org/' &&
+    buildPageJsonLd('home', '').length === 0 &&
+    faqPageLd && faqPageLd.mainEntity.length === 5 &&
+    buildPageJsonLd('faq', 'https://example.org').some((d) => d['@type'] === 'BreadcrumbList') &&
+    !JSON.stringify(homeLd).match(/LocalBusiness|aggregateRating|review|telephone|streetAddress|priceRange/i)
+  ) {
+    pass('Landing page carries WebApplication schema for Mumbai students (only with a real origin); /faq carries FAQPage + breadcrumbs');
+  } else {
+    fail('Structured data for the landing or FAQ page is wrong');
+  }
+
+  // Alt text: every <img> has alt; every inline <svg> is hidden from assistive tech or labelled
+  const a11yOffenders = [];
+  const scan = (dir) => {
+    for (const entry of fs.readdirSync(path.join(__dirname, dir), { withFileTypes: true })) {
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) scan(rel);
+      else if (/\.jsx?$/.test(entry.name) && !/\.test\./.test(entry.name)) {
+        const source = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+        for (const m of source.matchAll(/<img\b[^>]*>/gs)) {
+          if (!/\balt\s*=/.test(m[0])) a11yOffenders.push(`${rel}: <img> without alt`);
+        }
+        for (const m of source.matchAll(/<svg\b[^>]*>/gs)) {
+          if (!/aria-hidden|\brole\s*=|aria-label/.test(m[0])) a11yOffenders.push(`${rel}: <svg> without aria-hidden/role/label`);
+        }
+      }
+    }
+  };
+  scan('src');
+  if (a11yOffenders.length === 0) {
+    pass('Every <img> has alt text and every inline <svg> is hidden from assistive tech or labelled');
+  } else {
+    fail('Accessibility: ' + a11yOffenders.join('; '));
+  }
+
+  const analyticsSource = readFile('src/services/analytics.js') || '';
+  const bannerSource = readFile('src/components/ConsentBanner.jsx') || '';
+  if (
+    /if \(readConsent\([^)]*\) !== 'granted'\) return false;/.test(analyticsSource) &&
+    analyticsSource.includes('anonymize_ip: true') &&
+    analyticsSource.includes('allow_google_signals: false') &&
+    analyticsSource.includes('allow_ad_personalization_signals: false') &&
+    analyticsSource.includes("analytics_storage: 'denied'") &&
+    analyticsSource.includes("ad_storage: 'denied'") &&
+    bannerSource.includes('Accept analytics')
+  ) {
+    pass('Google Analytics loads only after the visitor accepts; IP anonymisation on, Google signals and ad personalisation off');
+  } else {
+    fail('Analytics consent gating or privacy flags are wrong');
+  }
+
+  const sessionCookieSource = (() => { try { return fs.readFileSync(path.join(__dirname, '../backend/utils/sessionCookie.js'), 'utf8'); } catch { return ''; } })();
+  const privacyText = JSON.stringify(getPrivacyPolicy());
+  if (
+    sessionCookieSource.includes("SESSION_COOKIE_NAME = 'sc_session'") && sessionCookieSource.includes("'HttpOnly'") &&
+    privacyText.includes('sc_session') && privacyText.includes('HttpOnly') &&
+    !privacyText.includes('The app sets no cookies') && privacyText.includes('AES-256-GCM')
+  ) {
+    pass('Privacy policy documents the real session cookie (HttpOnly) and the protections the code applies');
+  } else {
+    fail('Privacy policy does not match the session cookie / security behaviour in the code');
+  }
 }
 
 // -- Directions links

@@ -11,7 +11,9 @@ import { PAGES } from '../content/siteContent.js';
 
 const PUBLIC_PATHS = new Map([
   ['/about', PAGES.about],
+  ['/faq', PAGES.faq],
   ['/privacy', PAGES.privacy],
+  ['/terms', PAGES.terms],
 ]);
 
 /** "/about/" -> "/about", "/" stays "/". Case-insensitive. */
@@ -23,7 +25,7 @@ export function normalizePathname(pathname) {
 
 /**
  * @param {string} pathname - window.location.pathname
- * @returns {{ id: 'app'|'about'|'privacy'|'notfound', page: object }}
+ * @returns {{ id: 'app'|'about'|'faq'|'privacy'|'terms'|'notfound', page: object }}
  */
 export function resolveRoute(pathname) {
   const path = normalizePathname(pathname);

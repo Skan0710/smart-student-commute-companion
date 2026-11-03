@@ -111,6 +111,7 @@ export function initAnalytics({
   gtag('js', new Date());
   gtag('config', id, {
     send_page_view: false, // page views are sent explicitly and sanitized
+    anonymize_ip: true, // GA4 never logs full IPs; kept explicit for older property types
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
   });

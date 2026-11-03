@@ -30,9 +30,9 @@ function createCustomIcon(color, label, iconSvg) {
   });
 }
 
-const originIcon = createCustomIcon('#10b981', 'Origin', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><circle cx="12" cy="12" r="6"/></svg>');
-const destIcon = createCustomIcon('#6366f1', 'College', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>');
-const transitIcon = createCustomIcon('#f59e0b', 'Station', '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/></svg>');
+const originIcon = createCustomIcon('#10b981', 'Origin', '<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><circle cx="12" cy="12" r="6"/></svg>');
+const destIcon = createCustomIcon('#6366f1', 'College', '<svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>');
+const transitIcon = createCustomIcon('#f59e0b', 'Station', '<svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/></svg>');
 
 /**
  * Representative coordinates for Mumbai transit hubs & college locations.

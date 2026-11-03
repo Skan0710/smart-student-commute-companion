@@ -14,6 +14,9 @@ Allow: /
 Disallow: /*?share-target=
 Disallow: /share-target
 Disallow: /__share-target-payload
+# Private application and account surfaces (signed-in screens are never public content)
+Disallow: /app/
+Disallow: /account/
 # API and live-socket endpoints (served by the backend)
 Disallow: /api/
 Disallow: /socket.io/

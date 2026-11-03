@@ -10,7 +10,7 @@
  */
 
 /** Date this text was last reviewed against the code. */
-export const PRIVACY_LAST_UPDATED = '19 October 2026';
+export const PRIVACY_LAST_UPDATED = '3 November 2026';
 
 /**
  * Third parties the app talks to, split by who makes the request.
@@ -29,13 +29,14 @@ export const THIRD_PARTIES = {
   ],
   optional: [
     { name: 'Google Gemini', purpose: 'word the explanation of a route, only when the operator has configured it', receives: 'route facts such as modes, times and fares: no names, emails, account ids or tokens', code: 'generativelanguage.googleapis.com' },
+    { name: 'Groq', purpose: 'answer campus chatbot questions, structure scanned timetable text and write AI study plans, only when the operator has configured it', receives: 'the message you type, the text read from your timetable image or pasted by you, or your study-plan answers: no names, emails, account ids or tokens', code: 'api.groq.com' },
     { name: 'Google Sign-In', purpose: 'let you sign in with your Google account, only when the operator has configured it', receives: 'your sign-in request; we receive your verified email address and name from Google', code: 'accounts.google.com/gsi/client' },
   ],
 };
 
 /** Browser storage the app uses, with what each holds. */
 export const DEVICE_STORAGE = [
-  { key: 'smart_commute_auth_session', holds: 'your sign-in session (a token and profile) if you are signed in' },
+  { key: 'smart_commute_auth_session', holds: 'your profile and a marker that you are signed in (the sign-in token itself is kept in an HttpOnly cookie that page scripts cannot read)' },
   { key: 'smart_commute_user_token', holds: 'a random anonymous identifier used when you vote on community reports' },
   { key: 'smart_commute_saved_commutes', holds: 'commutes you saved' },
   { key: 'smart_commute_recent_transit_searches', holds: 'your recent transit searches' },
@@ -83,7 +84,7 @@ export function getPrivacyPolicy({ analyticsEnabled = false, contactEmail = '' }
         items: [
           'You can plan routes, read live alerts and search transit without an account.',
           'The app does not read your device location. You type an area (for example Andheri East) and your college.',
-          'The app sets no cookies. It keeps a few settings in your browser storage, which you can clear.',
+          'Signing in sets one essential session cookie that page scripts cannot read. The app sets no advertising or tracking cookies, and keeps a few settings in your browser storage, which you can clear.',
           'Map, routing and weather services receive place names or coordinates, never your name or email.',
           'Community reports and ride groups are visible to other users under a display name you choose.',
         ],
@@ -103,9 +104,28 @@ export function getPrivacyPolicy({ analyticsEnabled = false, contactEmail = '' }
         id: 'device',
         heading: 'What stays on your device',
         paragraphs: [
-          'The app sets no cookies. It uses your browser\'s local storage and a service worker (for offline use and faster loading) to remember the following. Clearing your browser data removes all of it.',
+          'Apart from the sign-in session cookie described below, the app sets no cookies. It uses your browser\'s local storage and a service worker (for offline use and faster loading) to remember the following. Clearing your browser data removes all of it.',
         ],
         items: DEVICE_STORAGE.map((entry) => `${entry.key}: ${entry.holds}`),
+      },
+      {
+        id: 'cookies',
+        heading: 'Cookies',
+        paragraphs: [
+          'When you sign in, the server sets a single strictly necessary cookie named sc_session. It holds your signed session token, is marked HttpOnly (page scripts, including any injected script, cannot read it), is sent only to this site, is marked Secure on HTTPS, and expires after 24 hours or when you sign out. It is not used for tracking or advertising, and no cookie is set if you never sign in.',
+        ],
+      },
+      {
+        id: 'security',
+        heading: 'How we protect your data',
+        items: [
+          'Passwords are stored only as salted scrypt hashes and are checked in constant time. Repeated failed sign-ins are rate limited.',
+          'Your saved home area is encrypted in the database (AES-256-GCM) in production deployments, so a copied database file does not reveal it.',
+          'Profile photos and timetable images are checked on the server (type, size, real image content) and re-encoded, which removes hidden metadata such as GPS coordinates.',
+          'Text you post is stripped of script and markup before it is stored, and pages never render it as HTML.',
+          'The service sends security headers, uses HTTPS with HSTS in production, and the cloud database (when used) enforces row-level security so one student cannot read another student\'s records.',
+          'No system is perfectly secure. If you find a weakness, please tell the operator.',
+        ],
       },
       {
         id: 'third-parties',

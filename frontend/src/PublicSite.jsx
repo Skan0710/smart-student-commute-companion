@@ -6,6 +6,8 @@ import Breadcrumbs from './components/public/Breadcrumbs.jsx';
 import AboutPage from './pages/public/AboutPage.jsx';
 import NotFoundPage from './pages/public/NotFoundPage.jsx';
 import PrivacyPage from './pages/public/PrivacyPage.jsx';
+import FaqPage from './pages/public/FaqPage.jsx';
+import TermsPage from './pages/public/TermsPage.jsx';
 import useDocumentHead from './hooks/useDocumentHead.js';
 import { buildPageJsonLd, normalizeSiteUrl } from './content/seo.js';
 import { getBreadcrumbTrail } from './content/siteContent.js';
@@ -13,12 +15,14 @@ import { applyTheme, readThemePreference } from './utils/uiPreferences.js';
 
 const PAGE_COMPONENTS = {
   about: AboutPage,
+  faq: FaqPage,
   privacy: PrivacyPage,
+  terms: TermsPage,
   notfound: NotFoundPage,
 };
 
 /**
- * PublicSite - renders every non-app page (About, 404)
+ * PublicSite - renders every non-app page (About, FAQ, Privacy, Terms, 404)
  *
  * Used twice with identical output: by the build-time prerender (so crawlers
  * and no-JS visitors get real HTML) and in the browser (which takes over and

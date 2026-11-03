@@ -11,6 +11,7 @@
     "test": "node verify-frontend.js",
     "icons": "node scripts/generate-icons.js",
     "icons:png": "node scripts/rasterize-icons.js",
+    "icons:og": "node scripts/generate-og-image.js",
     "test:unit": "vitest run"
   },
   "dependencies": {
