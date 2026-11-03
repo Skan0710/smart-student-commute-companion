@@ -21,6 +21,52 @@ import {
 } from 'lucide-react';
 import { scanTimetableOcr } from '../services/academics';
 
+/**
+ * Upscales small screenshots/photos, converts to grayscale and stretches contrast so
+ * Tesseract can read thin grid text. Falls back to the original image on any failure.
+ */
+function preprocessTimetableImage(dataUrl, targetWidth = 2400) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(Math.max(targetWidth / img.width, 1), 3);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const data = ctx.getImageData(0, 0, w, h);
+        const px = data.data;
+        let lo = 255;
+        let hi = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          const g = (px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000;
+          px[i] = px[i + 1] = px[i + 2] = g;
+          if (g < lo) lo = g;
+          if (g > hi) hi = g;
+        }
+        const range = Math.max(hi - lo, 1);
+        for (let i = 0; i < px.length; i += 4) {
+          const v = Math.min(255, Math.max(0, ((px[i] - lo) * 255) / range));
+          px[i] = px[i + 1] = px[i + 2] = v;
+        }
+        ctx.putImageData(data, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (_) {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable }) {
@@ -132,7 +178,9 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
     setScanError(null);
 
     try {
-      const payload = inputMode === 'text' ? { text: pastedText } : { image: previewUrl };
+      const payload = inputMode === 'text'
+        ? { text: pastedText }
+        : { image: await preprocessTimetableImage(previewUrl) };
       const response = await scanTimetableOcr(payload);
       if (response && response.items) {
         setExtractedSlots(response.items);
