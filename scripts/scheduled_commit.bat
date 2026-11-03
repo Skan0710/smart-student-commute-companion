@@ -14,3 +14,4 @@ if errorlevel 1 (
     git push origin main >> scheduled_commit.log 2>&1
     echo [%date% %time%] Push check completed. >> scheduled_commit.log
 )
+
