@@ -13,6 +13,8 @@
  */
 
 const { TooManyRequestsError, BadRequestError } = require('../errors');
+const { verifyToken } = require('../utils/token');
+const { readSessionCookie } = require('../utils/sessionCookie');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -32,7 +34,9 @@ const DEFAULT_LIMITS = {
   // Anonymous community writes (reports, votes, groups, feedback)
   publicWrite: { windowMs: MINUTE, max: 30 },
   // Endpoints that fan out to external services (routing, geocoding)
-  heavy: { windowMs: MINUTE, max: 60 }
+  heavy: { windowMs: MINUTE, max: 60 },
+  // Paid LLM calls and CPU-heavy OCR: chatbot, study-plan generator, timetable scan
+  ai: { windowMs: MINUTE, max: 10 }
 };
 
 /**
@@ -108,6 +112,26 @@ function createRateLimiter({
   return middleware;
 }
 
+/**
+ * Budget key for the AI endpoints: the signed-in student when the request carries
+ * a valid session (so one student cannot burn the quota of a whole campus NAT and
+ * vice versa), otherwise the client address.
+ */
+function aiBudgetKey(req) {
+  const header = req.headers.authorization;
+  const token = typeof header === 'string' && header.startsWith('Bearer ')
+    ? header.slice(7).trim()
+    : readSessionCookie(req);
+  if (token) {
+    try {
+      return `user:${verifyToken(token).sub}`;
+    } catch {
+      /* invalid token: fall through to the address-based budget */
+    }
+  }
+  return `ip:${req.ip || 'unknown'}`;
+}
+
 /** Lower-cased account identifier from a credential request body, if any. */
 function accountKey(req) {
   const email = req.body && typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
@@ -141,7 +165,8 @@ function createRateLimiters(overrides = {}) {
     googleLogin: createRateLimiter({ name: 'google-login', ...cfg.googleLogin }),
     register: createRateLimiter({ name: 'register', ...cfg.register }),
     publicWrite: createRateLimiter({ name: 'public-write', ...cfg.publicWrite }),
-    heavy: createRateLimiter({ name: 'heavy', ...cfg.heavy })
+    heavy: createRateLimiter({ name: 'heavy', ...cfg.heavy }),
+    ai: createRateLimiter({ name: 'ai', keyFn: aiBudgetKey, ...cfg.ai })
   };
 }
 
@@ -191,6 +216,7 @@ function applyRateLimits(app, limiters) {
   app.post('/api/feedback', honeypot('website'));
 
   app.use(['/api/plan', '/api/transit'], limiters.heavy);
+  app.use(['/api/chat', '/api/academic/timetable/scan', '/api/academic/ai-study-plan'], limiters.ai);
 }
 
 module.exports = {

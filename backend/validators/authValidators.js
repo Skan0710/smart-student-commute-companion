@@ -68,8 +68,11 @@ const updateProfileSchema = z
       .min(2, 'College name must be at least 2 characters')
       .max(150, 'College name cannot exceed 150 characters')
       .optional(),
+    // Data URL or https URL; the controller validates magic bytes, re-encodes and
+    // downsizes it. The length cap just keeps the parser from buffering huge strings.
     profile_picture: z
       .string()
+      .max(7000000, 'Profile picture is too large')
       .optional()
       .nullable()
   })

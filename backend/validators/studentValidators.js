@@ -65,8 +65,8 @@ const createSavedRouteSchema = z.object({
   destination: privacyAreaValidator.pipe(z.string().min(2, 'Destination is required').max(150)),
   preferred_mode: z.string().optional().default('balanced'),
   max_budget: z.number().int().min(0).max(2000).optional().default(100),
-  summary: z.string().optional().default(''),
-  tags: z.array(z.string()).optional().default([])
+  summary: z.string().max(500).optional().default(''),
+  tags: z.array(z.string().max(30)).max(10).optional().default([])
 });
 
 const updateSavedRouteSchema = z.object({
@@ -75,8 +75,8 @@ const updateSavedRouteSchema = z.object({
   destination: privacyAreaValidator.pipe(z.string().min(2).max(150)).optional(),
   preferred_mode: z.string().optional(),
   max_budget: z.number().int().min(0).max(2000).optional(),
-  summary: z.string().optional(),
-  tags: z.array(z.string()).optional()
+  summary: z.string().max(500).optional(),
+  tags: z.array(z.string().max(30)).max(10).optional()
 });
 
 const savedRouteFilterSchema = z.object({

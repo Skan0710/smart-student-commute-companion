@@ -126,14 +126,30 @@ const envSchema = z.object({
     .optional()
     .transform(val => (typeof val === 'boolean' ? val : String(val || '').trim().toLowerCase() === 'true')),
 
-  // Strict-Transport-Security is opt-in: only enable once the domain is
-  // committed to HTTPS (browsers cache it for max-age).
+  // Strict-Transport-Security: on by default in production (it is only ever sent
+  // over HTTPS), off elsewhere. Set ENABLE_HSTS=false to opt out explicitly.
   ENABLE_HSTS: z
     .union([z.boolean(), z.string()])
     .optional()
-    .transform(val => (typeof val === 'boolean' ? val : String(val || '').trim().toLowerCase() === 'true')),
+    .transform(val => {
+      if (typeof val === 'boolean') return val;
+      const text = String(val || '').trim().toLowerCase();
+      return text === '' ? undefined : text === 'true';
+    }),
 
-  HSTS_MAX_AGE_SECONDS: z.coerce.number().int().min(0).max(63072000).optional().default(15552000)
+  // One year, the minimum browsers require for the preload list.
+  HSTS_MAX_AGE_SECONDS: z.coerce.number().int().min(0).max(63072000).optional().default(31536000),
+
+  // Adds the `preload` token. It is only a signal until the domain is submitted
+  // to hstspreload.org (a deliberate, hard-to-undo step); set false to omit it.
+  HSTS_PRELOAD: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform(val => {
+      if (typeof val === 'boolean') return val;
+      const text = String(val || '').trim().toLowerCase();
+      return text === '' ? true : text === 'true';
+    })
 });
 
 /**
@@ -282,7 +298,8 @@ const config = {
   sessionCookieSameSite: validatedConfig.SESSION_COOKIE_SAMESITE,
   fieldEncryptionKey: (validatedConfig.FIELD_ENCRYPTION_KEY || '').trim(),
   forceHttps: Boolean(validatedConfig.FORCE_HTTPS),
-  enableHsts: Boolean(validatedConfig.ENABLE_HSTS),
+  enableHsts: validatedConfig.ENABLE_HSTS === undefined ? validatedConfig.NODE_ENV === 'production' : validatedConfig.ENABLE_HSTS,
+  hstsPreload: validatedConfig.HSTS_PRELOAD,
   hstsMaxAgeSeconds: validatedConfig.HSTS_MAX_AGE_SECONDS,
   // Admin-only destructive demo reset: opt-in in production, on elsewhere
   allowDemoReset:

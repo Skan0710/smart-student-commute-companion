@@ -2426,11 +2426,55 @@ if (
   headersFile.includes('Referrer-Policy:') &&
   headersFile.includes('Permissions-Policy:') &&
   headersFile.includes('/sw.js') &&
-  !/^\s+Strict-Transport-Security:/m.test(headersFile)
+  headersFile.includes('X-Frame-Options: DENY') &&
+  /^\s+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload$/m.test(headersFile)
 ) {
-  pass('_headers carries nosniff, referrer/permissions policy, SW cache rule; HSTS left to the owner');
+  pass('_headers carries nosniff, frame/referrer/permissions policy, HSTS (1y, subdomains, preload) and the SW cache rule');
 } else {
   fail('_headers file is missing required headers');
+}
+
+// ---- Security: no raw-HTML sinks, honeypot on feedback, cookie-based session ----
+function listSourceFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listSourceFiles(full));
+    else if (/\.(jsx?|tsx?)$/.test(entry.name) && !/\.test\.[jt]sx?$/.test(entry.name)) out.push(full);
+  }
+  return out;
+}
+const CODE_EXEC_SINKS = /\.outerHTML\s*=|\beval\(|new Function\(/;
+const execSinkOffenders = listSourceFiles(path.join(__dirname, 'src'))
+  .filter((file) => CODE_EXEC_SINKS.test(fs.readFileSync(file, 'utf8')))
+  .map((file) => path.relative(__dirname, file));
+if (execSinkOffenders.length === 0) {
+  pass('No outerHTML=, eval() or new Function() code-execution sinks in the React source');
+} else {
+  fail('Code-execution sinks found in: ' + execSinkOffenders.join(', '));
+}
+
+const feedbackModalSrc = readFile('src/components/FeedbackModal.jsx') || '';
+if (
+  feedbackModalSrc.includes('id="feedback-website"') &&
+  feedbackModalSrc.includes('tabIndex={-1}') &&
+  feedbackModalSrc.includes('...(website ? { website } : {})')
+) {
+  pass('Feedback form includes an invisible honeypot that is only sent when filled');
+} else {
+  fail('Feedback form is missing its honeypot');
+}
+
+const apiSrcSecurity = readFile('src/services/api.js') || '';
+const sessionSrcSecurity = readFile('src/utils/authSession.js') || '';
+if (
+  apiSrcSecurity.includes("credentials: 'include'") &&
+  sessionSrcSecurity.includes('COOKIE_SESSION_MARKER') &&
+  (readFile('src/services/auth.js') || '').includes('/auth/logout')
+) {
+  pass('Browser session uses the HttpOnly cookie (credentials sent, token not stored, logout expires it)');
+} else {
+  fail('Cookie-based session wiring is incomplete');
 }
 
 const authFormHoneypot = readFile('src/components/AuthForm.jsx') || '';

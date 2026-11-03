@@ -317,13 +317,13 @@ async function run() {
     try {
       const res = await call('GET', '/api/health');
       assert.strictEqual(res.headers['x-content-type-options'], 'nosniff');
-      assert.strictEqual(res.headers['referrer-policy'], 'no-referrer');
+      assert.strictEqual(res.headers['referrer-policy'], 'strict-origin-when-cross-origin');
       assert.strictEqual(res.headers['x-frame-options'], 'DENY');
       assert.ok(res.headers['content-security-policy'].includes("default-src 'none'"));
       assert.ok(res.headers['content-security-policy'].includes("frame-ancestors 'none'"));
       assert.ok(res.headers['permissions-policy'].includes('geolocation=()'));
       assert.ok(!('x-powered-by' in res.headers));
-      assert.ok(!('strict-transport-security' in res.headers), 'HSTS is opt-in');
+      assert.ok(!('strict-transport-security' in res.headers), 'HSTS is off outside production unless enabled');
 
       const auth = await call('POST', '/api/auth/login', { body: { email: victim, password }, headers: { 'X-Forwarded-For': '192.0.2.120' } });
       assert.strictEqual(auth.headers['cache-control'], 'no-store');
@@ -345,7 +345,7 @@ async function run() {
     const call = caller(server);
     try {
       const secure = await call('GET', '/api/health', { headers: { 'X-Forwarded-Proto': 'https' } });
-      assert.ok(/max-age=\d+/.test(secure.headers['strict-transport-security'] || ''));
+      assert.strictEqual(secure.headers['strict-transport-security'], 'max-age=31536000; includeSubDomains; preload');
       const plain = await call('GET', '/api/health', { headers: { 'X-Forwarded-Proto': 'http' } });
       assert.ok(!('strict-transport-security' in plain.headers));
     } finally {

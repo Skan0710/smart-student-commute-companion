@@ -1,18 +1,23 @@
 /**
  * Timetable OCR Controller
  *
- * Exposes endpoint to receive an image payload (base64) or direct text payload,
- * invokes multi-pass Tesseract OCR and AI timetable analysis.
+ * Receives a timetable image (base64 / data URL) or pasted text, and returns the
+ * extracted class slots. The route is authenticated, rate-limited and body-validated
+ * (see routes/academicRoutes.js); this handler adds the image trust boundary:
+ * type, size and magic-byte checks, then a decode + re-encode that strips metadata
+ * before the pixels ever reach the OCR engine.
  */
 
 const { scanTimetableImage, processTimetableText } = require('../services/timetableOcrService');
+const { sanitizeImage } = require('../utils/imageSecurity');
+const { AppError } = require('../errors');
 
 async function handleTimetableOcr(req, res, next) {
   try {
-    const { image, text } = req.body || {};
+    const { image, text, fileName } = req.body || {};
 
     // Direct text parse mode for manual testing or text paste
-    if (text && typeof text === 'string') {
+    if (text) {
       const result = await processTimetableText(text);
       return res.status(200).json({
         status: 'success',
@@ -23,42 +28,29 @@ async function handleTimetableOcr(req, res, next) {
       });
     }
 
-    if (!image || typeof image !== 'string') {
-      return res.status(400).json({
-        status: 'error',
-        code: 'VALIDATION_ERROR',
-        message: 'An image (base64 string or data URL) or text payload is required for timetable OCR.'
-      });
-    }
-
-    // Extract base64 buffer from data URL if needed
-    const base64Data = image.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
-
-    if (buffer.length === 0) {
-      return res.status(400).json({
-        status: 'error',
-        code: 'VALIDATION_ERROR',
-        message: 'Invalid base64 image data supplied.'
-      });
-    }
-
-    const result = await scanTimetableImage(buffer);
+    // Untrusted upload: verify it is a real PNG/JPEG/WebP within the size cap and
+    // rebuild it from its pixels (drops EXIF/GPS metadata and trailing payloads).
+    const clean = await sanitizeImage(image, { fileName, maxDimension: 3200, format: 'png' });
+    const result = await scanTimetableImage(clean.buffer);
 
     return res.status(200).json({
       status: 'success',
       count: result.count,
       items: result.items,
       rawText: result.rawText,
-      parser: result.parser,
-      tesseractPath: result.tesseractPath
+      parser: result.parser
     });
   } catch (error) {
+    // Validation-style failures (bad type, too large, ...) are safe to show as-is.
+    if (error instanceof AppError) return next(error);
+
+    // Anything else (missing Tesseract, decoder crash) stays in the server log;
+    // the client gets no paths, binaries or stack traces.
     console.error('[Timetable OCR Error]', error);
     return res.status(500).json({
       status: 'error',
       code: 'OCR_PROCESSING_FAILED',
-      message: error.message || 'Failed to process timetable image with Tesseract OCR.'
+      message: 'Failed to process the timetable. Try a clearer image or paste the text instead.'
     });
   }
 }

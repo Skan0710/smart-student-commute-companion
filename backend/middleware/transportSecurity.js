@@ -14,10 +14,10 @@ const PERMISSIONS_POLICY = 'geolocation=(), camera=(), microphone=(), payment=()
  * @param {{ enableHsts: boolean, hstsMaxAgeSeconds: number }} options
  * @returns {import('express').RequestHandler}
  */
-function securityHeaders({ enableHsts = false, hstsMaxAgeSeconds = 15552000 } = {}) {
+function securityHeaders({ enableHsts = false, hstsMaxAgeSeconds = 31536000, hstsPreload = true } = {}) {
   return function applySecurityHeaders(req, res, next) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Content-Security-Policy', API_CSP);
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Permissions-Policy', PERMISSIONS_POLICY);
@@ -29,10 +29,11 @@ function securityHeaders({ enableHsts = false, hstsMaxAgeSeconds = 15552000 } = 
       res.setHeader('Pragma', 'no-cache');
     }
 
-    // HSTS is a one-way door for the whole domain: opt-in only, and only
-    // meaningful (and only sent) over HTTPS.
+    // HSTS only means anything over HTTPS, so it is only ever sent there. It is
+    // on by default in production (see config) and can be switched off explicitly.
     if (enableHsts && req.secure) {
-      res.setHeader('Strict-Transport-Security', `max-age=${hstsMaxAgeSeconds}; includeSubDomains`);
+      const preload = hstsPreload ? '; preload' : '';
+      res.setHeader('Strict-Transport-Security', `max-age=${hstsMaxAgeSeconds}; includeSubDomains${preload}`);
     }
 
     next();

@@ -110,8 +110,9 @@ export function buildHeadersFile(cspHeader) {
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
   Cross-Origin-Opener-Policy: same-origin
-  # Enable only once the domain is committed to HTTPS (browsers cache it):
-  # Strict-Transport-Security: max-age=15552000; includeSubDomains
+  # Browsers ignore HSTS over plain HTTP, so it is safe to ship. It is cached for a year
+  # and covers subdomains: serve every subdomain over HTTPS before deploying.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

@@ -304,7 +304,10 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
         onNotify?.('Could not generate plan. Please try again.', 'error');
       }
     } catch (err) {
-      onNotify?.(err?.message || 'Failed to generate AI plan.', 'error');
+      onNotify?.(
+        err?.status === 401 ? 'Sign in to generate an AI study plan.' : err?.message || 'Failed to generate AI plan.',
+        'error'
+      );
     } finally {
       setIsGeneratingPlan(false);
     }

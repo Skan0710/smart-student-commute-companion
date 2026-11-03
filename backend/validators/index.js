@@ -230,6 +230,8 @@ module.exports = {
   planItemsDateQuerySchema,
   planningInsightsQuerySchema,
   processPlanningRemindersSchema,
+  // AI-backed / heavy endpoints (timetable scan, study plan, chatbot)
+  ...require('./aiValidators'),
   // Student Commute Preferences (P9)
   ...require('./commutePreferenceValidators'),
   // Commute Disruption Alerts & Processing (Day 20)

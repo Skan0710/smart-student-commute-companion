@@ -9,6 +9,7 @@ const { verifyGoogleIdToken } = require('../services/googleIdentityService');
 const { getSupabaseClient } = require('../db/supabase');
 const { created, success } = require('../utils/apiResponse');
 const { setSessionCookie, clearSessionCookie } = require('../utils/sessionCookie');
+const { sanitizeProfilePicture } = require('../utils/imageSecurity');
 
 /**
  * Handles student registration.
@@ -183,9 +184,14 @@ function getUserById(req, res, next) {
 /**
  * Updates a user's profile (ownership or admin enforced by middleware).
  */
-function updateUserProfile(req, res, next) {
+async function updateUserProfile(req, res, next) {
   try {
-    const user = authService.updateProfile(req.params.id, req.body);
+    const updates = { ...req.body };
+    if (updates.profile_picture !== undefined) {
+      // Validates type + magic bytes + size, strips metadata, downsizes (or accepts an https URL).
+      updates.profile_picture = await sanitizeProfilePicture(updates.profile_picture);
+    }
+    const user = authService.updateProfile(req.params.id, updates);
     return success(res, {
       message: 'Profile updated successfully',
       user

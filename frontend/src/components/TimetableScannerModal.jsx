@@ -194,7 +194,11 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
       }
     } catch (err) {
       console.error('Timetable scan failed:', err);
-      setScanError(err.message || 'Failed to analyze timetable. Please try again.');
+      setScanError(
+        err?.status === 401
+          ? 'Sign in to scan your timetable. Your account keeps the scanner private and rate-limited.'
+          : err.message || 'Failed to analyze timetable. Please try again.'
+      );
     } finally {
       setIsScanning(false);
     }

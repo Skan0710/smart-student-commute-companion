@@ -11,7 +11,7 @@ const {
   clearPastReports,
   clearAllReports
 } = require('../controllers/reportController');
-const { authenticate, optionalAuthenticate } = require('../middleware/authMiddleware');
+const { authenticate, optionalAuthenticate, requireRole } = require('../middleware/authMiddleware');
 const {
   validate,
   createReportSchema,
@@ -40,8 +40,9 @@ function createReportRoutes(io) {
     validate({ params: idParamSchema }),
     deleteReport(io)
   );
-  router.post('/live-reports/clear-past', clearPastReports);
-  router.post('/live-reports/clear-all', clearAllReports);
+  // Destructive moderation actions: admin only (previously reachable anonymously).
+  router.post('/live-reports/clear-past', authenticate, requireRole(['admin']), clearPastReports);
+  router.post('/live-reports/clear-all', authenticate, requireRole(['admin']), clearAllReports);
   router.post('/live-reports/:id/confirm', optionalAuthenticate, validate({ params: idParamSchema }), confirmReport(io));
   router.post('/live-reports/:id/contradict', optionalAuthenticate, validate({ params: idParamSchema }), contradictReport(io));
 

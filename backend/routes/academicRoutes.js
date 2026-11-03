@@ -34,27 +34,32 @@ const {
   studentInsightsFilterSchema,
   studentSearchQuerySchema,
   linkResourcesSchema,
-  entityAndResourceParamSchema
+  entityAndResourceParamSchema,
+  timetableScanSchema,
+  aiStudyPlanSchema
 } = require('../validators');
 
 function createAcademicRoutes() {
   const router = express.Router();
 
-  // Timetable OCR Scanner (Available to all students)
+  // All academic routes require student authentication. (The OCR scanner and the
+  // AI study-plan generator used to be mounted above this guard, leaving a paid
+  // LLM call and a CPU-heavy OCR run open to anonymous callers.)
+  router.use('/academic', authenticate);
+
+  // Timetable OCR Scanner
   router.post(
     '/academic/timetable/scan',
+    validate({ body: timetableScanSchema }),
     timetableOcrController.handleTimetableOcr
   );
 
   // Interactive AI Study Plan Generator
   router.post(
     '/academic/ai-study-plan',
+    validate({ body: aiStudyPlanSchema }),
     aiStudyPlanController.generateInteractivePlan
   );
-
-
-  // All academic routes require student authentication
-  router.use('/academic', authenticate);
 
   // -------------------------------------------------------------
   // Course & Subject Endpoints

@@ -4,7 +4,7 @@
  * - Oversized and malformed bodies are rejected, never crash the server.
  * - User-supplied links can only be http(s); bulk operations are bounded.
  * - Adversarial strings are treated as data by every query (parameterized).
- * - Hostile markup is stored and returned as inert JSON text.
+ * - Hostile markup is stripped before storage and returned as inert JSON text.
  * - Vote identity cannot be forged with garbage/oversized tokens.
  * - API responses never contain credential or internal-ownership fields.
  * - Unexpected errors do not leak stack traces unless NODE_ENV is explicit dev/test.
@@ -181,13 +181,21 @@ async function run() {
     assert.ok(usersAfter >= usersBefore, 'users table must be intact');
   });
 
-  await test('Hostile markup is stored verbatim and returned only as JSON data', async () => {
-    const message = '<img src=x onerror=alert(1)> <script>alert(2)</script>';
+  await test('Hostile markup is neutralised before storage and returned only as JSON data', async () => {
+    const message = 'Signal failure <img src=x onerror=alert(1)> <script>alert(2)</script> near the bridge';
     const res = await call('POST', '/api/live-reports', {
       body: { pseudonym: 'Reporter', area: 'Dadar', mode: 'train', message, impact: 'low' }
     });
     assert.strictEqual(res.status, 201);
-    assert.strictEqual(res.body.report.message, message);
+    const stored = res.body.report.message;
+    assert.ok(!/<[a-z!/]/i.test(stored), 'no tag-shaped markup may survive: ' + stored);
+    assert.ok(!stored.includes('alert(2)'), 'script bodies are removed, not just their tags');
+    assert.ok(stored.includes('Signal failure') && stored.includes('near the bridge'), 'legitimate text is preserved');
+    // Ordinary text containing angle brackets is untouched
+    const plain = await call('POST', '/api/live-reports', {
+      body: { pseudonym: 'Reporter', area: 'Dadar', mode: 'train', message: 'Delay > 10 min, platform < 5 crowded', impact: 'low' }
+    });
+    assert.strictEqual(plain.body.report.message, 'Delay > 10 min, platform < 5 crowded');
     const list = await call('GET', '/api/live-reports?limit=5');
     assert.ok(String(list.headers['content-type']).startsWith('application/json'));
   });
