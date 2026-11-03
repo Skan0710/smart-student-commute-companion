@@ -66,6 +66,14 @@ export const PAGES = {
       'Plain-language terms for Smart Student Companion: accounts, acceptable use of community features, travel-time estimates and the limits of what we promise.',
     breadcrumb: 'Terms of use',
   },
+  thankYou: {
+    id: 'thankyou',
+    path: '/thank-you',
+    title: 'Thank You | Smart Student Companion',
+    description: 'Your submission was received. See what happens next and where to go from here.',
+    breadcrumb: 'Thank you',
+    noindex: true,
+  },
   notFound: {
     id: 'notfound',
     path: null,
@@ -194,6 +202,7 @@ export const NOT_FOUND = {
   heading: 'We could not find that page',
   body: 'The address may be mistyped or the page may have moved. These places will get you back on track.',
   primaryCta: { label: 'Plan my commute', href: '/' },
+  secondaryCta: { label: 'Go to the dashboard', href: '/?tab=dashboard' },
   linksHeading: 'Popular destinations',
   links: [
     { label: 'Dashboard', href: '/?tab=dashboard' },

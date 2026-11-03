@@ -3,6 +3,7 @@ import { ArrowRight, CloudSun, Map as MapIcon, Users, Radio } from 'lucide-react
 import { ABOUT } from '../../content/siteContent.js';
 import LinkButton from '../../components/public/LinkButton.jsx';
 import FaqList from '../../components/public/FaqList.jsx';
+import { PerformanceBadge, CampusHubs, StudentVoices, CaseStudy } from '../../components/public/ProofSections.jsx';
 
 const FEATURE_ICONS = [MapIcon, Radio, Users, CloudSun];
 
@@ -20,12 +21,12 @@ export default function AboutPage() {
       <section aria-labelledby="about-heading" className="max-w-3xl">
         <h1
           id="about-heading"
-          className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight"
+          className="text-[1.75rem] sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight"
         >
           {ABOUT.heading}
         </h1>
-        <p className="mt-4 text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">{ABOUT.intro}</p>
-        <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3" data-primary-cta-group>
+        <p className="mt-3 sm:mt-4 text-[0.95rem] sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">{ABOUT.intro}</p>
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-center gap-3" data-primary-cta-group>
           <LinkButton href={ABOUT.primaryCta.href} data-primary-cta icon={<ArrowRight className="w-5 h-5" aria-hidden="true" />}>
             {ABOUT.primaryCta.label}
           </LinkButton>
@@ -98,6 +99,11 @@ export default function AboutPage() {
         </ul>
       </section>
 
+      <PerformanceBadge />
+      <CampusHubs />
+      <StudentVoices />
+      <CaseStudy />
+
       <section aria-labelledby="sources-heading" className="mt-14 max-w-3xl">
         <h2 id="sources-heading" className="text-2xl font-bold text-slate-900 dark:text-white">
           {ABOUT.sourcesHeading}
@@ -122,12 +128,26 @@ export default function AboutPage() {
           <FaqList items={ABOUT.faqs} />
         </div>
         <p className="mt-4 text-sm text-slate-700 dark:text-slate-300">
-          More detail on what is stored and shared is in the{' '}
+          The same questions are on the{' '}
+          <a
+            href="/faq"
+            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            FAQ page
+          </a>
+          . More detail on what is stored and shared is in the{' '}
           <a
             href="/privacy"
             className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             privacy policy
+          </a>{' '}
+          and the{' '}
+          <a
+            href="/terms"
+            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            terms of use
           </a>
           .
         </p>

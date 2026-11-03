@@ -8,6 +8,8 @@ import CreateReportModal from './components/CreateReportModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import FeedbackModal from './components/FeedbackModal';
 import CampusChatbot from './components/CampusChatbot';
+import ThankYouHost from './components/ThankYouHost';
+import { announceThankYou } from './utils/thankYou';
 import PreferencesDialog from './components/PreferencesDialog';
 import PwaStatusBanner from './components/PwaStatusBanner';
 import InstallPromoBanner from './components/InstallPromoBanner';
@@ -685,7 +687,7 @@ export default function App() {
     try {
       await createReport(reportData);
       setIsReportModalOpen(false);
-      showToast('Live commute report broadcast to all students!');
+      announceThankYou('alert');
       return true;
     } catch (err) {
       if (err?.isNetwork) {
@@ -1074,7 +1076,7 @@ export default function App() {
   // Feedback Action
   const handleFeedbackSubmit = async (feedbackData) => {
     await sendFeedback(feedbackData);
-    showToast('Feedback recorded. Thank you!');
+    // The confirmation dialog (ThankYouHost) is announced by the feedback form itself.
   };
 
   // Render helper for active feature page
@@ -1352,6 +1354,7 @@ export default function App() {
 
       {/* Always-accessible Campus & Transit Chatbot */}
       <CampusChatbot onNavigate={navigateToScreen} />
+      <ThankYouHost onNavigate={navigateToScreen} />
 
       {/* Client-side personalization controls */}
       <PreferencesDialog

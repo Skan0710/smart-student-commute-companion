@@ -29,9 +29,12 @@ export default function NotFoundPage() {
       </h1>
       <p className="mt-3 text-base text-slate-700 dark:text-slate-300">{NOT_FOUND.body}</p>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
         <LinkButton href={NOT_FOUND.primaryCta.href} icon={<ArrowRight className="w-5 h-5" aria-hidden="true" />}>
           {NOT_FOUND.primaryCta.label}
+        </LinkButton>
+        <LinkButton href={NOT_FOUND.secondaryCta.href} variant="secondary">
+          {NOT_FOUND.secondaryCta.label}
         </LinkButton>
       </div>
 

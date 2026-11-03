@@ -14,6 +14,7 @@ const PUBLIC_PATHS = new Map([
   ['/faq', PAGES.faq],
   ['/privacy', PAGES.privacy],
   ['/terms', PAGES.terms],
+  ['/thank-you', PAGES.thankYou],
 ]);
 
 /** "/about/" -> "/about", "/" stays "/". Case-insensitive. */
@@ -25,7 +26,7 @@ export function normalizePathname(pathname) {
 
 /**
  * @param {string} pathname - window.location.pathname
- * @returns {{ id: 'app'|'about'|'faq'|'privacy'|'terms'|'notfound', page: object }}
+ * @returns {{ id: 'app'|'about'|'faq'|'privacy'|'terms'|'thankyou'|'notfound', page: object }}
  */
 export function resolveRoute(pathname) {
   const path = normalizePathname(pathname);
@@ -42,7 +43,12 @@ export function resolveRoute(pathname) {
   return { id: 'notfound', page: PAGES.notFound };
 }
 
-/** Static pages the prerender must emit (path -> page). */
+/** Static pages the prerender must emit (path -> page), including noindex ones such as /thank-you. */
 export function listPrerenderedPages() {
   return [PAGES.home, ...PUBLIC_PATHS.values()];
+}
+
+/** Pages that belong in sitemap.xml: indexable content only. */
+export function listSitemapPages() {
+  return listPrerenderedPages().filter((page) => !page.noindex);
 }

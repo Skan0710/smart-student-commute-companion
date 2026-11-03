@@ -51,8 +51,8 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
       </header>
 
       <main id="main-content" tabIndex={-1} className={`flex-1 w-full outline-none ${stickyCta ? 'pb-24 md:pb-0' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          {breadcrumbs && <div className="mb-6">{breadcrumbs}</div>}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-10">
+          {breadcrumbs && <div className="mb-3 sm:mb-6">{breadcrumbs}</div>}
           {children}
         </div>
       </main>

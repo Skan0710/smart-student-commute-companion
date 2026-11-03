@@ -35,6 +35,7 @@ import {
 } from '../services/academics';
 import useAsyncResource from '../hooks/useAsyncResource';
 import TimetableScannerModal from '../components/TimetableScannerModal';
+import { announceThankYou } from '../utils/thankYou';
 import { formatStatus } from '../utils/formatters';
 import {
   Tabs,
@@ -217,6 +218,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     }
 
     onNotify?.(`Timetable updated! ${slots.length} class slot${slots.length === 1 ? '' : 's'} added to your schedule.`, 'success');
+    announceThankYou('timetable');
   };
 
   const groupedResources = React.useMemo(() => {

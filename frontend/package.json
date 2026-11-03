@@ -12,6 +12,7 @@
     "icons": "node scripts/generate-icons.js",
     "icons:png": "node scripts/rasterize-icons.js",
     "icons:og": "node scripts/generate-og-image.js",
+    "check:fold": "node scripts/check-fold.mjs",
     "test:unit": "vitest run"
   },
   "dependencies": {

@@ -10,6 +10,8 @@ Allow: /
 
 # (In-app screens such as /?tab=feed are the same document as "/" and carry a
 # canonical link to it, so they are deliberately not blocked here.)
+# Post-submission confirmation (not a content page; also noindex in its own markup)
+Disallow: /thank-you
 # PWA share-target hand-off (not a content page)
 Disallow: /*?share-target=
 Disallow: /share-target

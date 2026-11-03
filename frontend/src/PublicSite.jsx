@@ -8,6 +8,7 @@ import NotFoundPage from './pages/public/NotFoundPage.jsx';
 import PrivacyPage from './pages/public/PrivacyPage.jsx';
 import FaqPage from './pages/public/FaqPage.jsx';
 import TermsPage from './pages/public/TermsPage.jsx';
+import ThankYouPage from './pages/public/ThankYouPage.jsx';
 import useDocumentHead from './hooks/useDocumentHead.js';
 import { buildPageJsonLd, normalizeSiteUrl } from './content/seo.js';
 import { getBreadcrumbTrail } from './content/siteContent.js';
@@ -18,6 +19,7 @@ const PAGE_COMPONENTS = {
   faq: FaqPage,
   privacy: PrivacyPage,
   terms: TermsPage,
+  thankyou: ThankYouPage,
   notfound: NotFoundPage,
 };
 
@@ -61,7 +63,7 @@ export default function PublicSite({ route, siteUrl = '', analyticsEnabled = fal
   return (
     <PublicLayout
       breadcrumbs={trail.length > 1 ? <Breadcrumbs trail={trail} /> : null}
-      stickyCta={route.id === 'about' && mounted ? <StickyCta href="/" label="Plan my commute" /> : null}
+      stickyCta={(route.id === 'about' || route.id === 'faq') && mounted ? <StickyCta href="/" label="Plan my commute" /> : null}
     >
       <Page analyticsEnabled={analyticsEnabled} contactEmail={contactEmail} />
     </PublicLayout>

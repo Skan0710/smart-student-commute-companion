@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ThumbsUp, ThumbsDown, Send, CheckCircle2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Send } from 'lucide-react';
 import { Modal, Alert, Textarea } from './ui';
 import { validateText } from '../utils/validation';
+import { announceThankYou } from '../utils/thankYou';
 
 const FEEDBACK_TAGS = [
   'Route accurate',
@@ -16,7 +17,6 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
   const [selectedTags, setSelectedTags] = useState([]);
   const [comment, setComment] = useState('');
   const [website, setWebsite] = useState(''); // honeypot: humans never see or fill it
-  const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [commentError, setCommentError] = useState(null);
   const [submitError, setSubmitError] = useState(null);
@@ -53,14 +53,13 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
         comment: comment.trim(),
         ...(website ? { website } : {})
       });
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setIsUseful(true);
-        setSelectedTags([]);
-        setComment('');
-        onClose();
-      }, 1400);
+      // The shared confirmation dialog takes over; reset and close this form now.
+      setIsUseful(true);
+      setSelectedTags([]);
+      setComment('');
+      setWebsite('');
+      onClose();
+      announceThankYou('feedback');
     } catch (err) {
       // Recoverable: keep the form open so the user can retry
       setSubmitError(err?.message || 'Unable to send your feedback right now. Please try again.');
@@ -76,13 +75,6 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
       title="Rate Commute Recommendation"
       size="md"
     >
-        {submitted ? (
-          <div className="p-8 text-center space-y-2">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mx-auto animate-bounce" />
-            <h4 className="text-base font-bold text-slate-900 dark:text-white">Thank you for your feedback!</h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Your student ratings help refine route recommendations.</p>
-          </div>
-        ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
             <div
               aria-hidden="true"
@@ -208,7 +200,6 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
               </button>
             </div>
           </form>
-        )}
     </Modal>
   );
 }

@@ -2495,11 +2495,11 @@ if (
 
 section('PUBLIC PAGES & SEO');
 
-const { resolveRoute, listPrerenderedPages } = await import(new URL('./src/utils/publicRoutes.js', import.meta.url).href);
+const { resolveRoute, listPrerenderedPages, listSitemapPages } = await import(new URL('./src/utils/publicRoutes.js', import.meta.url).href);
 const seoModule = await import(new URL('./src/content/seo.js', import.meta.url).href);
 const contentModule = await import(new URL('./src/content/siteContent.js', import.meta.url).href);
 const { buildSeoTags, buildPageJsonLd, normalizeSiteUrl } = seoModule;
-const { PAGES, ABOUT, NOT_FOUND, FOOTER_LINKS, SOCIAL_IMAGE } = contentModule;
+const { PAGES, ABOUT, NOT_FOUND, FOOTER_LINKS, SOCIAL_IMAGE, getBreadcrumbTrail } = contentModule;
 
 // -- Routing: unknown URLs are never "successful" app pages
 const routingCases = [
@@ -2878,6 +2878,117 @@ if (
     pass('Privacy policy documents the real session cookie (HttpOnly) and the protections the code applies');
   } else {
     fail('Privacy policy does not match the session cookie / security behaviour in the code');
+  }
+}
+
+// ---- Public experience: 404, thank-you, proof, transparency, maps, breadcrumbs ------
+{
+  const proof = await import(new URL('./src/content/proof.js', import.meta.url).href);
+  const thanks = await import(new URL('./src/content/thankYou.js', import.meta.url).href);
+  const announce = await import(new URL('./src/utils/thankYou.js', import.meta.url).href);
+  const { createRequire } = await import('module');
+
+  // Thank-you screen: all three submission types, wired to the real forms
+  const appSrc = readFile('src/App.jsx') || '';
+  const academicsSrc = readFile('src/pages/AcademicsPage.jsx') || '';
+  const feedbackSrc = readFile('src/components/FeedbackModal.jsx') || '';
+  if (
+    ['alert', 'timetable', 'feedback'].every((t) => thanks.THANK_YOU[t]?.nextSteps.length >= 3 && thanks.getThankYou(t).primary.href) &&
+    thanks.getThankYou('nope').type === 'generic' &&
+    appSrc.includes("announceThankYou('alert')") && appSrc.includes('<ThankYouHost') &&
+    academicsSrc.includes("announceThankYou('timetable')") && feedbackSrc.includes("announceThankYou('feedback')") &&
+    announce.announceThankYou('bogus', { dispatchEvent() { throw new Error('must not dispatch'); } }) === false &&
+    PAGES.thankYou?.noindex === true && resolveRoute('/thank-you').id === 'thankyou' &&
+    !listSitemapPages().some((page) => page.path === '/thank-you') &&
+    (readFile('public/robots.txt') || '').includes('Disallow: /thank-you')
+  ) {
+    pass('Thank-you confirmation covers alerts, timetable uploads and feedback; the page is noindex and kept out of the sitemap');
+  } else {
+    fail('Thank-you screen is incomplete or not wired to the three submissions');
+  }
+
+  // 404 offers the dashboard and the planner
+  if (
+    NOT_FOUND.primaryCta.href === '/' && NOT_FOUND.secondaryCta.href === '/?tab=dashboard' &&
+    (readFile('src/pages/public/NotFoundPage.jsx') || '').includes('NOT_FOUND.secondaryCta')
+  ) {
+    pass('404 page links back to the Route Planner and the Dashboard');
+  } else {
+    fail('404 page is missing its planner/dashboard navigation');
+  }
+
+  // Transparency badge: the claim must be true right now (re-run the benchmark)
+  let benchP95 = Infinity;
+  try {
+    const bench = createRequire(import.meta.url)('../backend/scripts/bench_route_evaluation.js');
+    benchP95 = bench.run({ iterations: 400, warmup: 100 }).p95Ms;
+  } catch (error) {
+    warn('Could not run the route benchmark: ' + error.message);
+  }
+  if (
+    proof.PERFORMANCE.thresholdMs === 15 && benchP95 < proof.PERFORMANCE.thresholdMs &&
+    proof.PERFORMANCE.measured.p95Ms < proof.PERFORMANCE.thresholdMs &&
+    /does not cover|covers scoring only/i.test(proof.PERFORMANCE.excludes) &&
+    !/instant|real-time|guarantee/i.test(JSON.stringify(proof.PERFORMANCE)) &&
+    (readFile('src/components/public/ProofSections.jsx') || '').includes('data-performance-badge')
+  ) {
+    pass(`Response-time badge ("under 15 ms") is measured and reproducible: benchmark p95 is ${benchP95.toFixed(3)} ms; its scope and limits are stated`);
+  } else {
+    fail('Response-time badge is untrue, unscoped or unmeasured');
+  }
+
+  // Social proof: only real, consented quotes; the worked example is labelled and has no statistics
+  const goodQuotes = proof.TESTIMONIALS.every(
+    (t) => t.consent === true && t.quote?.length > 10 && t.college && /^\d{4}-\d{2}-\d{2}$/.test(t.collectedOn) && t.author
+  );
+  const caseText = JSON.stringify(proof.CASE_STUDY);
+  if (
+    goodQuotes &&
+    /^Illustrative/i.test(proof.CASE_STUDY.label) && /not a measured result/i.test(proof.CASE_STUDY.disclaimer) &&
+    !/\d+\s*(%|min(ute)?s?\b|hours?)/i.test(caseText.replace(/Route [AB]/g, '')) &&
+    !/\b[1-5](\.\d)?\s*(\/\s*5|stars?)|★/.test(JSON.stringify(proof))
+  ) {
+    pass('Student voices contain only consented quotes (none invented); the case study is labelled illustrative and states no statistics');
+  } else {
+    fail('Social proof contains an unconsented quote, a rating, or an unlabelled/statistical case study');
+  }
+
+  // Maps + directions: encoded OSM walking links for the campus hubs
+  const hubs = proof.getCampusHubs();
+  if (
+    hubs.length >= 3 && ['DJ Sanghvi', 'VJTI', 'SPIT'].every((n) => hubs.some((h) => h.college.includes(n))) &&
+    hubs.every((h) => h.walkUrl?.startsWith('https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=') && decodeURIComponent(h.walkUrl).includes(`${h.from.lat},${h.from.lon};${h.to.lat},${h.to.lon}`)) &&
+    (readFile('src/components/public/ProofSections.jsx') || '').includes('rel="noopener noreferrer"')
+  ) {
+    pass('Campus hubs (DJSCE, VJTI, SPIT) carry encoded OpenStreetMap walking-direction links that open safely in a new tab');
+  } else {
+    fail('Campus directions links are missing or malformed');
+  }
+
+  // Breadcrumbs: nav > ol > li on every nested public page
+  const crumbSrc = readFile('src/components/public/Breadcrumbs.jsx') || '';
+  if (
+    /<nav aria-label="Breadcrumb"[\s\S]*<ol[\s\S]*<li/.test(crumbSrc) && crumbSrc.includes('aria-current="page"') &&
+    ['about', 'faq', 'privacy', 'terms', 'thankyou'].every((id) => getBreadcrumbTrail(id).length === 2)
+  ) {
+    pass('Semantic breadcrumbs (nav > ol > li, aria-current) are available on About, FAQ, Privacy, Terms and Thank-you');
+  } else {
+    fail('Breadcrumbs are not semantic or missing on a public sub-page');
+  }
+
+  // FAQ + sticky CTA + hero CTA wiring (layout is measured separately by scripts/check-fold.mjs)
+  const siteSrc = readFile('src/PublicSite.jsx') || '';
+  const aboutSrc = readFile('src/pages/public/AboutPage.jsx') || '';
+  if (
+    siteSrc.includes("route.id === 'about' || route.id === 'faq'") &&
+    aboutSrc.includes('data-primary-cta') && aboutSrc.indexOf('data-primary-cta') < aboutSrc.indexOf('how-it-works') &&
+    (readFile('src/components/public/StickyCta.jsx') || '').includes('safe-area-inset-bottom') &&
+    (readFile('src/components/public/StickyCta.jsx') || '').includes('visualViewport') &&
+    ABOUT.faqs.length === 5
+  ) {
+    pass('Hero CTA comes first on the landing page; the sticky mobile CTA respects safe areas and hides with the keyboard');
+  } else {
+    fail('Hero/sticky CTA wiring is wrong');
   }
 }
 

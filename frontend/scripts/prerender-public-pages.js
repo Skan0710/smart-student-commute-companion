@@ -31,7 +31,7 @@ import {
   normalizeSiteUrl,
   serializeHeadTags,
 } from '../src/content/seo.js';
-import { listPrerenderedPages } from '../src/utils/publicRoutes.js';
+import { listPrerenderedPages, listSitemapPages } from '../src/utils/publicRoutes.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -140,7 +140,7 @@ if (siteUrl) robots += `\n\nSitemap: ${siteUrl}/sitemap.xml`;
 write('robots.txt', `${robots}\n`);
 
 if (siteUrl) {
-  const urls = listPrerenderedPages()
+  const urls = listSitemapPages()
     .map((page) => `  <url><loc>${escapeHtml(`${siteUrl}${page.path}`)}</loc></url>`)
     .join('\n');
   write(
