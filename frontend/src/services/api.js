@@ -1,6 +1,7 @@
 import { API_BASE_URL, logger } from '../config/index.js';
 import {
   readAuthToken,
+  readBearerToken,
   clearAuthSession,
   AUTH_SESSION_EXPIRED_EVENT,
 } from '../utils/authSession.js';
@@ -70,12 +71,16 @@ export async function request(path, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS
   // a no-op and no Authorization header is sent at all.
   const isCredentialEndpoint =
     path.startsWith('/auth/login') || path.startsWith('/auth/register');
-  const authToken = isCredentialEndpoint ? null : readAuthToken();
+  const hasSession = !isCredentialEndpoint && Boolean(readAuthToken());
+  const authToken = isCredentialEndpoint ? null : readBearerToken();
 
   try {
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
+      // Carries the HttpOnly session cookie (same-origin by default; allowed
+      // cross-origin only for the backend's explicit CORS origins).
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -83,7 +88,7 @@ export async function request(path, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS
       }
     });
 
-    if (response.status === 401 && authToken) {
+    if (response.status === 401 && hasSession) {
       // The backend rejected our stored session — it is no longer valid.
       // Drop it from the device and tell the app, so the UI never keeps
       // rendering a signed-in student that the server no longer accepts.

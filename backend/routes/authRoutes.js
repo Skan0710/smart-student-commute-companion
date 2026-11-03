@@ -8,6 +8,7 @@ const express = require('express');
 const {
   register,
   login,
+  logout,
   googleLogin,
   getMe,
   getUserById,
@@ -22,6 +23,7 @@ function createAuthRoutes() {
 
   router.post('/auth/register', validate({ body: registerSchema }), register);
   router.post('/auth/login', validate({ body: loginSchema }), login);
+  router.post('/auth/logout', logout);
   router.post('/auth/google', validate({ body: googleLoginSchema }), googleLogin);
   router.get('/auth/me', authenticate, getMe);
   router.get('/auth/users', authenticate, requireRole(['admin']), listUsers);

@@ -15,6 +15,7 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
   const [isUseful, setIsUseful] = useState(true);
   const [selectedTags, setSelectedTags] = useState([]);
   const [comment, setComment] = useState('');
+  const [website, setWebsite] = useState(''); // honeypot: humans never see or fill it
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [commentError, setCommentError] = useState(null);
@@ -49,7 +50,8 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
         recommendation_id: recommendationId || '',
         is_useful: isUseful,
         tags: selectedTags,
-        comment: comment.trim()
+        comment: comment.trim(),
+        ...(website ? { website } : {})
       });
       setSubmitted(true);
       setTimeout(() => {
@@ -82,6 +84,21 @@ export default function FeedbackModal({ isOpen, onClose, onSubmit, recommendatio
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <div
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}
+            >
+              <label htmlFor="feedback-website">Leave this field empty</label>
+              <input
+                id="feedback-website"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+              />
+            </div>
             <div className="text-center">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2.5">
                 Was this recommendation useful?

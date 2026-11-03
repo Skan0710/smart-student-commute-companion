@@ -13,6 +13,53 @@ const { verifyToken } = require('../utils/token');
 const { UnauthorizedError, ForbiddenError, NotFoundError } = require('../errors');
 const { rideGroupRepository } = require('../repositories/RideGroupRepository');
 const { canModifyOwnedRecord } = require('../utils/ownership');
+const { readSessionCookie } = require('../utils/sessionCookie');
+const config = require('../config');
+
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+/**
+ * Finds the credential on a request. An explicit Bearer header always wins;
+ * otherwise the HttpOnly session cookie is used.
+ *
+ * @param {import('express').Request} req
+ * @returns {{ token: string|null, source: 'bearer'|'cookie'|null, malformed?: boolean }}
+ */
+function extractCredential(req) {
+  const authHeader = req.headers.authorization;
+  if (authHeader !== undefined) {
+    if (typeof authHeader !== 'string' || !authHeader.startsWith('Bearer ')) {
+      return { token: null, source: null, malformed: true };
+    }
+    const token = authHeader.slice(7).trim();
+    return token ? { token, source: 'bearer' } : { token: null, source: null };
+  }
+  const cookieToken = readSessionCookie(req);
+  return cookieToken ? { token: cookieToken, source: 'cookie' } : { token: null, source: null };
+}
+
+/**
+ * CSRF defence for cookie-authenticated, state-changing requests. Browsers
+ * attach cookies to cross-site requests, so the request's Origin must be one
+ * of ours (configured client origins, or the API's own origin). Bearer
+ * requests are immune - an attacker's page cannot read or set the header.
+ *
+ * @param {import('express').Request} req
+ */
+function assertSameOrigin(req) {
+  if (SAFE_METHODS.has(req.method)) return;
+  const origin = req.headers.origin;
+  const fetchSite = req.headers['sec-fetch-site'];
+  if (!origin) {
+    // Browsers omit Origin only for same-origin/navigation requests they
+    // describe through Fetch Metadata; anything else is not a browser we trust.
+    if (fetchSite === 'same-origin') return;
+    throw new ForbiddenError('Cross-site request blocked');
+  }
+  const own = `${req.protocol}://${req.get('host')}`;
+  if (origin === own || config.allowedOrigins.includes(origin)) return;
+  throw new ForbiddenError('Cross-site request blocked');
+}
 
 /**
  * Mandatory authentication guard middleware.
@@ -24,22 +71,17 @@ const { canModifyOwnedRecord } = require('../utils/ownership');
  */
 function authenticate(req, res, next) {
   try {
-    const authHeader = req.headers.authorization;
+    const credential = extractCredential(req);
 
-    if (!authHeader || typeof authHeader !== 'string') {
-      throw new UnauthorizedError('Authentication token is required');
-    }
-
-    if (!authHeader.startsWith('Bearer ')) {
+    if (credential.malformed) {
       throw new UnauthorizedError('Malformed authorization header. Expected "Bearer <token>"');
     }
-
-    const token = authHeader.slice(7).trim();
-    if (!token) {
+    if (!credential.token) {
       throw new UnauthorizedError('Authentication token is required');
     }
 
-    const payload = verifyToken(token);
+    const payload = verifyToken(credential.token);
+    if (credential.source === 'cookie') assertSameOrigin(req);
 
     // Attach verified user identity context
     req.user = {
@@ -66,21 +108,16 @@ function authenticate(req, res, next) {
  * @param {import('express').NextFunction} next
  */
 function optionalAuthenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const credential = extractCredential(req);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    req.user = null;
-    return next();
-  }
-
-  const token = authHeader.slice(7).trim();
-  if (!token) {
+  if (!credential.token) {
     req.user = null;
     return next();
   }
 
   try {
-    const payload = verifyToken(token);
+    const payload = verifyToken(credential.token);
+    if (credential.source === 'cookie') assertSameOrigin(req);
     req.user = {
       id: payload.sub,
       email: payload.email,

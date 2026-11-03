@@ -172,6 +172,26 @@ async function run() {
     assert.ok(!('website' in body));
   });
 
+  await test('Credential budgets default to 5 failed logins per account per 15 minutes', () => {
+    const { DEFAULT_LIMITS } = require('../middleware/rateLimiter');
+    assert.strictEqual(DEFAULT_LIMITS.loginAccount.max, 5);
+    assert.strictEqual(DEFAULT_LIMITS.loginAccount.windowMs, 15 * 60 * 1000);
+  });
+
+  await test('Feedback (contact) form shares the invisible honeypot with signup', async () => {
+    const server = await startApp();
+    const call = caller(server);
+    try {
+      const bot = await call('POST', '/api/feedback', {
+        body: { recommendation_id: 'rec-1', rating: 'helpful', website: 'http://spam.example' }
+      });
+      assert.strictEqual(bot.status, 400);
+      assert.strictEqual(bot.body.code, 'REQUEST_REJECTED');
+    } finally {
+      server.close();
+    }
+  });
+
   // ---- HTTP behaviour: limits ------------------------------------------------
   const originalTrust = config.trustProxy;
   config.trustProxy = 1; // let the tests present different client IPs via X-Forwarded-For
@@ -365,13 +385,13 @@ async function run() {
   });
 
   // ---- CORS ------------------------------------------------------------------
-  await test('CORS admits only configured origins and never allows credentials', async () => {
+  await test('CORS admits only configured origins (credentials are useless without an allowed origin)', async () => {
     const server = await startApp();
     const call = caller(server);
     try {
       const allowed = await call('GET', '/api/health', { headers: { Origin: config.allowedOrigins[0] } });
       assert.strictEqual(allowed.headers['access-control-allow-origin'], config.allowedOrigins[0]);
-      assert.ok(!('access-control-allow-credentials' in allowed.headers));
+      assert.strictEqual(allowed.headers['access-control-allow-credentials'], 'true');
       const evil = await call('GET', '/api/health', { headers: { Origin: 'https://evil.example' } });
       assert.ok(!('access-control-allow-origin' in evil.headers));
     } finally {

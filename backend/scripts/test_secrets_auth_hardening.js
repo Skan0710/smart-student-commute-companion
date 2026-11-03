@@ -278,6 +278,69 @@ async function run() {
     }
   });
 
+  // ---- HttpOnly session cookie ------------------------------------------------
+  await test('Login sets an HttpOnly SameSite cookie; it authenticates, logout clears it, cross-site writes are refused', async () => {
+    const server = await new Promise(r => { const s = createApp().listen(0, '127.0.0.1', () => r(s)); });
+    const port = server.address().port;
+    const call = (method, p, body, headers = {}) =>
+      new Promise((resolve, reject) => {
+        const payload = body ? JSON.stringify(body) : null;
+        const req = http.request(
+          { host: '127.0.0.1', port, method, path: p, headers: { 'Content-Type': 'application/json', ...headers } },
+          res => {
+            let d = '';
+            res.on('data', c => (d += c));
+            res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: d ? JSON.parse(d) : null }));
+          }
+        );
+        req.on('error', reject);
+        if (payload) req.write(payload);
+        req.end();
+      });
+    try {
+      const email = `cookie.${Date.now()}@example.com`;
+      const password = 'CookieTest123';
+      const reg = await call('POST', '/api/auth/register', { email, password, full_name: 'Cookie Tester', college_name: 'DJSCE' });
+      assert.strictEqual(reg.status, 201);
+
+      const login = await call('POST', '/api/auth/login', { email, password });
+      assert.strictEqual(login.status, 200);
+      const setCookie = [].concat(login.headers['set-cookie'] || []).find(c => c.startsWith('sc_session='));
+      assert.ok(setCookie, 'session cookie must be set');
+      assert.ok(/;\s*HttpOnly/i.test(setCookie), 'cookie must be HttpOnly');
+      assert.ok(/;\s*SameSite=(Lax|Strict)/i.test(setCookie), 'cookie must be SameSite Lax/Strict');
+      assert.ok(/;\s*Path=\//i.test(setCookie) && /;\s*Max-Age=\d+/i.test(setCookie));
+      const cookie = setCookie.split(';')[0];
+
+      // The cookie alone authenticates (no Authorization header).
+      const me = await call('GET', '/api/auth/me', null, { Cookie: cookie });
+      assert.strictEqual(me.status, 200);
+      assert.strictEqual(me.body.user.email, email);
+
+      // Cookie + hostile Origin on a write is refused; a configured origin is allowed.
+      const evil = await call('PATCH', `/api/auth/users/${me.body.user.id}`, { full_name: 'Hacked Name' },
+        { Cookie: cookie, Origin: 'https://evil.example' });
+      assert.strictEqual(evil.status, 403);
+      const noOrigin = await call('PATCH', `/api/auth/users/${me.body.user.id}`, { full_name: 'Hacked Name' }, { Cookie: cookie });
+      assert.strictEqual(noOrigin.status, 403);
+      const good = await call('PATCH', `/api/auth/users/${me.body.user.id}`, { full_name: 'Renamed Tester' },
+        { Cookie: cookie, Origin: config.allowedOrigins[0] });
+      assert.strictEqual(good.status, 200);
+
+      // A forged / garbage cookie is rejected.
+      const forged = await call('GET', '/api/auth/me', null, { Cookie: 'sc_session=not.a.jwt' });
+      assert.strictEqual(forged.status, 401);
+
+      // Logout expires the cookie.
+      const out = await call('POST', '/api/auth/logout', {});
+      assert.strictEqual(out.status, 200);
+      const cleared = [].concat(out.headers['set-cookie'] || []).find(c => c.startsWith('sc_session='));
+      assert.ok(cleared && /Max-Age=0/i.test(cleared) && /HttpOnly/i.test(cleared));
+    } finally {
+      server.close();
+    }
+  });
+
   await test('Gemini API key is sent in a header, never in a request URL', async () => {
     const fs = require('fs');
     for (const file of ['aiPlannerService.js', 'safeCommuteExplanationAdapter.js']) {

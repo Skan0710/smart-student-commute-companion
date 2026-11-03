@@ -16,7 +16,6 @@ const { TooManyRequestsError, BadRequestError } = require('../errors');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-const HOUR = 60 * MINUTE;
 
 /** Default budgets. Overridable per app instance (tests, future tuning). */
 const DEFAULT_LIMITS = {
@@ -26,10 +25,10 @@ const DEFAULT_LIMITS = {
   loginIp: { windowMs: 15 * MINUTE, max: 30 },
   // ...and per (client IP + account), counting only failures, so an attacker
   // cannot lock a victim out from other addresses.
-  loginAccount: { windowMs: 15 * MINUTE, max: 8 },
+  loginAccount: { windowMs: 15 * MINUTE, max: 5 },
   googleLogin: { windowMs: 15 * MINUTE, max: 30 },
   // Account creation / signup spam
-  register: { windowMs: HOUR, max: 20 },
+  register: { windowMs: 15 * MINUTE, max: 10 },
   // Anonymous community writes (reports, votes, groups, feedback)
   publicWrite: { windowMs: MINUTE, max: 30 },
   // Endpoints that fan out to external services (routing, geocoding)
@@ -187,6 +186,9 @@ function applyRateLimits(app, limiters) {
     '/api/ride-groups/:id/join'
   ];
   app.post(publicWritePaths, limiters.publicWrite);
+
+  // Contact-style forms get the same invisible bot trap as registration.
+  app.post('/api/feedback', honeypot('website'));
 
   app.use(['/api/plan', '/api/transit'], limiters.heavy);
 }

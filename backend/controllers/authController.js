@@ -8,6 +8,7 @@ const { authService } = require('../services');
 const { verifyGoogleIdToken } = require('../services/googleIdentityService');
 const { getSupabaseClient } = require('../db/supabase');
 const { created, success } = require('../utils/apiResponse');
+const { setSessionCookie, clearSessionCookie } = require('../utils/sessionCookie');
 
 /**
  * Handles student registration.
@@ -103,9 +104,12 @@ async function login(req, res, next) {
       // Non-fatal
     }
 
+    setSessionCookie(req, res, sessionResult.token);
+
     return success(res, {
       message: 'Login successful',
       token: sessionResult.token,
+      session_transport: 'cookie',
       user: sessionResult.user,
       supabase_token: sessionResult.supabase_token || null,
       supabase_refresh_token: sessionResult.supabase_refresh_token || null
@@ -116,15 +120,27 @@ async function login(req, res, next) {
 }
 
 /**
+ * Ends the browser session by expiring the HttpOnly cookie. Idempotent and
+ * safe to call while signed out. (Bearer tokens are stateless and simply
+ * expire; clients discard them.)
+ */
+function logout(req, res) {
+  clearSessionCookie(req, res);
+  return success(res, { message: 'Signed out' });
+}
+
+/**
  * Signs in with a Google ID token that is verified server-side.
  */
 async function googleLogin(req, res, next) {
   try {
     const profile = await verifyGoogleIdToken(req.body.credential);
     const { user, token } = authService.loginWithGoogle(profile);
+    setSessionCookie(req, res, token);
     return success(res, {
       message: 'Login successful',
       token,
+      session_transport: 'cookie',
       user
     });
   } catch (err) {
@@ -189,6 +205,7 @@ function listUsers(req, res, next) {
 
 module.exports = {
   register,
+  logout,
   login,
   googleLogin,
   getMe,

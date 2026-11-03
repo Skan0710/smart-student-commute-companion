@@ -3,6 +3,7 @@ import {
   readAuthSession,
   writeAuthSession,
   clearAuthSession,
+  COOKIE_SESSION_MARKER,
   AUTH_SESSION_EXPIRED_EVENT,
 } from '../utils/authSession.js';
 
@@ -29,6 +30,15 @@ import {
  * @returns {Promise<{token: string, user: Object, savedAt: string}>} stored session
  * @throws {FrontendApiError} 401 for bad credentials, network errors, malformed responses
  */
+/**
+ * Picks what the device stores as the session credential: the cookie marker
+ * when the server issued an HttpOnly cookie (preferred; the JWT is then
+ * discarded), otherwise the bearer token for cross-site setups without cookies.
+ */
+function sessionCredential(data) {
+  return data.session_transport === 'cookie' ? COOKIE_SESSION_MARKER : data.token;
+}
+
 export async function signIn({ email, password }) {
   const data = await request('/auth/login', {
     method: 'POST',
@@ -43,7 +53,7 @@ export async function signIn({ email, password }) {
     );
   }
 
-  writeAuthSession({ token: data.token, user: data.user });
+  writeAuthSession({ token: sessionCredential(data), user: data.user });
   return readAuthSession();
 }
 
@@ -71,7 +81,7 @@ export async function signInWithGoogle(credential) {
     );
   }
 
-  writeAuthSession({ token: data.token, user: data.user });
+  writeAuthSession({ token: sessionCredential(data), user: data.user });
   return readAuthSession();
 }
 
@@ -198,12 +208,15 @@ export async function updateUserProfile(userId, payload) {
 
 /**
  * Sign out: drop the session from this device.
- * The token cannot be revoked server-side (the backend contract has no
- * logout endpoint), which is documented as a known limitation.
+ * The browser session cookie is expired through POST /auth/logout. Signed
+ * tokens are stateless, so a token copied before sign-out stays valid until
+ * its 24h expiry (documented limitation).
  *
  * @returns {null}
  */
 export function signOut() {
   clearAuthSession();
+  // Expire the HttpOnly cookie; the device is signed out even if this fails.
+  request('/auth/logout', { method: 'POST', body: '{}' }).catch(() => {});
   return null;
 }

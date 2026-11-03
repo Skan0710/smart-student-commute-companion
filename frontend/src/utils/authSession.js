@@ -18,6 +18,13 @@
  * except this app's own backend, and no secrets are shipped in the bundle.
  */
 
+/**
+ * Stored in place of the JWT when the server delivered the session in an
+ * HttpOnly cookie. The real token never reaches JavaScript, so page scripts
+ * (and XSS) cannot steal it; the browser attaches the cookie by itself.
+ */
+export const COOKIE_SESSION_MARKER = 'cookie-session';
+
 /** localStorage key for the session envelope */
 export const AUTH_SESSION_KEY = 'smart_commute_auth_session';
 
@@ -63,6 +70,16 @@ export function readAuthSession() {
  */
 export function readAuthToken() {
   return readAuthSession()?.token || null;
+}
+
+/**
+ * The Bearer credential to send, if any. The cookie marker is not a
+ * credential: the HttpOnly cookie travels on its own.
+ * @returns {string|null}
+ */
+export function readBearerToken() {
+  const token = readAuthToken();
+  return token && token !== COOKIE_SESSION_MARKER ? token : null;
 }
 
 /**

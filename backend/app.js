@@ -30,11 +30,12 @@ function createApp(options = {}) {
     hstsMaxAgeSeconds: config.hstsMaxAgeSeconds
   }));
 
-  // 1. CORS: explicit origins only. Sessions are Bearer tokens (no cookies),
-  // so cross-origin credentials are not needed and stay off.
+  // 1. CORS: explicit origins only (never a wildcard), so the HttpOnly session
+  // cookie may accompany requests from the configured client origins. Cookie-
+  // authenticated writes are additionally Origin-checked (see authMiddleware).
   app.use(cors({
     origin: config.allowedOrigins,
-    credentials: false
+    credentials: true
   }));
 
   // 2. Request body parsing (explicit size cap)

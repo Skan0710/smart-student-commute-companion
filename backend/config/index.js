@@ -75,6 +75,13 @@ const envSchema = z.object({
       return val.trim().toLowerCase() === 'true';
     }),
 
+  SESSION_COOKIE_SAMESITE: z
+    .string()
+    .optional()
+    .default('lax')
+    .transform(v => v.trim().toLowerCase())
+    .refine(v => ['lax', 'strict', 'none'].includes(v), 'SESSION_COOKIE_SAMESITE must be lax, strict or none'),
+
   JWT_SECRET: z
     .string()
     .optional()
@@ -254,6 +261,7 @@ const config = {
   jwtSecret: resolveJwtSecret(validatedConfig),
   googleClientId: validatedConfig.GOOGLE_CLIENT_ID.trim(),
   trustProxy: parseTrustProxy(validatedConfig.TRUST_PROXY),
+  sessionCookieSameSite: validatedConfig.SESSION_COOKIE_SAMESITE,
   forceHttps: Boolean(validatedConfig.FORCE_HTTPS),
   enableHsts: Boolean(validatedConfig.ENABLE_HSTS),
   hstsMaxAgeSeconds: validatedConfig.HSTS_MAX_AGE_SECONDS,
