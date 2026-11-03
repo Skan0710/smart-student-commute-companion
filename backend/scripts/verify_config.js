@@ -117,7 +117,8 @@ runTest('Enforces non-localhost CLIENT_URL in production', () => {
   const prodValid = validateEnv({
     NODE_ENV: 'production',
     CLIENT_URL: 'https://commute.studentapp.org',
-    JWT_SECRET: 'j'.repeat(40)
+    JWT_SECRET: 'j'.repeat(40),
+    FIELD_ENCRYPTION_KEY: 'c3'.repeat(32)
   });
   assert(prodValid.NODE_ENV === 'production', 'Production valid config accepted');
   assert(prodValid.CLIENT_URL === 'https://commute.studentapp.org', 'Production URL preserved');

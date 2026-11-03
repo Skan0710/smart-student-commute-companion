@@ -74,7 +74,7 @@ async function run() {
     const base = { NODE_ENV: 'production', CLIENT_URL: 'https://app.example.org' };
     assert.throws(() => validateEnv({ ...base }), /JWT_SECRET is required in production/);
     assert.throws(() => validateEnv({ ...base, JWT_SECRET: 'too-short' }), /JWT_SECRET is required in production/);
-    assert.doesNotThrow(() => validateEnv({ ...base, JWT_SECRET: 'x'.repeat(40) }));
+    assert.doesNotThrow(() => validateEnv({ ...base, JWT_SECRET: 'x'.repeat(40), FIELD_ENCRYPTION_KEY: 'a1'.repeat(32) }));
   });
 
   await test('Without JWT_SECRET each process gets a different random signing secret', () => {

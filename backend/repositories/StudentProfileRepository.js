@@ -6,6 +6,11 @@
 
 const { getConnection } = require('../db/connection');
 const { StudentProfile } = require('../models/StudentProfile');
+const { encryptField, decryptField, isEncrypted } = require('../utils/fieldCrypto');
+const config = require('../config');
+
+/** Context bound into the ciphertext so a value cannot be moved between rows/columns. */
+const homeAreaContext = userId => `student_profiles.home_area:${userId}`;
 
 class StudentProfileRepository {
   constructor(dbInstance) {
@@ -26,7 +31,17 @@ class StudentProfileRepository {
     if (!userId || typeof userId !== 'string') return null;
     const stmt = this.database.prepare('SELECT * FROM student_profiles WHERE user_id = ?');
     const row = stmt.get(userId);
-    return row ? StudentProfile.fromRow(row) : null;
+    if (!row) return null;
+
+    // home_area is a private location: it is encrypted at rest (AES-256-GCM).
+    const plainHomeArea = decryptField(row.home_area, homeAreaContext(userId));
+    // Lazy migration: rows written before encryption was enabled are upgraded on read.
+    if (config.fieldEncryptionKey && row.home_area && !isEncrypted(row.home_area)) {
+      this.database
+        .prepare('UPDATE student_profiles SET home_area = ? WHERE user_id = ?')
+        .run(encryptField(plainHomeArea, homeAreaContext(userId)), userId);
+    }
+    return StudentProfile.fromRow({ ...row, home_area: plainHomeArea });
   }
 
   /**
@@ -55,7 +70,7 @@ class StudentProfileRepository {
 
       stmt.run(
         userId,
-        data.home_area || '',
+        encryptField(data.home_area || '', homeAreaContext(userId)),
         data.default_college || '',
         preferredModes,
         Number(data.walking_tolerance_minutes || 20),
@@ -87,7 +102,7 @@ class StudentProfileRepository {
       `);
 
       stmt.run(
-        homeArea,
+        encryptField(homeArea || '', homeAreaContext(userId)),
         defaultCollege,
         preferredModes,
         walkingTol,

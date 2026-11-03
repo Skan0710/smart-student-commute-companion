@@ -29,6 +29,10 @@ async function register(req, res, next) {
           email: req.body.email.trim().toLowerCase(),
           password: req.body.password,
           email_confirm: true,
+          // Server-only claim the database's RLS policies trust to map this
+          // Supabase identity to the application user id (user_metadata is
+          // client-editable and must never be used for authorization).
+          app_metadata: { app_user_id: user.id },
           user_metadata: {
             full_name: req.body.full_name,
             college_name: req.body.college_name

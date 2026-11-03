@@ -405,7 +405,7 @@ async function run() {
       ['-e', "process.stdout.write(JSON.stringify(require('./config').allowedOrigins))"],
       {
         cwd: path.resolve(__dirname, '..'),
-        env: { ...process.env, NODE_ENV: 'production', CLIENT_URL: 'https://app.example.org', JWT_SECRET: 'p'.repeat(40) },
+        env: { ...process.env, NODE_ENV: 'production', CLIENT_URL: 'https://app.example.org', JWT_SECRET: 'p'.repeat(40), FIELD_ENCRYPTION_KEY: 'a1'.repeat(32) },
         encoding: 'utf8'
       }
     );

@@ -75,6 +75,11 @@ const envSchema = z.object({
       return val.trim().toLowerCase() === 'true';
     }),
 
+  FIELD_ENCRYPTION_KEY: z
+    .string()
+    .optional()
+    .default(''),
+
   SESSION_COOKIE_SAMESITE: z
     .string()
     .optional()
@@ -192,6 +197,19 @@ function validateEnv(rawEnv = process.env) {
     );
   }
 
+  // Rule: sensitive profile fields are encrypted at rest. A supplied key must be
+  // well formed everywhere; production must supply one (no silent plaintext).
+  const fieldKey = (data.FIELD_ENCRYPTION_KEY || '').trim();
+  if (fieldKey) {
+    try {
+      require('../utils/fieldCrypto').parseKey(fieldKey);
+    } catch (err) {
+      throw new Error(`[Backend Configuration Error] ${err.message}`);
+    }
+  } else if (data.NODE_ENV === 'production') {
+    throw new Error('[Backend Configuration Error] FIELD_ENCRYPTION_KEY is required in production (32 random bytes as 64 hex characters).');
+  }
+
   // Rule: If REQUIRE_GEMINI_KEY is explicitly enabled, GEMINI_API_KEY must not be empty
   if (data.REQUIRE_GEMINI_KEY && (!data.GEMINI_API_KEY || data.GEMINI_API_KEY.trim() === '')) {
     throw new Error('[Backend Configuration Error] GEMINI_API_KEY is required because REQUIRE_GEMINI_KEY is enabled.');
@@ -262,6 +280,7 @@ const config = {
   googleClientId: validatedConfig.GOOGLE_CLIENT_ID.trim(),
   trustProxy: parseTrustProxy(validatedConfig.TRUST_PROXY),
   sessionCookieSameSite: validatedConfig.SESSION_COOKIE_SAMESITE,
+  fieldEncryptionKey: (validatedConfig.FIELD_ENCRYPTION_KEY || '').trim(),
   forceHttps: Boolean(validatedConfig.FORCE_HTTPS),
   enableHsts: Boolean(validatedConfig.ENABLE_HSTS),
   hstsMaxAgeSeconds: validatedConfig.HSTS_MAX_AGE_SECONDS,
