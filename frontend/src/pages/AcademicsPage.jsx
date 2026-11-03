@@ -165,6 +165,52 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
   const isSample = Boolean(data?.isSample);
   const canEdit = Boolean(data) && !isSample;
 
+  const SCHEDULE_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayDayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const [selectedScheduleDay, setSelectedScheduleDay] = useState(() => {
+    return SCHEDULE_DAYS.includes(todayDayName) ? todayDayName : 'Monday';
+  });
+
+  const getEventDay = (ev) => {
+    if (ev.day) {
+      const d = String(ev.day).trim();
+      const match = SCHEDULE_DAYS.find(sd => sd.toLowerCase() === d.toLowerCase());
+      if (match) return match;
+    }
+    if (typeof ev.time === 'string') {
+      const match = ev.time.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/i);
+      if (match) {
+        const found = SCHEDULE_DAYS.find(sd => sd.toLowerCase() === match[1].toLowerCase());
+        if (found) return found;
+      }
+    }
+    if (ev.startTime) {
+      const d = new Date(ev.startTime);
+      if (!isNaN(d.getTime())) {
+        const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+        const found = SCHEDULE_DAYS.find(sd => sd.toLowerCase() === weekday.toLowerCase());
+        if (found) return found;
+      }
+    }
+    return SCHEDULE_DAYS.includes(todayDayName) ? todayDayName : 'Monday';
+  };
+
+  const filteredScheduleEvents = React.useMemo(() => {
+    return events.filter((ev) => {
+      const evDay = getEventDay(ev);
+      return evDay.toLowerCase() === selectedScheduleDay.toLowerCase();
+    });
+  }, [events, selectedScheduleDay]);
+
+  const dayClassCounts = React.useMemo(() => {
+    const counts = {};
+    events.forEach((ev) => {
+      const evDay = getEventDay(ev);
+      counts[evDay] = (counts[evDay] || 0) + 1;
+    });
+    return counts;
+  }, [events]);
+
   const courseOptions = [
     { value: '', label: 'No course' },
     ...courses.map((course) => ({
@@ -187,6 +233,9 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
       return {
         id: slot.id || `event-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         title: slot.subjectCode ? `${slot.subjectCode}: ${slot.title}` : slot.title,
+        day: slot.day || 'Monday',
+        startTime: slot.startTime,
+        endTime: slot.endTime,
         time: `${slot.day ? `${slot.day} • ` : ''}${timeText}`,
         location: slot.location || 'Classroom',
         type: slot.eventType || 'lecture',
@@ -195,14 +244,24 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
 
     setScannedEvents((prev) => [...newCreatedEvents, ...prev]);
 
+    if (slots[0]?.day && SCHEDULE_DAYS.includes(slots[0].day)) {
+      setSelectedScheduleDay(slots[0].day);
+    }
+
     if (canEdit) {
+      const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       for (const slot of slots) {
         try {
           const now = new Date();
           const [startH, startM] = (slot.startTime || '09:00').split(':').map(Number);
           const [endH, endM] = (slot.endTime || '10:00').split(':').map(Number);
-          const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startH, startM);
-          const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH, endM);
+          
+          const targetDayIdx = WEEKDAYS.findIndex(d => d.toLowerCase() === (slot.day || '').toLowerCase());
+          const currentDayIdx = now.getDay();
+          const dayDiff = targetDayIdx >= 0 ? targetDayIdx - currentDayIdx : 0;
+          
+          const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayDiff, startH, startM);
+          const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayDiff, endH, endM);
           await createCalendarEvent({
             title: slot.subjectCode ? `${slot.subjectCode}: ${slot.title}` : slot.title,
             location: slot.location || null,
@@ -719,28 +778,73 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Today's timetable">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <section className={`p-6 rounded-3xl ${CARD_SURFACE} space-y-4`} aria-label="Timetable schedule">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-400" aria-hidden="true" />
-                      <span>Today's Classes &amp; Events</span>
-                    </h2>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>{selectedScheduleDay === todayDayName ? "Today's Schedule" : `${selectedScheduleDay}'s Schedule`}</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
+                          {filteredScheduleEvents.length} class{filteredScheduleEvents.length === 1 ? '' : 'es'}
+                        </span>
+                      </h2>
+                    </div>
                     {canEdit && <AddButton onClick={() => setOpenForm('event')}>Add class</AddButton>}
                   </div>
-                  {events.length === 0 ? (
+
+                  {/* Day-of-Week Selector Tabs */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none" role="tablist" aria-label="Filter schedule by weekday">
+                    {SCHEDULE_DAYS.map((day) => {
+                      const isToday = todayDayName === day;
+                      const isSelected = selectedScheduleDay === day;
+                      const count = dayClassCounts[day] || 0;
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          role="tab"
+                          aria-selected={isSelected}
+                          onClick={() => setSelectedScheduleDay(day)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-600 text-white shadow-xs'
+                              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          <span>{day.slice(0, 3)}</span>
+                          {isToday && (
+                            <span className={`text-[10px] px-1 py-0.2 rounded-full font-bold ${
+                              isSelected ? 'bg-blue-500 text-white' : 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+                            }`}>
+                              Today
+                            </span>
+                          )}
+                          {count > 0 && (
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                              isSelected ? 'bg-white/25 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                            }`}>
+                              {count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {filteredScheduleEvents.length === 0 ? (
                     <p className="text-sm text-slate-600 dark:text-slate-400 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 px-4 py-5">
-                      Nothing scheduled for today.
+                      No classes scheduled for {selectedScheduleDay}.
                     </p>
                   ) : (
                     <ul className="space-y-3 list-none">
-                      {events.map((event) => (
+                      {filteredScheduleEvents.map((event) => (
                         <li key={event.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
                           <div className="space-y-1 min-w-0">
                             <div className="font-bold text-sm text-slate-900 dark:text-slate-100">{event.title}</div>
                             {event.location && <div className="text-xs text-slate-600 dark:text-slate-400">{event.location}</div>}
                           </div>
                           <span className="shrink-0 px-3 py-1 rounded-xl text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-                            {event.time}
+                            {event.time.replace(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*•\s*/i, '')}
                           </span>
                         </li>
                       ))}

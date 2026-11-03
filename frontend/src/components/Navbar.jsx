@@ -284,7 +284,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-[#ccff00] transition-colors duration-150 font-sans shadow-xs">
+      <header className="sticky top-0 z-50 w-full bg-[#f7f5f0]/95 dark:bg-[#030408]/95 backdrop-blur-xl border-b border-[#d8d3c5] dark:border-white/20 transition-colors duration-150 font-sans shadow-xs">
         {/* Main Navbar Bar - Enlarged height & padding */}
         <div className="max-w-[1700px] mx-auto px-4 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 sm:gap-6 min-h-[74px]">
 
@@ -455,11 +455,11 @@ export default function Navbar({
               aria-current={activeTab === 'account' ? 'page' : undefined}
               className={`flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-4 rounded-full text-xs sm:text-sm font-bold transition-all border focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 activeTab === 'account'
-                  ? 'bg-[#800020] text-white border-[#800020] shadow-md dark:bg-[#0047ff] dark:border-[#ccff00] dark:text-white'
-                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-[#ccff00]/50 text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-[#ccff00] hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
+                  ? 'bg-[#800020] text-white border-[#800020] shadow-md dark:bg-[#0047ff] dark:border-white dark:text-white'
+                  : 'bg-[#ffffff] dark:bg-[#0a0c16] border-[#d8d3c5] dark:border-white/20 text-[#4a5247] dark:text-slate-200 hover:border-[#800020] dark:hover:border-white hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-[#800020] dark:bg-[#0047ff] border border-white/25 dark:border-[#ccff00]/60 flex items-center justify-center text-white shrink-0 font-bold text-xs overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-[#800020] dark:bg-[#0047ff] border border-white/25 dark:border-white/30 flex items-center justify-center text-white shrink-0 font-bold text-xs overflow-hidden">
                 {userPhoto ? (
                   <img src={userPhoto} alt={profileLabel} className="w-full h-full object-cover rounded-full" />
                 ) : effectiveUser ? (
@@ -499,6 +499,27 @@ export default function Navbar({
             role="region"
             aria-label="Mobile navigation menu"
           >
+            {/* Mobile Profile Preview Header */}
+            {effectiveUser && (
+              <button
+                type="button"
+                onClick={() => handleSelectTab('account')}
+                className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-white/10 mb-2 text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#800020] dark:bg-[#0047ff] border border-white/20 flex items-center justify-center text-white shrink-0 font-bold overflow-hidden">
+                  {userPhoto ? (
+                    <img src={userPhoto} alt={profileLabel} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{userInitials}</span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-sm text-slate-900 dark:text-white truncate">{profileLabel}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 truncate">{effectiveUser.email || 'Student Account'}</div>
+                </div>
+              </button>
+            )}
+
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
               Menu
             </div>

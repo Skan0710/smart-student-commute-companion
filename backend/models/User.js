@@ -55,6 +55,7 @@ class User {
       password_hash,
       full_name: input.full_name,
       college_name: input.college_name,
+      profile_picture: input.profile_picture || null,
       role: input.role || 'student',
       created_at: now,
       updated_at: now

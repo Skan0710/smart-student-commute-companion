@@ -244,7 +244,7 @@ export default function AccountProfileCard({
       />
 
       {/* ─── Digital Student Campus ID Card ────────────────────────────── */}
-      <div className="relative rounded-3xl bg-[#800020] dark:bg-[#0c0f1e] text-white p-6 sm:p-8 shadow-md overflow-hidden border border-[#800020] dark:border-[#ccff00]">
+      <div className="relative rounded-3xl bg-[#800020] dark:bg-[#0c0f1e] text-white p-6 sm:p-8 shadow-md overflow-hidden border border-[#800020] dark:border-white/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-5 min-w-0">
             {/* Student Avatar with Photo Upload & Removal Controls */}
@@ -256,7 +256,7 @@ export default function AccountProfileCard({
                 title="Click to add or change profile picture"
                 aria-label="Change profile picture"
               >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-900 border border-white/20 dark:border-[#ccff00]/40 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-900 border border-white/20 dark:border-white/20 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
                   {profilePicture ? (
                     <img
                       src={profilePicture}

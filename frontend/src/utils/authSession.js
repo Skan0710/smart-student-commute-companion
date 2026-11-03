@@ -96,6 +96,9 @@ export function writeAuthSession({ token, user }) {
   if (!isValidSession(envelope)) return false;
   try {
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(envelope));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth-session-change', { detail: envelope }));
+    }
     return true;
   } catch {
     return false; // private mode / quota — caller decides how to surface it
@@ -109,6 +112,9 @@ export function writeAuthSession({ token, user }) {
 export function clearAuthSession() {
   try {
     localStorage.removeItem(AUTH_SESSION_KEY);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth-session-change', { detail: null }));
+    }
   } catch {
     // Nothing to clean up if storage is unavailable.
   }

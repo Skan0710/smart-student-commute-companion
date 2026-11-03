@@ -15,7 +15,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
   };
 
   return (
-    <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#ccff00]/60 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6 font-sans">
+    <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-white/20 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6 font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -55,7 +55,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
       </div>
 
       {/* Suggested Public Meeting Points Pill Banner */}
-      <div className="bg-slate-50 dark:bg-[#0a0c16]/80 border border-slate-200 dark:border-[#ccff00]/40 rounded-2xl p-4 sm:p-5 space-y-3">
+      <div className="bg-slate-50 dark:bg-[#0a0c16]/80 border border-slate-200 dark:border-white/20 rounded-2xl p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
           <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
             <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -100,7 +100,7 @@ export default function TravelTogether({ groups = [], onJoinGroup, onOpenCreateG
             return (
               <DataCard
                 key={grp.id}
-                className="border border-slate-200 dark:border-[#ccff00]/60 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all"
+                className="border border-slate-200 dark:border-white/20 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all"
                 header={
                   <>
                     <Badge variant="sky" size="sm" className="font-bold text-xs uppercase tracking-wider">

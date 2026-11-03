@@ -158,7 +158,7 @@ export function SpotlightNavbar({
                                     <span>{item.label}</span>
                                 )}
                                 {item.badge !== undefined && item.badge > 0 && (
-                                    <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-[#800020]/15 text-[#800020] dark:bg-[#ccff00]/20 dark:text-[#ccff00] border border-[#800020]/30 dark:border-[#ccff00]/40">
+                                    <span aria-hidden="true" className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] leading-none font-bold bg-[#800020]/15 text-[#800020] dark:bg-[#ccff00]/20 dark:text-[#ccff00] border border-[#800020]/30 dark:border-white/30">
                                         {item.badge}
                                     </span>
                                 )}

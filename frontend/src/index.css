@@ -87,9 +87,9 @@ html {
   --color-surface-overlay: #475569;   /* slate-600 - Hover / active */
   
   /* Border Colors */
-  --color-border-subtle: rgba(204, 255, 0, 0.35);     /* slate-700/80 */
-  --color-border-default: #ccff00;    /* Borders: #3e4c63 */
-  --color-border-emphasis: #ccff00;   /* slate-500 */
+  --color-border-subtle: rgba(255, 255, 255, 0.15);     /* subtle white */
+  --color-border-default: #ffffff;                       /* white */
+  --color-border-emphasis: #ffffff;                      /* crisp white */
   
   /* Text Colors */
   --color-text-primary: #f8fafc;      /* Primary text: #F8FAFC */
@@ -761,15 +761,15 @@ select:focus:not(:focus-visible) {
 }
 
 
-/* Dark Mode Borders: Acid Lime for Navbar and all card/content boxes */
+/* Dark Mode Borders: Clean white borders for Navbar and card/content boxes */
 .dark header {
-  border-bottom-color: #ccff00 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .dark .spotlight-nav,
 .dark .spotlight-nav-bg,
 .dark nav.spotlight-nav-bg {
-  border-color: #ccff00 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 .dark .card,
@@ -780,12 +780,12 @@ select:focus:not(:focus-visible) {
 .dark fieldset[class*="border"],
 .dark [role="region"][class*="border"],
 .dark [role="dialog"][class*="border"] {
-  border-color: #ccff00 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .dark .card:hover,
 .dark [class*="rounded-2xl"][class*="border"]:hover,
 .dark [class*="rounded-3xl"][class*="border"]:hover,
 .dark [class*="rounded-xl"][class*="border"]:hover {
-  border-color: #ccff00 !important;
+  border-color: #ffffff !important;
 }

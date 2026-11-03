@@ -207,7 +207,47 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
   const handleSlotChange = (index, field, value) => {
     setExtractedSlots((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
+      const targetSlot = { ...updated[index], [field]: value };
+      updated[index] = targetSlot;
+
+      if (field === 'title') {
+        const newTitle = String(value || '').trim();
+        const curCode = String(targetSlot.subjectCode || '').trim();
+
+        for (let i = 0; i < updated.length; i++) {
+          if (i === index) continue;
+          const otherTitle = String(updated[i].title || '').trim();
+          const otherCode = String(updated[i].subjectCode || '').trim();
+
+          // 1. If another slot shares this same subject name, reflect this cell's course code to it
+          if (newTitle && otherTitle.toLowerCase() === newTitle.toLowerCase() && curCode) {
+            updated[i] = { ...updated[i], subjectCode: targetSlot.subjectCode };
+          }
+          // 2. If another slot shares this same course code, reflect this cell's updated subject name to it
+          else if (curCode && otherCode.toUpperCase() === curCode.toUpperCase()) {
+            updated[i] = { ...updated[i], title: value };
+          }
+        }
+      } else if (field === 'subjectCode') {
+        const newCode = String(value || '').trim();
+        const curTitle = String(targetSlot.title || '').trim();
+
+        for (let i = 0; i < updated.length; i++) {
+          if (i === index) continue;
+          const otherTitle = String(updated[i].title || '').trim();
+          const otherCode = String(updated[i].subjectCode || '').trim();
+
+          // 1. If another slot shares this same course code, reflect this cell's subject name to it
+          if (newCode && otherCode.toUpperCase() === newCode.toUpperCase() && curTitle) {
+            updated[i] = { ...updated[i], title: targetSlot.title };
+          }
+          // 2. If another slot shares this same subject name, reflect this cell's updated course code to it
+          else if (curTitle && otherTitle.toLowerCase() === curTitle.toLowerCase()) {
+            updated[i] = { ...updated[i], subjectCode: value };
+          }
+        }
+      }
+
       return updated;
     });
   };
