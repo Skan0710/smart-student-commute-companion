@@ -164,7 +164,7 @@ class StudyResourceService {
     // Validate and normalize input schema
     const parseResult = createStudyResourceSchema.safeParse(data);
     if (!parseResult.success) {
-      const details = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
+      const details = parseResult.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
       throw new ValidationError(`Validation failed: ${details}`);
     }
     const validated = parseResult.data;
@@ -240,7 +240,7 @@ class StudyResourceService {
     // Validate and normalize update schema
     const parseResult = updateStudyResourceSchema.safeParse(updates);
     if (!parseResult.success) {
-      const details = parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
+      const details = parseResult.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join('; ');
       throw new ValidationError(`Validation failed: ${details}`);
     }
     const validated = parseResult.data;

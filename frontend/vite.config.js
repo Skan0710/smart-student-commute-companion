@@ -2,9 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import securityHeaders from './vite-plugins/securityHeaders.js';
+import envGuard from './vite-plugins/envGuard.js';
 
 export default defineConfig({
-  plugins: [react(), securityHeaders()],
+  plugins: [react(), securityHeaders(), envGuard()],
   envDir: path.resolve(__dirname, '..'),
   resolve: {
     alias: {

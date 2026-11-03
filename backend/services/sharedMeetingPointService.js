@@ -550,7 +550,7 @@ class SharedMeetingPointService {
     } catch (parseErr) {
       return {
         isValid: false,
-        issues: parseErr.errors ? parseErr.errors.map(e => e.message) : [parseErr.message],
+        issues: parseErr.issues ? parseErr.issues.map(e => e.message) : [parseErr.message],
         sanitized: null
       };
     }

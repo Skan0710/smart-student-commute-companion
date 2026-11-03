@@ -118,7 +118,7 @@ class DepartureAdvice {
         : new DataProvenance(validated.provenance);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid departure advice: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid departure advice: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }

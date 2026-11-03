@@ -119,7 +119,7 @@ class RecommendationReason {
       Object.assign(this, validated);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid recommendation reason: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid recommendation reason: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }
@@ -166,7 +166,7 @@ class PreferenceAlignment {
       Object.assign(this, validated);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid preference alignment: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid preference alignment: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }
@@ -391,7 +391,7 @@ class RecommendedRouteDetail {
         : new DataProvenance(validated.provenance);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid recommended route detail: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid recommended route detail: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }
@@ -722,7 +722,7 @@ class PersonalizedCommuteRecommendation {
         : new DataProvenance(validated.provenance);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid personalized commute recommendation: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid personalized commute recommendation: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }

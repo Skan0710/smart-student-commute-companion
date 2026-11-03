@@ -138,7 +138,7 @@ class UnifiedJourneyImpact {
         : new DataProvenance(validated.provenance);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid unified journey impact: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid unified journey impact: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }

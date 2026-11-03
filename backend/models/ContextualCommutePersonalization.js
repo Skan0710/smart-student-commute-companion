@@ -170,7 +170,7 @@ class ContextualCommutePersonalization {
       Object.assign(this, validated);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid contextual commute personalization: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid contextual commute personalization: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }

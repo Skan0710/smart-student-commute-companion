@@ -148,7 +148,7 @@ function validateEnv(rawEnv = process.env) {
   const result = envSchema.safeParse(rawEnv);
 
   if (!result.success) {
-    const errorDetails = result.error.errors.map(err => {
+    const errorDetails = result.error.issues.map(err => {
       const field = err.path.join('.');
       return `[${field}] ${err.message}`;
     });

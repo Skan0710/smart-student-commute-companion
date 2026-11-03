@@ -133,7 +133,7 @@ class PersonalizedRecommendationExplanation {
         : new DataProvenance(validated.provenance);
     } catch (err) {
       if (err.name === 'ZodError') {
-        throw new ValidationError(`Invalid recommendation explanation: ${err.errors?.[0]?.message || err.message}`, err.errors || err);
+        throw new ValidationError(`Invalid recommendation explanation: ${err.issues?.[0]?.message || err.message}`, err.issues || err);
       }
       throw err;
     }

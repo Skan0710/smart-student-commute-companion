@@ -6,6 +6,7 @@
 
 const { authService } = require('../services');
 const { verifyGoogleIdToken } = require('../services/googleIdentityService');
+const { getSupabaseClient } = require('../db/supabase');
 const { created, success } = require('../utils/apiResponse');
 
 /**
