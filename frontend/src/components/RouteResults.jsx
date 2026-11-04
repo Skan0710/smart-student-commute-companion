@@ -139,9 +139,9 @@ export default function RouteResults({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Weather Snapshot Widget */}
         {weather && (
-          <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-400">
+          <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-3.5 flex items-center justify-between shadow-xs min-w-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-400">
                 <CloudRain className="w-5 h-5" />
               </div>
               <div>
@@ -167,9 +167,9 @@ export default function RouteResults({
 
         {/* Live Traffic Snapshot Widget */}
         {traffic && (
-          <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${
+          <div className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-3.5 flex items-center justify-between shadow-xs min-w-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`w-9 h-9 shrink-0 rounded-xl border flex items-center justify-center ${
                 traffic.level === 'heavy' || traffic.level === 'severe'
                   ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400'
                   : traffic.level === 'moderate'
@@ -179,7 +179,7 @@ export default function RouteResults({
                 <Car className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="text-xs font-semibold text-slate-900 dark:text-white capitalize">
                     Live Road Traffic: {traffic.level}
                   </span>
@@ -193,7 +193,7 @@ export default function RouteResults({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                <p className="text-[11px] leading-snug text-slate-600 dark:text-slate-400 mt-0.5 break-words">
                   {traffic.description}
                 </p>
               </div>
@@ -261,7 +261,7 @@ export default function RouteResults({
                           : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}>
                         {isBest ? <Sparkles className="w-2.5 h-2.5 fill-white" /> : null}
-                        {isBest ? '🌟 RECOMMENDED BEST' : (route.badgeLabel || `Option ${idx + 1}`)}
+                        {isBest ? 'RECOMMENDED BEST' : (route.badgeLabel || `Option ${idx + 1}`)}
                       </span>
                       {isSelected && (
                         <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold flex items-center gap-0.5">
@@ -269,13 +269,13 @@ export default function RouteResults({
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-start gap-2 mt-1">
                       <RouteBadge mode={route.primaryMode} size="sm" />
-                      <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                      <span className="min-w-0 font-extrabold text-xs sm:text-sm leading-snug text-slate-900 dark:text-white break-words">
                         {cleanRouteDisplayTitle(route.title, route.primaryMode)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+                    <p className="text-[11px] leading-snug text-slate-600 dark:text-slate-400 mt-1 break-words">
                       {route.subtitle}
                     </p>
                   </div>
@@ -483,7 +483,7 @@ export default function RouteResults({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs gap-2">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{leg.description}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 break-words">{leg.description}</span>
                   <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">{Number.isFinite(leg.durationMinutes) ? `${leg.durationMinutes} mins` : '—'}</span>
                 </div>
                 {leg.agency && (
@@ -652,13 +652,13 @@ export default function RouteResults({
                     {alt.liveTrafficNote && (
                       <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                         <Car className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span className="truncate">{alt.liveTrafficNote}</span>
+                        <span className="break-words">{alt.liveTrafficNote}</span>
                       </div>
                     )}
                     {alt.disruptionAlerts && alt.disruptionAlerts.length > 0 && (
                       <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                         <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span className="truncate">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
+                        <span className="break-words">⚠ Community report: {alt.disruptionAlerts[0].message}</span>
                       </div>
                     )}
                   </div>

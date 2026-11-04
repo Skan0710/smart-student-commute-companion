@@ -68,7 +68,7 @@ export default function ProgressBar({
     <div className={`min-w-0 ${className}`}>
       {label && (
         <div className="flex items-baseline justify-between gap-2 pb-1">
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 break-words">
             {label}
           </span>
           {showValue && (
@@ -100,7 +100,7 @@ export default function ProgressBar({
         <p className="text-[10px] text-slate-500 dark:text-slate-400 pt-0.5">No data yet</p>
       )}
       {hint && hasValue && (
-        <p className="text-[10px] text-slate-500 dark:text-slate-400 pt-0.5 truncate">{hint}</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 pt-0.5 break-words">{hint}</p>
       )}
     </div>
   );

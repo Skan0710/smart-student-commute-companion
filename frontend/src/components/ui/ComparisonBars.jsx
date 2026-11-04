@@ -81,7 +81,7 @@ export default function ComparisonBars({
               className={`${item.emphasis ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
             >
               <div className="flex items-baseline justify-between gap-3 pb-1.5">
-                <span className={`truncate text-sm sm:text-base ${item.emphasis ? 'font-bold text-slate-900 dark:text-white' : 'font-medium'}`}>
+                <span className={`break-words text-sm sm:text-base ${item.emphasis ? 'font-bold text-slate-900 dark:text-white' : 'font-medium'}`}>
                   {item.label}
                 </span>
                 <span className={`shrink-0 font-mono text-sm sm:text-base ${item.emphasis ? 'text-emerald-700 dark:text-emerald-300 font-bold text-base sm:text-lg' : 'text-slate-700 dark:text-slate-300 font-semibold'}`}>

@@ -60,7 +60,7 @@ export default function DataCard({
 
         <div className="pl-2 min-w-0">
           <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between gap-2 min-w-0">
-            <span className="truncate min-w-0">{title}</span>
+            <span className="break-words min-w-0">{title}</span>
             {subtitle && <span className="shrink-0">{subtitle}</span>}
           </div>
         </div>

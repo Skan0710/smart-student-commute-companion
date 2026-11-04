@@ -53,7 +53,7 @@ export default function StatTile({
         </span>
       )}
       <div className="min-w-0">
-        <div className="text-xl font-extrabold text-slate-900 dark:text-white leading-tight truncate flex items-center font-sans">
+        <div className="text-xl font-extrabold text-slate-900 dark:text-white leading-tight break-words flex items-center font-sans">
           {isNumeric ? (
             <AnimatedNumber value={value} className="inline-flex" />
           ) : (

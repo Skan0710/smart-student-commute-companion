@@ -36,7 +36,7 @@ export default function MetaRow({
           {icon}
         </span>
       )}
-      <span className={`truncate min-w-0 ${valueClassName}`}>{children}</span>
+      <span className={`break-words min-w-0 ${valueClassName}`}>{children}</span>
     </div>
   );
 }
