@@ -496,12 +496,45 @@ export function applyTheme(theme = 'light') {
       window.matchMedia &&
       window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  if (isDark) {
-    root.classList.add('dark');
-    root.style.colorScheme = 'dark';
-  } else {
-    root.classList.remove('dark');
-    root.style.colorScheme = 'light';
+  const currentlyDark = root.classList.contains('dark');
+  const willChange = currentlyDark !== isDark;
+
+  const updateDom = () => {
+    if (isDark) {
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+    }
+  };
+
+  if (!willChange) {
+    updateDom();
+    return isDark ? 'dark' : 'light';
   }
+
+  // Ultra-smooth native View Transition when available, fallback to synchronized transition
+  const isInitial = typeof document !== 'undefined' && document.readyState !== 'complete';
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!isInitial && !prefersReduced && typeof document.startViewTransition === 'function') {
+    document.startViewTransition(() => {
+      updateDom();
+    });
+  } else if (!isInitial && !prefersReduced) {
+    root.classList.add('theme-transition');
+    updateDom();
+    window.clearTimeout(window.__themeTransitionTimer);
+    window.__themeTransitionTimer = window.setTimeout(() => {
+      root.classList.remove('theme-transition');
+    }, 280);
+  } else {
+    updateDom();
+  }
+
   return isDark ? 'dark' : 'light';
 }

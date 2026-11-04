@@ -7,6 +7,7 @@
 const express = require('express');
 const {
   register,
+  validateEmail,
   login,
   logout,
   googleLogin,
@@ -21,6 +22,7 @@ const { authenticate, requireRole, requireUserOwnership } = require('../middlewa
 function createAuthRoutes() {
   const router = express.Router();
 
+  router.post('/auth/validate-email', validateEmail);
   router.post('/auth/register', validate({ body: registerSchema }), register);
   router.post('/auth/login', validate({ body: loginSchema }), login);
   router.post('/auth/logout', logout);

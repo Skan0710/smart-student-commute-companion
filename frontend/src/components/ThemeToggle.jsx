@@ -46,12 +46,7 @@ export default function ThemeToggle({
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
 
   const handleToggleClick = () => {
-    document.documentElement.classList.add('theme-transition');
     onToggle?.();
-    window.clearTimeout(window.__themeSwitchTimer);
-    window.__themeSwitchTimer = window.setTimeout(() => {
-      document.documentElement.classList.remove('theme-transition');
-    }, 320);
   };
 
   return (

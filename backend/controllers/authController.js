@@ -7,6 +7,7 @@
 const { authService } = require('../services');
 const { verifyGoogleIdToken } = require('../services/googleIdentityService');
 const { getSupabaseClient } = require('../db/supabase');
+const { verifyEmailLegitimacy } = require('../services/emailVerificationService');
 const { created, success } = require('../utils/apiResponse');
 const { setSessionCookie, clearSessionCookie } = require('../utils/sessionCookie');
 const { sanitizeProfilePicture } = require('../utils/imageSecurity');
@@ -20,6 +21,16 @@ const { sanitizeProfilePicture } = require('../utils/imageSecurity');
  */
 async function register(req, res, next) {
   try {
+    // Validate email legitimacy via MX DNS records and disposable domain filters
+    const emailCheck = await verifyEmailLegitimacy(req.body.email);
+    if (!emailCheck.isLegit) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'INVALID_EMAIL',
+        message: emailCheck.reason || 'This email address could not be verified as legitimate.'
+      });
+    }
+
     const user = authService.register(req.body);
 
     // Sync account creation to Supabase Authentication if configured
@@ -213,7 +224,22 @@ function listUsers(req, res, next) {
   }
 }
 
+
+/**
+ * Verifies email legitimacy via MX DNS checks, domain blocklist, and Supabase Auth.
+ */
+async function validateEmail(req, res, next) {
+  try {
+    const email = String(req.body.email || '').trim();
+    const result = await verifyEmailLegitimacy(email);
+    return success(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
+  validateEmail,
   register,
   logout,
   login,

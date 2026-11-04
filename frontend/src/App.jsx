@@ -46,6 +46,7 @@ import {
 } from './services/rideGroups';
 import { searchTransit } from './services/transit';
 import { trackPageView, CONSENT_CHANGE_EVENT } from './services/analytics.js';
+import { supabase, isSupabaseConfigured } from './config/supabase';
 import {
   readRecentSearches,
   rememberSearch,
@@ -152,7 +153,6 @@ export default function App() {
     writeThemePreference(nextTheme);
     setTheme(nextTheme);
     applyTheme(nextTheme);
-    showToast(`Switched to ${nextTheme} theme.`, 'info');
   };
 
   // Deep links (PWA app shortcuts & shared links) open a specific screen once
@@ -267,6 +267,44 @@ export default function App() {
     },
     { initialData: readAuthSession(), errorMessage: 'Unable to verify your saved session. Check your connection and try again.' }
   );
+
+// Listen for Supabase Google OAuth callback
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+
+    const handleOAuthSession = (session) => {
+      if (session?.user && !readAuthSession()?.token) {
+        const u = session.user;
+        const meta = u.user_metadata || {};
+        const profile = {
+          id: u.id,
+          email: u.email,
+          full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
+          college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering',
+          profile_picture: meta.avatar_url || meta.picture || null,
+          role: 'student',
+        };
+        const token = session.access_token || 'supabase-oauth-token';
+        writeAuthSession({ token, user: profile });
+        sessionResource.setData({ token, user: profile });
+        showToast(`Signed in with Google as ${profile.full_name}!`, 'success');
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) handleOAuthSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        handleOAuthSession(session);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
 
   // Client-side personalization preferences (device-local, no backend sync)
   const [appPreferences, setAppPreferences] = useState(() => readAppPreferences());
