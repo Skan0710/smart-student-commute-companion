@@ -1,4 +1,3 @@
-import { HOME_SHELL_HTML } from './content/homeShell.js';
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import ConsentBanner from './components/ConsentBanner.jsx';
@@ -49,13 +48,29 @@ const route = resolveRoute(window.location.pathname);
 // The app bundle (maps, planner, sockets) is only fetched on "/"; public pages stay light.
 const App = lazy(() => import('./App.jsx'));
 
+// Mirrors the markup prerendered into dist/index.html (src/content/homeShell.js)
+function HomeShell() {
+  const bar = { height: '7rem', borderRadius: '1rem', background: '#e2e8f0' };
+  return (
+    <main id="main-content" style={{ minHeight: '100vh', padding: '1rem', background: '#f8fafc', fontFamily: 'Inter,system-ui,sans-serif' }}>
+      <section style={{ maxWidth: '72rem', margin: '0 auto', borderRadius: '1.5rem', padding: '2rem 1.5rem', color: '#fff', background: 'linear-gradient(135deg,#800020,#5c0017 55%,#38000e)' }}>
+        <h1 style={{ margin: 0, fontSize: 'clamp(1.9rem,6vw,3rem)', lineHeight: 1.1, fontWeight: 700, letterSpacing: '-0.02em' }}>Smart Student Commute Companion</h1>
+        <p style={{ margin: '1rem 0 0', maxWidth: '36rem', lineHeight: 1.6, color: '#fde8ec' }}>Plan your Mumbai commute, keep your timetable and coordinate rides with classmates.</p>
+      </section>
+      <div aria-hidden="true" style={{ maxWidth: '72rem', margin: '1rem auto 0', display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit,minmax(14rem,1fr))' }}>
+        <div style={bar} /><div style={bar} /><div style={bar} />
+      </div>
+    </main>
+  );
+}
+
 // Loads Google Analytics only if it is configured AND the visitor already accepted
 initAnalytics();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {route.id === 'app' ? (
-      <Suspense fallback={<div role="status" aria-live="polite" aria-label="Loading" dangerouslySetInnerHTML={{ __html: HOME_SHELL_HTML }} />}>
+      <Suspense fallback={<HomeShell />}>
         <App />
       </Suspense>
     ) : (
