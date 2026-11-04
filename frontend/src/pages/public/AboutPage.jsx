@@ -113,7 +113,7 @@ export default function AboutPage() {
           {ABOUT.sources.map((source) => (
             <li key={source.name}>
               <strong className="font-semibold text-slate-900 dark:text-white">{source.name}</strong>
-              {' — '}
+              {': '}
               {source.use}
             </li>
           ))}

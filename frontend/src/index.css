@@ -872,3 +872,15 @@ select:focus:not(:focus-visible) {
   transform: translateX(-120%) skewX(-18deg);
 }
 @media (hover: hover) { .btn-sheen:hover::after { animation: sheen 700ms ease; } }
+
+/* Phone: blur is costly on mid-range GPUs, use opaque surfaces */
+@media (max-width: 767px) {
+  .glass-panel, .glass-panel-elevated, .spotlight-nav-bg, .figure-ground-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass-panel { background: rgb(15, 23, 42); }
+  .glass-panel-elevated { background: rgb(30, 41, 59); }
+  .spotlight-nav-bg { background-color: rgb(255, 255, 255); }
+  .dark .spotlight-nav-bg { background-color: rgb(15, 23, 42); }
+}
