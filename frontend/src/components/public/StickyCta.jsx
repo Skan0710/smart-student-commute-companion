@@ -69,7 +69,7 @@ export default function StickyCta({ href, label, watchSelector = '[data-primary-
     >
       <a
         href={href}
-        className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-base font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+        className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#800020] dark:bg-[#0047ff] px-5 text-base font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
       >
         {label}
         <ArrowRight className="w-5 h-5" aria-hidden="true" />

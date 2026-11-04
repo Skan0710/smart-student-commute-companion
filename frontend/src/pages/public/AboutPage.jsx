@@ -32,7 +32,7 @@ export default function AboutPage() {
           </LinkButton>
           <a
             href={ABOUT.secondaryCta.href}
-            className="text-sm font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 px-1 py-2"
+            className="text-sm font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 px-1 py-2"
           >
             {ABOUT.secondaryCta.label}
           </a>
@@ -50,7 +50,7 @@ export default function AboutPage() {
               className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm"
             >
               <span
-                className="inline-flex w-8 h-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold"
+                className="inline-flex w-8 h-8 items-center justify-center rounded-full bg-[#800020] dark:bg-[#0047ff] text-white text-sm font-bold"
                 aria-hidden="true"
               >
                 {index + 1}
@@ -76,7 +76,7 @@ export default function AboutPage() {
               >
                 <div className="flex items-start gap-3">
                   <span
-                    className="mt-0.5 w-9 h-9 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 flex items-center justify-center"
+                    className="mt-0.5 w-9 h-9 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-[#800020] dark:text-blue-300 flex items-center justify-center"
                     aria-hidden="true"
                   >
                     <Icon className="w-5 h-5" />
@@ -86,7 +86,7 @@ export default function AboutPage() {
                     <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{feature.body}</p>
                     <a
                       href={feature.link.href}
-                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     >
                       {feature.link.label}
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -131,21 +131,21 @@ export default function AboutPage() {
           The same questions are on the{' '}
           <a
             href="/faq"
-            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="font-semibold text-[#800020] dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             FAQ page
           </a>
           . More detail on what is stored and shared is in the{' '}
           <a
             href="/privacy"
-            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="font-semibold text-[#800020] dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             privacy policy
           </a>{' '}
           and the{' '}
           <a
             href="/terms"
-            className="font-semibold text-blue-700 dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="font-semibold text-[#800020] dark:text-blue-300 underline underline-offset-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             terms of use
           </a>

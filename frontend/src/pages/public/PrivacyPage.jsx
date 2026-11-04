@@ -33,7 +33,7 @@ export default function PrivacyPage({ analyticsEnabled = false, contactEmail = '
             <li key={section.id}>
               <a
                 href={`#${section.id}`}
-                className="text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 {section.heading}
               </a>

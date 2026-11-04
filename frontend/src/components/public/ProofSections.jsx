@@ -5,7 +5,7 @@ import { PERFORMANCE, STUDENT_VOICES, HUBS_HEADING, TESTIMONIALS, CASE_STUDY, ge
 const card =
   'rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm';
 const link =
-  'font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500';
+  'font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500';
 
 /**
  * PerformanceBadge - the response-time promise, with the numbers behind it
@@ -77,7 +77,7 @@ export function CampusHubs() {
         {hubs.map((hub) => (
           <li key={hub.id} className={card}>
             <span
-              className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 flex items-center justify-center"
+              className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-[#800020] dark:text-blue-300 flex items-center justify-center"
               aria-hidden="true"
             >
               <MapPinned className="w-5 h-5" />
@@ -157,7 +157,7 @@ export function CaseStudy() {
         {CASE_STUDY.steps.map((step, index) => (
           <li key={step.title} className={`${card} flex gap-4`}>
             <span
-              className="w-8 h-8 shrink-0 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center"
+              className="w-8 h-8 shrink-0 rounded-full bg-[#800020] dark:bg-[#0047ff] text-white text-sm font-bold flex items-center justify-center"
               aria-hidden="true"
             >
               {index + 1}

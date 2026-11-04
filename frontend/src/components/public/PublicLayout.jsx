@@ -22,7 +22,7 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-blue-600 focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-[#800020] focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl"
       >
         Skip to main content
       </a>
@@ -33,7 +33,7 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
             href="/"
             className="flex items-center gap-2 min-w-0 font-bold text-slate-900 dark:text-white rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
-            <span className="w-8 h-8 shrink-0 rounded-lg bg-blue-600 text-white flex items-center justify-center" aria-hidden="true">
+            <span className="w-8 h-8 shrink-0 rounded-lg bg-[#800020] dark:bg-[#0047ff] text-white flex items-center justify-center" aria-hidden="true">
               <RouteIcon className="w-4 h-4" />
             </span>
             <span className="truncate">{SITE_NAME}</span>
@@ -42,7 +42,7 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
             <LineHoverLink
               variant="slide"
               href="/"
-              className="whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-[#800020] dark:hover:text-blue-300 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               Open the planner
             </LineHoverLink>
@@ -50,7 +50,7 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
         </div>
       </header>
 
-      <main id="main-content" tabIndex={-1} className={`flex-1 w-full outline-none ${stickyCta ? 'pb-24 md:pb-0' : ''}`}>
+      <main id="main-content" tabIndex={-1} className={`page-enter flex-1 w-full outline-none ${stickyCta ? 'pb-24 md:pb-0' : ''}`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-10">
           {breadcrumbs && <div className="mb-3 sm:mb-6">{breadcrumbs}</div>}
           {children}
@@ -63,13 +63,13 @@ export default function PublicLayout({ children, breadcrumbs = null, stickyCta =
           <nav aria-label="Footer">
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li>
-                <a href="/" className="underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300">
+                <a href="/" className="inline-block py-2 underline-offset-2 hover:underline hover:text-[#800020] dark:hover:text-blue-300">
                   Commute planner
                 </a>
               </li>
               {FOOTER_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300">
+                  <a href={link.href} className="inline-block py-2 underline-offset-2 hover:underline hover:text-[#800020] dark:hover:text-blue-300">
                     {link.label}
                   </a>
                 </li>

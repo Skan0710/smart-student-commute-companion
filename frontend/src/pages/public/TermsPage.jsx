@@ -31,7 +31,7 @@ export default function TermsPage({ contactEmail = '' }) {
             <li key={section.id}>
               <a
                 href={`#${section.id}`}
-                className="text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 {section.heading}
               </a>
@@ -61,7 +61,7 @@ export default function TermsPage({ contactEmail = '' }) {
       ))}
 
       <p className="mt-10 text-sm text-slate-600 dark:text-slate-400">
-        See also the <a href="/privacy" className="font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline">privacy policy</a>.
+        See also the <a href="/privacy" className="font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline">privacy policy</a>.
       </p>
     </article>
   );

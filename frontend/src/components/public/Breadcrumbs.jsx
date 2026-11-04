@@ -29,7 +29,7 @@ export default function Breadcrumbs({ trail }) {
                 <>
                   <a
                     href={crumb.href}
-                    className="underline-offset-2 hover:underline hover:text-blue-700 dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                    className="underline-offset-2 hover:underline hover:text-[#800020] dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                   >
                     {crumb.label}
                   </a>

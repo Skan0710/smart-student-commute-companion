@@ -26,7 +26,7 @@ export default function LinkButton({
   const base =
     'inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950';
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 shadow-sm',
+    primary: 'bg-[#800020] dark:bg-[#0047ff] text-white hover:bg-blue-500 active:bg-blue-700 shadow-sm',
     secondary:
       'bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700',
   };
@@ -39,7 +39,7 @@ export default function LinkButton({
     return (
       <a
         href={href}
-        className={`group inline-flex items-center justify-center gap-2 font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 shadow-md shadow-blue-500/20 rounded-xl relative overflow-hidden transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
+        className={`group inline-flex items-center justify-center gap-2 font-semibold text-white bg-[#800020] dark:bg-[#0047ff] hover:bg-blue-500 active:bg-blue-700 shadow-md shadow-blue-500/20 rounded-xl relative overflow-hidden transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
         {...rest}
       >
         {/* Subtle shine sweep overlay */}

@@ -47,7 +47,7 @@ export default function NotFoundPage() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 {link.label}
               </a>

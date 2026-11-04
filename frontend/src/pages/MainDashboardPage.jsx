@@ -279,13 +279,8 @@ function TodayHero({ firstName, now, upNext, scheduleKnown, reportsCount, onNavi
           type="button"
           onClick={() => onNavigate?.('alerts')}
           className="group w-full lg:w-64 text-left rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/25 p-4 transition-all hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          aria-label={
-            disrupted
-              ? `${reportsCount} active student ${reportsCount === 1 ? 'report' : 'reports'}. Open live alerts`
-              : 'No disruptions reported right now. Open live alerts'
-          }
         >
-          <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/80">
+          <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/90">
             <span className={`live-dot ${disrupted ? 'text-amber-300' : 'text-emerald-300'}`} data-still={String(!disrupted)}>
               <i />
             </span>
@@ -294,10 +289,10 @@ function TodayHero({ firstName, now, upNext, scheduleKnown, reportsCount, onNavi
           <span className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-display font-bold tabular-nums">{reportsCount}</span>
             <span className="text-sm font-semibold text-white/90">
-              {disrupted ? `active ${reportsCount === 1 ? 'report' : 'reports'}` : 'reports right now'}
+              {disrupted ? `active ${reportsCount === 1 ? 'report' : 'reports'}` : 'reports, all clear'}
             </span>
           </span>
-          <span className="mt-1 block text-xs text-white/75">
+          <span className="mt-1 block text-xs text-white/90">
             {disrupted ? 'Reported by students on the network.' : 'No disruptions reported by students.'}
           </span>
           <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-white group-hover:gap-2 transition-all">

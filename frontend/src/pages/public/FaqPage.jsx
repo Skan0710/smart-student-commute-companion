@@ -33,9 +33,9 @@ export default function FaqPage() {
           Still have a question?
         </h2>
         <p className="mt-2 text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-          The <a href="/privacy" className="font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline">privacy policy</a> and{' '}
-          <a href="/terms" className="font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline">terms of use</a> cover data
-          handling and acceptable use in detail. Or <a href="/about" className="font-semibold text-blue-700 dark:text-blue-300 underline-offset-2 hover:underline">see how it works</a>.
+          The <a href="/privacy" className="font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline">privacy policy</a> and{' '}
+          <a href="/terms" className="font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline">terms of use</a> cover data
+          handling and acceptable use in detail. Or <a href="/about" className="font-semibold text-[#800020] dark:text-blue-300 underline-offset-2 hover:underline">see how it works</a>.
         </p>
         <div className="mt-5" data-primary-cta-group>
           <LinkButton href={ABOUT.primaryCta.href} data-primary-cta icon={<ArrowRight className="w-5 h-5" aria-hidden="true" />}>
