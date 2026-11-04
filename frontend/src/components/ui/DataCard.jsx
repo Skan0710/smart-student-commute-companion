@@ -45,7 +45,7 @@ export default function DataCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/90 rounded-xl p-3.5 transition-all hover:border-slate-300 dark:hover:border-slate-700 ${className}`}
+      className={`card-glow relative overflow-hidden bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/90 rounded-xl p-3.5 transition-all hover:border-slate-300 dark:hover:border-slate-700 ${className}`}
     >
       {accent && (
         <div className={`absolute top-0 left-0 bottom-0 w-1 ${accent}`} aria-hidden="true" />

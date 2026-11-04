@@ -42,7 +42,7 @@ export default function StatTile({
 
   return (
     <div
-      className={`flex items-center gap-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 px-4 py-3 min-w-0 shadow-sm font-sans ${className}`}
+      className={`card-glow flex items-center gap-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 px-4 py-3 min-w-0 shadow-sm font-sans ${className}`}
     >
       {icon && (
         <span

@@ -673,7 +673,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      showToast(err.message, 'error');
+      if (!isInitial) showToast(err.message, 'error');
     } finally {
       planInFlightRef.current = false;
       setIsLoading(false);

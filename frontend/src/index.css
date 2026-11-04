@@ -892,3 +892,52 @@ select:focus:not(:focus-visible) {
 }
 .hover-lift:active { transform: translateY(0) scale(.97); }
 @media (prefers-reduced-motion: reduce) { .hover-lift, .hover-lift:hover, .hover-lift:active { transform: none; transition: none; } }
+
+/* ---- Premium finish ---------------------------------------------------- */
+html { scroll-behavior: smooth; overflow-x: clip; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { text-rendering: optimizeLegibility; }
+
+::selection { background: rgba(128, 0, 32, 0.18); color: inherit; }
+.dark ::selection { background: rgba(0, 71, 255, 0.4); }
+
+/* Slim, quiet scrollbars */
+* { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.45) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.65); background-clip: content-box; }
+
+/* Soft ambient wash behind the app on larger screens */
+@media (min-width: 768px) {
+  .app-backdrop {
+    background-image:
+      radial-gradient(60rem 28rem at 12% -6%, rgba(128, 0, 32, 0.07), transparent 70%),
+      radial-gradient(48rem 24rem at 100% 4%, rgba(14, 116, 144, 0.06), transparent 70%) !important;
+    background-repeat: no-repeat !important;
+  }
+  .dark .app-backdrop {
+    background-image:
+      radial-gradient(60rem 28rem at 12% -6%, rgba(0, 71, 255, 0.14), transparent 70%),
+      radial-gradient(48rem 24rem at 100% 4%, rgba(204, 255, 0, 0.04), transparent 70%) !important;
+  }
+}
+
+/* Cards: quiet elevation on hover, with a crisp edge highlight */
+.card-glow { transition: box-shadow 220ms ease, border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1); }
+@media (hover: hover) {
+  .card-glow:hover { box-shadow: 0 14px 34px -16px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(128, 0, 32, 0.08); border-color: rgba(128, 0, 32, 0.25); }
+  .dark .card-glow:hover { box-shadow: 0 14px 34px -16px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 71, 255, 0.3); border-color: rgba(0, 71, 255, 0.4); }
+}
+
+/* Toasts and modals ease in instead of popping */
+@keyframes toast-in { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+[role="alert"].fixed, .toast-enter { animation: toast-in 240ms cubic-bezier(.2,.8,.2,1) both; }
+
+/* Keyboard focus: one consistent, visible ring everywhere */
+:focus-visible { outline: 2px solid #800020; outline-offset: 2px; }
+.dark :focus-visible { outline-color: #6b8cff; }
+
+/* Skeleton shimmer for loading placeholders */
+.skeleton { background: linear-gradient(100deg, rgba(148,163,184,.18) 30%, rgba(148,163,184,.34) 50%, rgba(148,163,184,.18) 70%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton, [role="alert"].fixed, .toast-enter { animation: none; } }

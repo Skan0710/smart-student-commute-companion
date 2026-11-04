@@ -125,7 +125,7 @@ function Panel({ icon: Icon, chipClass, title, action, onAction, actionClass, tr
   return (
     <section
       style={{ '--i': index + 6 }}
-      className={`rise p-5 sm:p-6 rounded-3xl ${CARD_SURFACE} space-y-4`}
+      className={`rise card-glow p-5 sm:p-6 rounded-3xl ${CARD_SURFACE} space-y-4`}
       aria-label={title}
     >
       <div className="flex items-center justify-between gap-3">
