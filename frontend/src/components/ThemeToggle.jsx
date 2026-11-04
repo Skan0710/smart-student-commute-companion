@@ -62,7 +62,7 @@ export default function ThemeToggle({
       aria-label={label}
       title={label}
       onClick={handleToggleClick}
-      className={`relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#0047ff] focus:ring-offset-2 focus:ring-offset-[#f7f5f0] dark:focus:ring-offset-[#030408] ${
+      className={`hover-lift relative inline-flex items-center h-9 w-[68px] rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#0047ff] focus:ring-offset-2 focus:ring-offset-[#f7f5f0] dark:focus:ring-offset-[#030408] ${
         isDark
           ? 'bg-[#0a0c16] border border-white/30 shadow-inner'
           : 'bg-[#edeae2] border border-[#d8d3c5] shadow-inner'

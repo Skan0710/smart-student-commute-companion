@@ -267,7 +267,7 @@ function TodayHero({ firstName, now, upNext, scheduleKnown, reportsCount, onNavi
             <button
               type="button"
               onClick={() => onNavigate?.('academics')}
-              className="inline-flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-2xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold text-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#800020] dark:focus-visible:ring-offset-[#0047ff]"
+              className="hover-lift inline-flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-2xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold text-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#800020] dark:focus-visible:ring-offset-[#0047ff]"
             >
               <GraduationCap className="w-4 h-4" aria-hidden="true" />
               <span>Open Academics</span>
