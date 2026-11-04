@@ -110,7 +110,7 @@ function write(relativePath, contents) {
 const homeNoscript = `
     <noscript>
       <div style="max-width:40rem;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.5">
-        <h1>${escapeHtml(SITE_NAME)}</h1>
+        <p><strong>${escapeHtml(SITE_NAME)}</strong></p>
         <p>${escapeHtml(PAGES.home.description)}</p>
         <p>This app needs JavaScript to plan routes. <a href="${escapeHtml(PAGES.about.path)}">Read how it works</a>.</p>
       </div>
