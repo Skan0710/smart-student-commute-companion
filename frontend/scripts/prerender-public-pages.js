@@ -31,6 +31,7 @@ import {
   normalizeSiteUrl,
   serializeHeadTags,
 } from '../src/content/seo.js';
+import { HOME_SHELL_HTML } from '../src/content/homeShell.js';
 import { listPrerenderedPages, listSitemapPages } from '../src/utils/publicRoutes.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -114,7 +115,7 @@ const homeNoscript = `
         <p>This app needs JavaScript to plan routes. <a href="${escapeHtml(PAGES.about.path)}">Read how it works</a>.</p>
       </div>
     </noscript>`;
-write('index.html', composePage({ page: PAGES.home, routeId: 'home', noscript: homeNoscript }));
+write('index.html', composePage({ page: PAGES.home, routeId: 'home', body: HOME_SHELL_HTML, noscript: homeNoscript }));
 
 // Public pages with real content
 for (const page of listPrerenderedPages().filter((p) => p.id !== 'home')) {

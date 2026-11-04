@@ -1,3 +1,4 @@
+import { HOME_SHELL_HTML } from './content/homeShell.js';
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import ConsentBanner from './components/ConsentBanner.jsx';
@@ -54,7 +55,7 @@ initAnalytics();
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {route.id === 'app' ? (
-      <Suspense fallback={<div role="status" aria-live="polite" className="min-h-screen flex items-center justify-center text-slate-600 dark:text-slate-300">Loading Smart Commute…</div>}>
+      <Suspense fallback={<div role="status" aria-live="polite" aria-label="Loading" dangerouslySetInnerHTML={{ __html: HOME_SHELL_HTML }} />}>
         <App />
       </Suspense>
     ) : (
