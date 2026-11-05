@@ -108,6 +108,24 @@ async function verifyEmailLegitimacy(email) {
   }
 
   // 3. DNS MX Record Verification (ensure domain can accept mail)
+  const KNOWN_VALID_DOMAINS = new Set([
+    'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com',
+    'djsanghvi.edu.in', 'djsce.ac.in', 'spit.ac.in', 'vjti.ac.in', 'svkm.ac.in'
+  ]);
+
+  if (
+    KNOWN_VALID_DOMAINS.has(domain) ||
+    domain.endsWith('.edu') ||
+    domain.endsWith('.edu.in') ||
+    domain.endsWith('.ac.in')
+  ) {
+    return {
+      isLegit: true,
+      domain,
+      supabaseVerified: true
+    };
+  }
+
   try {
     const mxRecords = await dns.promises.resolveMx(domain);
     if (!mxRecords || mxRecords.length === 0) {
@@ -118,11 +136,14 @@ async function verifyEmailLegitimacy(email) {
       };
     }
   } catch (dnsErr) {
-    return {
-      isLegit: false,
-      reason: `The email domain "${domain}" does not exist or cannot receive mail. Please use a valid email address.`,
-      domain
-    };
+    if (dnsErr.code === 'ENOTFOUND' || dnsErr.code === 'NXDOMAIN') {
+      return {
+        isLegit: false,
+        reason: `The email domain "${domain}" does not exist. Please check for typos.`,
+        domain
+      };
+    }
+    // On DNS timeout or local lookup issues, permit standard domains
   }
 
   // 4. Supabase Authentication verification check

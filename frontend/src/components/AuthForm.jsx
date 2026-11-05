@@ -217,12 +217,13 @@ export default function AuthForm({
     }
   };
 
-  // Supabase Email OTP: Send 6-digit code (100% Free on Supabase)
+  // Supabase Email OTP: Send 6-digit code
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     const trimmedEmail = email.trim();
-    if (!trimmedEmail || !validateEmail(trimmedEmail)) {
-      setFieldErrors((prev) => ({ ...prev, email: 'Please enter a valid email address first.' }));
+    const emailFormatError = validateEmail(trimmedEmail);
+    if (!trimmedEmail || emailFormatError) {
+      setFieldErrors((prev) => ({ ...prev, email: emailFormatError || 'Please enter a valid email address first.' }));
       return;
     }
 
@@ -308,8 +309,9 @@ export default function AuthForm({
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     const trimmedEmail = email.trim();
-    if (!trimmedEmail || !validateEmail(trimmedEmail)) {
-      setFieldErrors((prev) => ({ ...prev, email: 'Enter your email to receive a password reset link.' }));
+    const emailFormatError = validateEmail(trimmedEmail);
+    if (!trimmedEmail || emailFormatError) {
+      setFieldErrors((prev) => ({ ...prev, email: emailFormatError || 'Enter your email to receive a password reset link.' }));
       return;
     }
     setIsResettingPassword(true);
@@ -342,12 +344,15 @@ export default function AuthForm({
           },
         });
         googleButtonRef.current.replaceChildren();
+        const containerWidth = googleButtonRef.current?.offsetWidth || 380;
+        const targetWidth = Math.min(Math.max(containerWidth, 240), 400);
         google.accounts.id.renderButton(googleButtonRef.current, {
           theme: 'outline',
           size: 'large',
           shape: 'rectangular',
           text: isRegisterMode ? 'signup_with' : 'continue_with',
-          width: 340,
+          width: targetWidth,
+          logo_alignment: 'left',
         });
       })
       .catch(() => {
@@ -494,7 +499,7 @@ export default function AuthForm({
             </div>
 
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Supabase Email Authentication delivers a secure 6-digit verification code directly to your email. (100% Free)
+              Supabase Email Authentication delivers a secure 6-digit verification code directly to your email.
             </p>
 
             {otpMessage && (
@@ -519,7 +524,7 @@ export default function AuthForm({
                         setEmail(e.target.value);
                         clearFieldError('email');
                       }}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.email && (
@@ -530,7 +535,7 @@ export default function AuthForm({
                 <button
                   type="submit"
                   disabled={isSendingOtp}
-                  className="w-full bg-[#81b64c] hover:bg-[#74a543] active:bg-[#68943c] text-white text-base font-black py-3.5 rounded-xl shadow-md transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isSendingOtp ? (
                     <>
@@ -575,7 +580,7 @@ export default function AuthForm({
                 <button
                   type="submit"
                   disabled={isVerifyingOtp}
-                  className="w-full bg-[#81b64c] hover:bg-[#74a543] active:bg-[#68943c] text-white text-base font-black py-3.5 rounded-xl shadow-md transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isVerifyingOtp ? (
                     <>
@@ -632,7 +637,7 @@ export default function AuthForm({
                     checkEmailAuthenticity(e.target.value);
                   }}
                   onBlur={(e) => handleBlur('email', e.target.value)}
-                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                 />
               </div>
 
@@ -672,7 +677,7 @@ export default function AuthForm({
                         clearFieldError('full_name');
                       }}
                       onBlur={(e) => handleBlur('full_name', e.target.value)}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.full_name && (
@@ -695,7 +700,7 @@ export default function AuthForm({
                         clearFieldError('college_name');
                       }}
                       onBlur={(e) => handleBlur('college_name', e.target.value)}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.college_name && (
@@ -738,7 +743,7 @@ export default function AuthForm({
                     clearFieldError('password');
                   }}
                   onBlur={(e) => handleBlur('password', e.target.value)}
-                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
@@ -764,7 +769,7 @@ export default function AuthForm({
                 <Checkbox
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
-                  className="accent-[#81b64c] border-slate-400 dark:border-slate-600 data-[state=checked]:bg-[#81b64c] data-[state=checked]:border-[#81b64c]"
+                  className="accent-[#800020] dark:accent-[#0047ff] border-slate-400 dark:border-slate-600 data-[state=checked]:bg-[#800020] dark:data-[state=checked]:bg-[#0047ff] data-[state=checked]:border-[#800020] dark:data-[state=checked]:border-[#0047ff]"
                 />
                 <span>Remember me</span>
               </label>
@@ -802,11 +807,11 @@ export default function AuthForm({
               </div>
             )}
 
-            {/* Primary Action Button (Green #81b64c) */}
+            {/* Primary Action Button (Burgundy in light mode, Acid Blue in dark mode) */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#81b64c] hover:bg-[#74a543] active:bg-[#68943c] text-white text-base sm:text-lg font-black tracking-wide py-3.5 rounded-xl shadow-md transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -829,13 +834,13 @@ export default function AuthForm({
           <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
         </div>
 
-        {/* Alternate Login Stack: Google & Email OTP */}
+        {/* Alternate Login Stack: Google & Email OTP (Uniform button sizes) */}
         <div className="space-y-2.5">
           {/* Google OAuth Login */}
           {googleEnabled && (
             <div
               ref={googleButtonRef}
-              className={`flex justify-center min-h-[44px] ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+              className={`w-full h-12 flex justify-center items-center overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-all [&>div]:!w-full [&>div]:!h-12 [&>div]:!flex [&>div]:!justify-center [&>div]:!items-center [&_iframe]:!w-full [&_iframe]:!h-12 [&_iframe]:!rounded-xl ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
             />
           )}
 
@@ -844,7 +849,7 @@ export default function AuthForm({
               type="button"
               onClick={handleGoogleClick}
               disabled={isGoogleSigningIn || isSubmitting}
-              className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 transition-all text-sm active:scale-[0.99] cursor-pointer"
+              className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
             >
               {isGoogleSigningIn ? (
                 <Loader2 className="w-5 h-5 animate-spin text-blue-500" aria-hidden="true" />
@@ -872,7 +877,7 @@ export default function AuthForm({
             </button>
           )}
 
-          {/* Email OTP Authentication Option (Free Supabase Feature) */}
+          {/* Email OTP Authentication Option */}
           {authMethod !== 'otp' && (
             <button
               type="button"
@@ -880,10 +885,10 @@ export default function AuthForm({
                 setAuthMethod('otp');
                 onDismissSubmitError?.();
               }}
-              className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 transition-all text-sm active:scale-[0.99] cursor-pointer"
+              className="w-full h-12 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
             >
               <Mail className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-              <span>Sign in with Email OTP (Free)</span>
+              <span>Sign in with Email OTP</span>
             </button>
           )}
         </div>
@@ -897,7 +902,7 @@ export default function AuthForm({
             <button
               type="button"
               onClick={() => handleModeChange('signin')}
-              className="font-bold text-[#800020] dark:text-[#ccff00] hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#0047ff] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Log In
             </button>
@@ -908,7 +913,7 @@ export default function AuthForm({
             <button
               type="button"
               onClick={() => handleModeChange('register')}
-              className="font-bold text-[#800020] dark:text-[#ccff00] hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#0047ff] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Sign up - and start commuting!
             </button>
