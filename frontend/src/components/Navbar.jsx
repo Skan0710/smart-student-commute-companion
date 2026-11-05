@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { UnreadCountBadge } from './ui';
 import ThemeToggle from './ThemeToggle';
+import ShareSheet from './ui/share-sheet';
 import SpotlightNavbar from './ui/spotlight-navbar';
 import Logo from './Logo';
 import { readAuthSession } from '../utils/authSession';
@@ -327,6 +328,13 @@ export default function Navbar({
             {onToggleTheme && (
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             )}
+
+            {/* Share Sheet component between ThemeToggle and Profile / Notifications */}
+            <ShareSheet
+              url={typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'}
+              title="Smart Student Commute Companion"
+              theme={theme === 'dark' ? 'dark' : 'light'}
+            />
 
             {/* Notifications - Bell icon button toggles small dropdown box, not a separate page */}
             {/* Legacy nav item compatibility: { id: 'notifications' } */}

@@ -17,6 +17,8 @@ import {
 import { supabase, isSupabaseConfigured } from '../config/supabase.js';
 import { GOOGLE_CLIENT_ID } from '../config/index.js';
 import { Tabs } from './ui';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
+import { Checkbox } from './ui/checkbox';
 import {
   focusFirstInvalid,
   validateEmail,
@@ -84,14 +86,14 @@ function loadGoogleIdentity() {
 }
 
 /**
- * AuthForm - Authentication card following the clean email, password, and Google login layout.
- * Supports:
- *  - Email & Password credentials with show/hide toggle
- *  - "Remember me" and "Forgot Password?"
- *  - Prominent primary action button
- *  - Supabase 100% Free Email OTP 6-digit confirmation
- *  - Google OAuth Sign-in
- *  - Real-time Supabase / DNS MX legitimate email verification
+ * AuthForm - Full-width theme-aware authentication component
+ * Features:
+ *  - Matches the light/dark theme seamlessly (no black patch in light mode)
+ *  - Expands to the length of the container (w-full)
+ *  - InputOTP component from shadcn for 6-digit OTP verification
+ *  - Checkbox component from shadcn for Remember Me
+ *  - Google OAuth sign-in
+ *  - Real-time DNS MX & Supabase email authenticity validation
  */
 export default function AuthForm({
   onSubmitSignIn,
@@ -114,7 +116,7 @@ export default function AuthForm({
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  // OTP State (Supabase Free Email OTP)
+  // OTP State (Supabase Free Email OTP using InputOTP)
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -251,7 +253,6 @@ export default function AuthForm({
         setOtpCountdown(60);
         setOtpMessage(`A 6-digit OTP confirmation code was sent to ${trimmedEmail}.`);
       } else {
-        // Fallback demo mode if Supabase credentials are missing
         setOtpSent(true);
         setOtpCountdown(60);
         setOtpMessage(`Confirmation code sent to ${trimmedEmail} (Demo mode: use code 123456).`);
@@ -342,7 +343,7 @@ export default function AuthForm({
         });
         googleButtonRef.current.replaceChildren();
         google.accounts.id.renderButton(googleButtonRef.current, {
-          theme: 'filled_black',
+          theme: 'outline',
           size: 'large',
           shape: 'rectangular',
           text: isRegisterMode ? 'signup_with' : 'continue_with',
@@ -434,7 +435,7 @@ export default function AuthForm({
   };
 
   return (
-    <div className="w-full max-w-[440px] mx-auto bg-[#262421] text-stone-200 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/5 overflow-hidden transition-all">
+    <div className="w-full bg-white dark:bg-[#0a0c16] text-slate-800 dark:text-slate-100 rounded-2xl sm:rounded-3xl border border-[#d8d3c5] dark:border-[#1e2440] shadow-sm overflow-hidden transition-colors">
       {/* Top Segmented Mode Switch */}
       <div className="pt-6 px-6 sm:px-8">
         <Tabs
@@ -453,8 +454,8 @@ export default function AuthForm({
       <div className="p-6 sm:p-8 pt-4 space-y-4">
         {/* Error Notification */}
         {submitError && (
-          <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-500/40 text-rose-800 dark:text-rose-200 text-xs flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1">
               <p className="font-semibold">{isRegisterMode ? 'Sign up error' : 'Sign in error'}</p>
               <p className="mt-0.5 opacity-90">{submitError}</p>
@@ -463,7 +464,7 @@ export default function AuthForm({
               <button
                 type="button"
                 onClick={onDismissSubmitError}
-                className="text-red-400 hover:text-white text-xs font-bold px-1"
+                className="text-rose-600 dark:text-rose-400 hover:opacity-75 text-xs font-bold px-1"
                 aria-label="Dismiss error"
               >
                 ✕
@@ -472,7 +473,7 @@ export default function AuthForm({
           </div>
         )}
 
-        {/* Supabase Free Email OTP Mode Screen */}
+        {/* Supabase Free Email OTP Mode Screen using shadcn InputOTP */}
         {authMethod === 'otp' ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
@@ -482,23 +483,23 @@ export default function AuthForm({
                   setAuthMethod('password');
                   setOtpSent(false);
                 }}
-                className="text-stone-400 hover:text-white transition-colors p-1 -ml-1 rounded-lg"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-1 -ml-1 rounded-lg"
                 aria-label="Back to password login"
               >
                 <ArrowLeft className="w-5 h-5" aria-hidden="true" />
               </button>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {otpSent ? 'Confirm 6-Digit OTP' : 'Sign in with Email OTP'}
               </h3>
             </div>
 
-            <p className="text-xs text-stone-400">
-              Supabase Email Authentication delivers a secure 6-digit verification code directly to your email. (100% Free on Supabase)
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Supabase Email Authentication delivers a secure 6-digit verification code directly to your email. (100% Free)
             </p>
 
             {otpMessage && (
-              <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
                 <span>{otpMessage}</span>
               </div>
             )}
@@ -507,7 +508,7 @@ export default function AuthForm({
               <form onSubmit={handleSendOtp} aria-busy={isSendingOtp} className="space-y-4">
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
+                    <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       id="account-email"
                       type="email"
@@ -518,11 +519,11 @@ export default function AuthForm({
                         setEmail(e.target.value);
                         clearFieldError('email');
                       }}
-                      className="w-full bg-[#363431] hover:bg-[#3c3a37] focus:bg-[#3c3a37] text-white placeholder-stone-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.email && (
-                    <p className="text-xs text-red-400 pl-1 pt-1">{fieldErrors.email}</p>
+                    <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-1">{fieldErrors.email}</p>
                   )}
                 </div>
 
@@ -542,27 +543,32 @@ export default function AuthForm({
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleVerifyOtp} aria-busy={isVerifyingOtp} className="space-y-4">
-                <div className="space-y-1">
-                  <div className="relative flex items-center">
-                    <KeyRound className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
-                    <input
-                      id="otp-code"
-                      type="text"
+              <form onSubmit={handleVerifyOtp} aria-busy={isVerifyingOtp} className="space-y-5">
+                <div className="space-y-2 text-center">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Enter the 6 digits sent to <span className="font-bold text-slate-900 dark:text-white">{email}</span>
+                  </p>
+                  <div className="flex justify-center pt-2">
+                    <InputOTP
                       maxLength={6}
-                      autoFocus
-                      required
-                      placeholder="Enter 6-digit OTP code"
                       value={otpCode}
-                      onChange={(e) => {
-                        setOtpCode(e.target.value.replace(/\D/g, ''));
+                      onChange={(val) => {
+                        setOtpCode(val);
                         clearFieldError('otp');
                       }}
-                      className="w-full bg-[#363431] hover:bg-[#3c3a37] focus:bg-[#3c3a37] text-white placeholder-stone-400 tracking-widest text-center rounded-xl pl-11 pr-4 py-3.5 text-lg font-bold border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
-                    />
+                    >
+                      <InputOTPGroup className="gap-2 sm:gap-3">
+                        <InputOTPSlot index={0} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                        <InputOTPSlot index={1} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                        <InputOTPSlot index={2} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                        <InputOTPSlot index={3} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                        <InputOTPSlot index={4} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                        <InputOTPSlot index={5} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
+                      </InputOTPGroup>
+                    </InputOTP>
                   </div>
                   {fieldErrors.otp && (
-                    <p className="text-xs text-red-400 pl-1 pt-1">{fieldErrors.otp}</p>
+                    <p className="text-xs text-rose-600 dark:text-rose-400 pt-1">{fieldErrors.otp}</p>
                   )}
                 </div>
 
@@ -581,19 +587,19 @@ export default function AuthForm({
                   )}
                 </button>
 
-                <div className="flex justify-between items-center text-xs text-stone-400 pt-1">
+                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-1">
                   <button
                     type="button"
                     disabled={otpCountdown > 0 || isSendingOtp}
                     onClick={handleSendOtp}
-                    className="hover:text-white transition-colors disabled:opacity-40"
+                    className="hover:text-slate-800 dark:hover:text-white transition-colors disabled:opacity-40"
                   >
                     {otpCountdown > 0 ? `Resend code in ${otpCountdown}s` : 'Resend OTP Code'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setOtpSent(false)}
-                    className="hover:text-white transition-colors"
+                    className="hover:text-slate-800 dark:hover:text-white transition-colors"
                   >
                     Change Email
                   </button>
@@ -612,7 +618,7 @@ export default function AuthForm({
             {/* Email input field */}
             <div className="space-y-1">
               <div className="relative flex items-center">
-                <User className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
+                <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                 <input
                   id="account-email"
                   type="email"
@@ -626,25 +632,25 @@ export default function AuthForm({
                     checkEmailAuthenticity(e.target.value);
                   }}
                   onBlur={(e) => handleBlur('email', e.target.value)}
-                  className="w-full bg-[#363431] hover:bg-[#3d3a37] focus:bg-[#3d3a37] text-white placeholder-stone-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
                 />
               </div>
 
               {/* Real-time Email Legitimacy Badge */}
               {isRegisterMode && emailCheckStatus === 'checking' && (
-                <div className="flex items-center gap-1.5 text-[11px] text-stone-400 pl-1 pt-0.5">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" aria-hidden="true" />
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 pl-1 pt-0.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" aria-hidden="true" />
                   <span>Checking email legitimacy via Supabase &amp; MX servers…</span>
                 </div>
               )}
               {isRegisterMode && emailCheckStatus === 'legit' && (
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 pl-1 pt-0.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 pl-1 pt-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                   <span>{emailCheckMsg}</span>
                 </div>
               )}
               {fieldErrors.email && (
-                <p className="text-xs text-red-400 pl-1 pt-0.5">{fieldErrors.email}</p>
+                <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-0.5">{fieldErrors.email}</p>
               )}
             </div>
 
@@ -653,7 +659,7 @@ export default function AuthForm({
               <>
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
+                    <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       id="account-full-name"
                       type="text"
@@ -666,17 +672,17 @@ export default function AuthForm({
                         clearFieldError('full_name');
                       }}
                       onBlur={(e) => handleBlur('full_name', e.target.value)}
-                      className="w-full bg-[#363431] hover:bg-[#3d3a37] focus:bg-[#3d3a37] text-white placeholder-stone-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.full_name && (
-                    <p className="text-xs text-red-400 pl-1 pt-0.5">{fieldErrors.full_name}</p>
+                    <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-0.5">{fieldErrors.full_name}</p>
                   )}
                 </div>
 
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
+                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       id="account-college"
                       type="text"
@@ -689,11 +695,11 @@ export default function AuthForm({
                         clearFieldError('college_name');
                       }}
                       onBlur={(e) => handleBlur('college_name', e.target.value)}
-                      className="w-full bg-[#363431] hover:bg-[#3d3a37] focus:bg-[#3d3a37] text-white placeholder-stone-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.college_name && (
-                    <p className="text-xs text-red-400 pl-1 pt-0.5">{fieldErrors.college_name}</p>
+                    <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-0.5">{fieldErrors.college_name}</p>
                   )}
                 </div>
 
@@ -719,7 +725,7 @@ export default function AuthForm({
             {/* Password input field with Eye reveal toggle */}
             <div className="space-y-1">
               <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-5 h-5 text-stone-400" aria-hidden="true" />
+                <Lock className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                 <input
                   id="account-password"
                   type={showPassword ? 'text' : 'password'}
@@ -732,12 +738,12 @@ export default function AuthForm({
                     clearFieldError('password');
                   }}
                   onBlur={(e) => handleBlur('password', e.target.value)}
-                  className="w-full bg-[#363431] hover:bg-[#3d3a37] focus:bg-[#3d3a37] text-white placeholder-stone-400 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-white/5 focus:border-[#81b64c] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#81b64c] dark:focus:border-[#81b64c] focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 text-stone-400 hover:text-white transition-colors p-1"
+                  className="absolute right-3.5 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors p-1"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -748,18 +754,17 @@ export default function AuthForm({
                 </button>
               </div>
               {fieldErrors.password && (
-                <p className="text-xs text-red-400 pl-1 pt-0.5">{fieldErrors.password}</p>
+                <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-0.5">{fieldErrors.password}</p>
               )}
             </div>
 
-            {/* Sub-row: Remember me & Forgot Password */}
-            <div className="flex items-center justify-between text-xs pt-0.5 pb-1">
-              <label className="flex items-center gap-2 cursor-pointer text-stone-300 select-none">
-                <input
-                  type="checkbox"
+            {/* Sub-row: Remember me (shadcn Checkbox) & Forgot Password */}
+            <div className="flex items-center justify-between text-xs pt-1 pb-1">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 select-none">
+                <Checkbox
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#363431] border-stone-600 text-[#81b64c] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#81b64c]"
+                  onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
+                  className="accent-[#81b64c] border-slate-400 dark:border-slate-600 data-[state=checked]:bg-[#81b64c] data-[state=checked]:border-[#81b64c]"
                 />
                 <span>Remember me</span>
               </label>
@@ -770,7 +775,7 @@ export default function AuthForm({
                   setForgotPasswordOpen(true);
                   if (email) handleForgotPassword({ preventDefault: () => {} });
                 }}
-                className="text-stone-400 hover:text-stone-200 hover:underline transition-colors font-medium"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:underline transition-colors font-medium"
               >
                 Forgot Password?
               </button>
@@ -778,7 +783,7 @@ export default function AuthForm({
 
             {/* Password Reset Notification */}
             {forgotPasswordOpen && (
-              <div className="p-3 rounded-xl bg-blue-950/60 border border-blue-500/40 text-blue-200 text-xs">
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/40 text-blue-800 dark:text-blue-200 text-xs">
                 {resetEmailSent ? (
                   <p>Password reset link has been dispatched to your email address.</p>
                 ) : (
@@ -801,7 +806,7 @@ export default function AuthForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#81b64c] hover:bg-[#74a543] active:bg-[#68943c] text-white text-lg font-black tracking-wide py-3.5 rounded-xl shadow-md transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+              className="w-full bg-[#81b64c] hover:bg-[#74a543] active:bg-[#68943c] text-white text-base sm:text-lg font-black tracking-wide py-3.5 rounded-xl shadow-md transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -817,11 +822,11 @@ export default function AuthForm({
 
         {/* OR Divider */}
         <div className="flex items-center my-4">
-          <div className="flex-1 border-t border-white/10" />
-          <span className="px-3 text-xs font-bold text-stone-400 uppercase tracking-widest">
+          <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
+          <span className="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             OR
           </span>
-          <div className="flex-1 border-t border-white/10" />
+          <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
         </div>
 
         {/* Alternate Login Stack: Google & Email OTP */}
@@ -839,10 +844,10 @@ export default function AuthForm({
               type="button"
               onClick={handleGoogleClick}
               disabled={isGoogleSigningIn || isSubmitting}
-              className="w-full bg-[#363431] hover:bg-[#403d39] text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-white/5 transition-all text-sm active:scale-[0.99] cursor-pointer"
+              className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 transition-all text-sm active:scale-[0.99] cursor-pointer"
             >
               {isGoogleSigningIn ? (
-                <Loader2 className="w-5 h-5 animate-spin text-blue-400" aria-hidden="true" />
+                <Loader2 className="w-5 h-5 animate-spin text-blue-500" aria-hidden="true" />
               ) : (
                 <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                   <path
@@ -875,9 +880,9 @@ export default function AuthForm({
                 setAuthMethod('otp');
                 onDismissSubmitError?.();
               }}
-              className="w-full bg-[#363431] hover:bg-[#403d39] text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-white/5 transition-all text-sm active:scale-[0.99] cursor-pointer"
+              className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 transition-all text-sm active:scale-[0.99] cursor-pointer"
             >
-              <Mail className="w-5 h-5 text-emerald-400 shrink-0" aria-hidden="true" />
+              <Mail className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
               <span>Sign in with Email OTP (Free)</span>
             </button>
           )}
@@ -885,25 +890,25 @@ export default function AuthForm({
       </div>
 
       {/* Docked bottom banner */}
-      <div className="bg-[#1f1d1b] py-4 px-6 text-center border-t border-white/5">
+      <div className="bg-slate-50 dark:bg-slate-950 py-4 px-6 text-center border-t border-slate-200 dark:border-white/5">
         {isRegisterMode ? (
-          <p className="text-xs sm:text-sm text-stone-300">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             Already have an account?{' '}
             <button
               type="button"
               onClick={() => handleModeChange('signin')}
-              className="font-bold text-white hover:text-emerald-400 hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#ccff00] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Log In
             </button>
           </p>
         ) : (
-          <p className="text-xs sm:text-sm text-stone-300">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             New?{' '}
             <button
               type="button"
               onClick={() => handleModeChange('register')}
-              className="font-bold text-white hover:text-emerald-400 hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#ccff00] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Sign up - and start commuting!
             </button>

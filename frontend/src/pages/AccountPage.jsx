@@ -167,9 +167,9 @@ export default function AccountPage({
       {!isHydrating && !user && !hydrateError && (
         <section
           aria-labelledby="account-auth-heading"
-          className="bg-white dark:bg-[#0a0c16] border border-[#d8d3c5] dark:border-[#1e2440] rounded-2xl p-5 sm:p-6 shadow-sm"
+          className="w-full space-y-4"
         >
-          <div className="mb-4 p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 flex items-start gap-3">
+          <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 flex items-start gap-3">
             <UserRound className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold text-blue-950 dark:text-blue-200">

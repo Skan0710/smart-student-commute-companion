@@ -20,6 +20,7 @@ import {
   FileUp
 } from 'lucide-react';
 import { scanTimetableOcr } from '../services/academics';
+import { Attachment, AttachmentMedia, AttachmentContent, AttachmentTitle, AttachmentDescription, AttachmentActions, AttachmentAction } from './ui/attachment';
 
 /**
  * Upscales small screenshots/photos, converts to grayscale and stretches contrast so
@@ -431,18 +432,39 @@ Tuesday | 10:00 - 11:00 | TCS (CR 67)`}
                 />
 
                 {previewUrl ? (
-                  <div className="space-y-3 max-w-sm">
+                  <div className="space-y-3 max-w-sm w-full mx-auto" onClick={(e) => e.stopPropagation()}>
                     <img
                       src={previewUrl}
                       alt="Timetable preview"
                       className="max-h-48 rounded-2xl mx-auto shadow-md border border-slate-200 dark:border-slate-700 object-contain"
                     />
-                    <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      <FileImage className="w-4 h-4 text-emerald-600" />
-                      <span className="truncate max-w-[200px]">{file?.name || 'timetable.png'}</span>
-                      <span className="text-slate-400">({(file?.size ? (file.size / 1024).toFixed(1) : '150')} KB)</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500">Click to choose a different image</p>
+                    <Attachment state={isScanning ? "processing" : "done"} className="w-full text-left">
+                      <AttachmentMedia>
+                        <FileImage className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      </AttachmentMedia>
+                      <AttachmentContent>
+                        <AttachmentTitle>{file?.name || 'timetable.png'}</AttachmentTitle>
+                        <AttachmentDescription>
+                          IMAGE ATTACHMENT · {(file?.size ? (file.size / 1024).toFixed(1) : '150')} KB
+                        </AttachmentDescription>
+                      </AttachmentContent>
+                      <AttachmentActions>
+                        <AttachmentAction
+                          onClick={() => fileInputRef.current?.click()}
+                          title="Change file"
+                          aria-label="Change timetable file"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </AttachmentAction>
+                        <AttachmentAction
+                          onClick={handleReset}
+                          title="Remove file"
+                          aria-label="Remove timetable file"
+                        >
+                          <X className="w-4 h-4" />
+                        </AttachmentAction>
+                      </AttachmentActions>
+                    </Attachment>
                   </div>
                 ) : (
                   <div className="space-y-4">
