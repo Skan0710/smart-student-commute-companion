@@ -18,7 +18,26 @@ export async function registerServiceWorker() {
   
   // Skip in development mode unless explicitly enabled
   if (import.meta.env.DEV && !import.meta.env.VITE_SW_DEV) {
-    console.info('[SW] Service worker disabled in development mode');
+    console.info('[SW] Service worker disabled in development mode. Purging any existing SW and caches.');
+    try {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+            console.info('[SW] Unregistered development service worker:', registration.scope);
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          return Promise.all(cacheNames.map((name) => caches.delete(name)));
+        }).then(() => {
+          console.info('[SW] Cleared all cache storage in development mode');
+        });
+      }
+    } catch (cleanupErr) {
+      console.warn('[SW] Error clearing development service workers:', cleanupErr);
+    }
     return null;
   }
   

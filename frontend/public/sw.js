@@ -227,6 +227,19 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Development bypass: do not intercept or cache local dev server / HMR / Vite assets
+  if (
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.port === '5173' ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/@') ||
+    url.pathname.startsWith('/node_modules/') ||
+    url.searchParams.has('t')
+  ) {
+    return;
+  }
+
   // ── Day 8: PWA Share Target interception ───────────────────────────
   // The manifest declares POST /share-target. When the OS share sheet
   // targets this app, the browser POSTs the shared title/text/url here.
