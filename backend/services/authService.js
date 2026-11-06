@@ -82,6 +82,32 @@ class AuthService {
   }
 
   /**
+   * Signs in or creates a student profile verified via Supabase Authentication
+   * (Magic Link or Google OAuth).
+   *
+   * @param {{ email: string, name?: string, picture?: string, college_name?: string, supabase_id?: string }} profile
+   * @returns {{ user: object, token: string }}
+   */
+  loginWithSupabase(profile) {
+    const email = String(profile.email || '').trim().toLowerCase();
+    let user = this.userRepo.findByEmail(email);
+
+    if (!user) {
+      const displayName = (profile.name || email.split('@')[0] || 'Student').trim();
+      user = this.userRepo.create({
+        email,
+        password: `${crypto.randomBytes(32).toString('base64url')}Aa1`,
+        full_name: displayName.length >= 2 ? displayName.slice(0, 100) : 'Student',
+        college_name: profile.college_name || 'Dwarkadas J. Sanghvi College of Engineering',
+        profile_picture: profile.picture || null,
+        role: 'student'
+      });
+    }
+
+    return this._issueSession(user);
+  }
+
+  /**
    * Signs a session token for a verified user.
    *
    * @param {object} user - User model instance

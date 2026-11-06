@@ -238,7 +238,68 @@ async function validateEmail(req, res, next) {
   }
 }
 
+
+/**
+ * Signs in or synchronizes a user authenticated via Supabase (Magic Link or Google OAuth).
+ */
+async function supabaseSessionLogin(req, res, next) {
+  try {
+    const accessToken = req.body.access_token || req.body.accessToken;
+    if (!accessToken || typeof accessToken !== 'string') {
+      return res.status(401).json({
+        status: 'error',
+        code: 'UNAUTHORIZED',
+        message: 'Supabase access token is required'
+      });
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(503).json({
+        status: 'error',
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'Supabase authentication is not configured on this server'
+      });
+    }
+
+    const { data, error } = await supabase.auth.getUser(accessToken.trim());
+    if (error || !data?.user) {
+      return res.status(401).json({
+        status: 'error',
+        code: 'UNAUTHORIZED',
+        message: error?.message || 'Invalid or expired Supabase authentication session'
+      });
+    }
+
+    const supabaseUser = data.user;
+    const email = String(supabaseUser.email || '').trim().toLowerCase();
+    const meta = supabaseUser.user_metadata || {};
+    const displayName = meta.full_name || meta.name || email.split('@')[0] || 'Student';
+    const avatarUrl = meta.avatar_url || meta.picture || null;
+    const collegeName = meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering';
+
+    const { user, token } = authService.loginWithSupabase({
+      email,
+      name: displayName,
+      picture: avatarUrl,
+      college_name: collegeName,
+      supabase_id: supabaseUser.id
+    });
+
+    setSessionCookie(req, res, token);
+    return success(res, {
+      message: 'Login successful',
+      token,
+      session_transport: 'cookie',
+      user
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
+  supabaseSessionLogin,
   validateEmail,
   register,
   logout,

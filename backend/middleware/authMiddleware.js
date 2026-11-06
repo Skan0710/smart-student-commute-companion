@@ -10,6 +10,7 @@
  */
 
 const { verifyToken } = require('../utils/token');
+const { getSupabaseClient } = require('../db/supabase');
 const { UnauthorizedError, ForbiddenError, NotFoundError } = require('../errors');
 const { rideGroupRepository } = require('../repositories/RideGroupRepository');
 const { canModifyOwnedRecord } = require('../utils/ownership');
@@ -80,7 +81,30 @@ function authenticate(req, res, next) {
       throw new UnauthorizedError('Authentication token is required');
     }
 
-    const payload = verifyToken(credential.token);
+    let payload;
+    try {
+      payload = verifyToken(credential.token);
+    } catch (tokenErr) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        return supabase.auth.getUser(credential.token).then(({ data, error }) => {
+          if (!error && data?.user) {
+            const u = data.user;
+            const meta = u.user_metadata || {};
+            req.user = {
+              id: u.id,
+              email: u.email,
+              role: meta.role || 'student',
+              full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
+              college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering'
+            };
+            return next();
+          }
+          next(tokenErr);
+        }).catch(() => next(tokenErr));
+      }
+      throw tokenErr;
+    }
     if (credential.source === 'cookie') assertSameOrigin(req);
 
     // Attach verified user identity context

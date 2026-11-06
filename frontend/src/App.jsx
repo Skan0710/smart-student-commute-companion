@@ -268,27 +268,57 @@ export default function App() {
     { initialData: readAuthSession(), errorMessage: 'Unable to verify your saved session. Check your connection and try again.' }
   );
 
-// Listen for Supabase Google OAuth callback
+  // Listen for Supabase Authentication callbacks (Magic Link or Google OAuth)
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return;
 
-    const handleOAuthSession = (session) => {
-      if (session?.user && !readAuthSession()?.token) {
-        const u = session.user;
-        const meta = u.user_metadata || {};
-        const profile = {
-          id: u.id,
-          email: u.email,
-          full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
-          college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering',
-          profile_picture: meta.avatar_url || meta.picture || null,
-          role: 'student',
-        };
-        const token = session.access_token || 'supabase-oauth-token';
-        writeAuthSession({ token, user: profile });
-        sessionResource.setData({ token, user: profile });
-        showToast(`Signed in with Google as ${profile.full_name}!`, 'success');
+    const handleOAuthSession = async (session) => {
+      if (!session?.user) return;
+      const u = session.user;
+      const meta = u.user_metadata || {};
+      const profile = {
+        id: u.id,
+        email: u.email,
+        full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
+        college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering',
+        profile_picture: meta.avatar_url || meta.picture || null,
+        role: 'student',
+      };
+      let token = session.access_token || 'supabase-oauth-token';
+
+      // 1. Immediately store authenticated session in frontend
+      writeAuthSession({ token, user: profile });
+      sessionResource.setData({ token, user: profile });
+      setLastVerifiedAt(new Date().toISOString());
+
+      // 2. Synchronize with backend to obtain authoritative cookie & JWT
+      try {
+        const syncRes = await fetch('/api/auth/supabase-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: session.access_token }),
+        });
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          if (syncData?.data?.user && syncData?.data?.token) {
+            token = syncData.data.token;
+            Object.assign(profile, syncData.data.user);
+            writeAuthSession({ token, user: profile });
+            sessionResource.setData({ token, user: profile });
+          }
+        }
+      } catch (err) {
+        console.warn('Backend session sync warning:', err);
       }
+
+      // 3. Clean up URL hash so #access_token=... is removed from browser bar
+      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+
+      // 4. Navigate directly to account so user lands on their signed-in profile
+      navigateToScreen('account');
+      showToast(`Welcome! You are signed in as ${profile.full_name}.`, 'success');
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -296,7 +326,7 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
         handleOAuthSession(session);
       }
     });

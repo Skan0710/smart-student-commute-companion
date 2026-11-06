@@ -212,7 +212,7 @@ export default function Tabs({
             className={`relative z-10 inline-flex items-center shrink-0 whitespace-nowrap gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sizeClasses} ${
               isActive
                 ? 'bg-[#800020] text-white shadow-md shadow-[#800020]/25 dark:bg-[#0047ff] dark:text-white dark:shadow-[#0047ff]/40'
-                : 'text-[#586953] hover:text-[#1f2421] dark:text-slate-300 dark:hover:text-white hover:bg-[#edeae2]/60 dark:hover:bg-[#121526]'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
             }`}
           >
             {Icon && <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}

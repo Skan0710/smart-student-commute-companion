@@ -336,23 +336,12 @@ export default function AuthForm({
     let cancelled = false;
     loadGoogleIdentity()
       .then((google) => {
-        if (cancelled || !googleButtonRef.current) return;
+        if (cancelled) return;
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: (response) => {
             if (response?.credential) googleCallbackRef.current?.(response.credential);
           },
-        });
-        googleButtonRef.current.replaceChildren();
-        const containerWidth = googleButtonRef.current?.offsetWidth || 380;
-        const targetWidth = Math.min(Math.max(containerWidth, 240), 400);
-        google.accounts.id.renderButton(googleButtonRef.current, {
-          theme: 'outline',
-          size: 'large',
-          shape: 'rectangular',
-          text: isRegisterMode ? 'signup_with' : 'continue_with',
-          width: targetWidth,
-          logo_alignment: 'left',
         });
       })
       .catch(() => {
@@ -361,7 +350,7 @@ export default function AuthForm({
     return () => {
       cancelled = true;
     };
-  }, [googleEnabled, isRegisterMode]);
+  }, [googleEnabled]);
 
   const currentValues = () =>
     isRegisterMode
@@ -513,7 +502,7 @@ export default function AuthForm({
               <form onSubmit={handleSendOtp} aria-busy={isSendingOtp} className="space-y-4">
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                     <input
                       id="account-email"
                       type="email"
@@ -524,7 +513,7 @@ export default function AuthForm({
                         setEmail(e.target.value);
                         clearFieldError('email');
                       }}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.email && (
@@ -623,7 +612,7 @@ export default function AuthForm({
             {/* Email input field */}
             <div className="space-y-1">
               <div className="relative flex items-center">
-                <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                 <input
                   id="account-email"
                   type="email"
@@ -637,7 +626,7 @@ export default function AuthForm({
                     checkEmailAuthenticity(e.target.value);
                   }}
                   onBlur={(e) => handleBlur('email', e.target.value)}
-                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                 />
               </div>
 
@@ -664,7 +653,7 @@ export default function AuthForm({
               <>
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                     <input
                       id="account-full-name"
                       type="text"
@@ -677,7 +666,7 @@ export default function AuthForm({
                         clearFieldError('full_name');
                       }}
                       onBlur={(e) => handleBlur('full_name', e.target.value)}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.full_name && (
@@ -687,7 +676,7 @@ export default function AuthForm({
 
                 <div className="space-y-1">
                   <div className="relative flex items-center">
-                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                     <input
                       id="account-college"
                       type="text"
@@ -700,7 +689,7 @@ export default function AuthForm({
                         clearFieldError('college_name');
                       }}
                       onBlur={(e) => handleBlur('college_name', e.target.value)}
-                      className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                     />
                   </div>
                   {fieldErrors.college_name && (
@@ -730,7 +719,7 @@ export default function AuthForm({
             {/* Password input field with Eye reveal toggle */}
             <div className="space-y-1">
               <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                <Lock className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                 <input
                   id="account-password"
                   type={showPassword ? 'text' : 'password'}
@@ -743,12 +732,12 @@ export default function AuthForm({
                     clearFieldError('password');
                   }}
                   onBlur={(e) => handleBlur('password', e.target.value)}
-                  className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/80 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 dark:border-slate-700/80 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                  className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors p-1"
+                  className="absolute right-3.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-1"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -765,13 +754,13 @@ export default function AuthForm({
 
             {/* Sub-row: Remember me (shadcn Checkbox) & Forgot Password */}
             <div className="flex items-center justify-between text-xs pt-1 pb-1">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 select-none">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-200 select-none">
                 <Checkbox
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
-                  className="accent-[#800020] dark:accent-[#0047ff] border-slate-400 dark:border-slate-600 data-[state=checked]:bg-[#800020] dark:data-[state=checked]:bg-[#0047ff] data-[state=checked]:border-[#800020] dark:data-[state=checked]:border-[#0047ff]"
+                  className="accent-[#800020] dark:accent-[#0047ff] border-slate-400 dark:border-slate-500 data-[state=checked]:bg-[#800020] dark:data-[state=checked]:bg-[#0047ff] data-[state=checked]:border-[#800020] dark:data-[state=checked]:border-[#0047ff]"
                 />
-                <span>Remember me</span>
+                <span className="font-medium">Remember me</span>
               </label>
 
               <button
@@ -780,7 +769,7 @@ export default function AuthForm({
                   setForgotPasswordOpen(true);
                   if (email) handleForgotPassword({ preventDefault: () => {} });
                 }}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:underline transition-colors font-medium"
+                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline transition-colors font-semibold"
               >
                 Forgot Password?
               </button>
@@ -827,29 +816,22 @@ export default function AuthForm({
 
         {/* OR Divider */}
         <div className="flex items-center my-4">
-          <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
-          <span className="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <div className="flex-1 border-t border-slate-300 dark:border-slate-700" />
+          <span className="px-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
             OR
           </span>
-          <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
+          <div className="flex-1 border-t border-slate-300 dark:border-slate-700" />
         </div>
 
-        {/* Alternate Login Stack: Google & Email OTP (Uniform button sizes) */}
+        {/* Alternate Login Stack: Google & Email OTP (Uniform button sizes & full width) */}
         <div className="space-y-2.5">
-          {/* Google OAuth Login */}
+          {/* Google OAuth Login (Full-width, theme-aware, matches other buttons) */}
           {googleEnabled && (
-            <div
-              ref={googleButtonRef}
-              className={`w-full h-12 flex justify-center items-center overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-all [&>div]:!w-full [&>div]:!h-12 [&>div]:!flex [&>div]:!justify-center [&>div]:!items-center [&_iframe]:!w-full [&_iframe]:!h-12 [&_iframe]:!rounded-xl ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
-            />
-          )}
-
-          {!googleEnabled && (
             <button
               type="button"
               onClick={handleGoogleClick}
               disabled={isGoogleSigningIn || isSubmitting}
-              className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
+              className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer disabled:opacity-50"
             >
               {isGoogleSigningIn ? (
                 <Loader2 className="w-5 h-5 animate-spin text-blue-500" aria-hidden="true" />
@@ -873,7 +855,7 @@ export default function AuthForm({
                   />
                 </svg>
               )}
-              <span>{isRegisterMode ? 'Sign up with Google' : 'Log in with Google'}</span>
+              <span>{isRegisterMode ? 'Sign up with Google' : 'Continue with Google'}</span>
             </button>
           )}
 
@@ -885,7 +867,7 @@ export default function AuthForm({
                 setAuthMethod('otp');
                 onDismissSubmitError?.();
               }}
-              className="w-full h-12 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-200 dark:border-slate-800 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
+              className="w-full h-12 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
             >
               <Mail className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
               <span>Sign in with Email OTP</span>
@@ -895,25 +877,25 @@ export default function AuthForm({
       </div>
 
       {/* Docked bottom banner */}
-      <div className="bg-slate-50 dark:bg-slate-950 py-4 px-6 text-center border-t border-slate-200 dark:border-white/5">
+      <div className="bg-slate-100/90 dark:bg-[#070913] py-4 px-6 text-center border-t border-slate-200 dark:border-slate-800">
         {isRegisterMode ? (
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
             Already have an account?{' '}
             <button
               type="button"
               onClick={() => handleModeChange('signin')}
-              className="font-bold text-[#800020] dark:text-[#0047ff] hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#38bdf8] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Log In
             </button>
           </p>
         ) : (
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
             New?{' '}
             <button
               type="button"
               onClick={() => handleModeChange('register')}
-              className="font-bold text-[#800020] dark:text-[#0047ff] hover:underline transition-colors focus:outline-none cursor-pointer"
+              className="font-bold text-[#800020] dark:text-[#38bdf8] hover:underline transition-colors focus:outline-none cursor-pointer"
             >
               Sign up - and start commuting!
             </button>
