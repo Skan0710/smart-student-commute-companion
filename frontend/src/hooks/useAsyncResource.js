@@ -109,10 +109,14 @@ export default function useAsyncResource(loadFn, { initialData = null, errorMess
    */
   const setData = useCallback((value) => {
     setDataState(value);
-    if (statusRef.current === 'error') {
+    if (value) {
       hasLoadedRef.current = true;
       setError(null);
       setStatus('success');
+    } else if (statusRef.current === 'error') {
+      hasLoadedRef.current = true;
+      setError(null);
+      setStatus('idle');
     }
   }, []);
 

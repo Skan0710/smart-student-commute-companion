@@ -17,7 +17,6 @@ import {
 import { supabase, isSupabaseConfigured } from '../config/supabase.js';
 import { GOOGLE_CLIENT_ID } from '../config/index.js';
 import { Tabs } from './ui';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 import { Checkbox } from './ui/checkbox';
 import {
   focusFirstInvalid,
@@ -116,13 +115,10 @@ export default function AuthForm({
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  // OTP State (Supabase Free Email OTP using InputOTP)
-  const [otpCode, setOtpCode] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [otpMessage, setOtpMessage] = useState('');
-  const [otpCountdown, setOtpCountdown] = useState(0);
+  // Magic Link State (Passwordless Email Sign-in)
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
+  const [magicLinkCountdown, setMagicLinkCountdown] = useState(0);
 
   // Forgot Password State
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
@@ -144,14 +140,14 @@ export default function AuthForm({
 
   const isRegisterMode = mode === 'register';
 
-  // OTP countdown timer
+  // Magic link countdown timer
   useEffect(() => {
-    if (otpCountdown <= 0) return;
+    if (magicLinkCountdown <= 0) return;
     const timer = setInterval(() => {
-      setOtpCountdown((prev) => prev - 1);
+      setMagicLinkCountdown((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [otpCountdown]);
+  }, [magicLinkCountdown]);
 
   // Real-time DNS MX & format validation
   const checkEmailAuthenticity = (candidateEmail) => {
@@ -196,29 +192,31 @@ export default function AuthForm({
     setIsGoogleSigningIn(true);
     try {
       if (isSupabaseConfigured && supabase) {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin,
+            redirectTo: `${window.location.origin}/?tab=account`,
           },
         });
         if (error) throw error;
+        if (data?.url) {
+          window.location.assign(data.url);
+        }
       } else if (onSubmitGoogleCredential) {
         await onSubmitGoogleCredential('demo-google-oauth-token');
       }
     } catch (err) {
       console.warn('Google sign-in error:', err);
+      setIsGoogleSigningIn(false);
       setFieldErrors((prev) => ({
         ...prev,
         email: err.message || 'Unable to connect to Google OAuth. Please use email credentials.',
       }));
-    } finally {
-      setIsGoogleSigningIn(false);
     }
   };
 
-  // Supabase Email OTP: Send 6-digit code
-  const handleSendOtp = async (e) => {
+  // Supabase Magic Link Sign-In: Sends magic link to email
+  const handleSendMagicLink = async (e) => {
     if (e) e.preventDefault();
     const trimmedEmail = email.trim();
     const emailFormatError = validateEmail(trimmedEmail);
@@ -232,15 +230,15 @@ export default function AuthForm({
       return;
     }
 
-    setIsSendingOtp(true);
+    setIsSendingMagicLink(true);
     onDismissSubmitError?.();
-    setOtpMessage('');
 
     try {
       if (isSupabaseConfigured && supabase) {
         const { error } = await supabase.auth.signInWithOtp({
           email: trimmedEmail,
           options: {
+            emailRedirectTo: `${window.location.origin}/?tab=account`,
             shouldCreateUser: true,
             data: {
               full_name: fullName || trimmedEmail.split('@')[0],
@@ -249,59 +247,17 @@ export default function AuthForm({
           },
         });
         if (error) throw error;
-
-        setOtpSent(true);
-        setOtpCountdown(60);
-        setOtpMessage(`A 6-digit OTP confirmation code was sent to ${trimmedEmail}.`);
-      } else {
-        setOtpSent(true);
-        setOtpCountdown(60);
-        setOtpMessage(`Confirmation code sent to ${trimmedEmail} (Demo mode: use code 123456).`);
       }
+      setMagicLinkSent(true);
+      setMagicLinkCountdown(60);
     } catch (err) {
-      console.warn('Supabase OTP error:', err);
+      console.warn('Supabase magic link error:', err);
       setFieldErrors((prev) => ({
         ...prev,
-        email: err.message || 'Failed to send OTP code. Please try again.',
+        email: err.message || 'Failed to send sign-in link. Please try again.',
       }));
     } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  // Supabase Email OTP: Verify 6-digit code
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    const trimmedEmail = email.trim();
-    const trimmedCode = otpCode.trim();
-
-    if (!trimmedCode || trimmedCode.length < 6) {
-      setFieldErrors((prev) => ({ ...prev, otp: 'Please enter the complete 6-digit verification code.' }));
-      return;
-    }
-
-    setIsVerifyingOtp(true);
-    try {
-      if (isSupabaseConfigured && supabase) {
-        const { error } = await supabase.auth.verifyOtp({
-          email: trimmedEmail,
-          token: trimmedCode,
-          type: 'email',
-        });
-        if (error) throw error;
-      } else if (trimmedCode === '123456') {
-        onSubmitSignIn?.({ email: trimmedEmail, password: 'demo-otp-login' });
-      } else {
-        throw new Error('Invalid verification code. Please check your email.');
-      }
-    } catch (err) {
-      console.warn('OTP verify error:', err);
-      setFieldErrors((prev) => ({
-        ...prev,
-        otp: err.message || 'Invalid or expired OTP code. Please request a new one.',
-      }));
-    } finally {
-      setIsVerifyingOtp(false);
+      setIsSendingMagicLink(false);
     }
   };
 
@@ -467,15 +423,15 @@ export default function AuthForm({
           </div>
         )}
 
-        {/* Supabase Free Email OTP Mode Screen using shadcn InputOTP */}
-        {authMethod === 'otp' ? (
+        {/* Passwordless Magic Link Screen */}
+        {authMethod === 'magiclink' ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <button
                 type="button"
                 onClick={() => {
                   setAuthMethod('password');
-                  setOtpSent(false);
+                  setMagicLinkSent(false);
                 }}
                 className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-1 -ml-1 rounded-lg"
                 aria-label="Back to password login"
@@ -483,122 +439,108 @@ export default function AuthForm({
                 <ArrowLeft className="w-5 h-5" aria-hidden="true" />
               </button>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                {otpSent ? 'Confirm 6-Digit OTP' : 'Sign in with Email OTP'}
+                Sign in with Email Link
               </h3>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Supabase Email Authentication delivers a secure 6-digit verification code directly to your email.
-            </p>
+            {!magicLinkSent ? (
+              <div className="space-y-4">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  We'll email you an instant sign-in link. No password or OTP required.
+                </p>
 
-            {otpMessage && (
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-                <span>{otpMessage}</span>
+                <form onSubmit={handleSendMagicLink} aria-busy={isSendingMagicLink} className="space-y-4">
+                  <div className="space-y-1">
+                    <div className="relative flex items-center">
+                      <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                      <input
+                        id="account-email"
+                        type="email"
+                        required
+                        placeholder="Enter your email address"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          clearFieldError('email');
+                        }}
+                        className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      />
+                    </div>
+                    {fieldErrors.email && (
+                      <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-1">{fieldErrors.email}</p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSendingMagicLink}
+                    className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isSendingMagicLink ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                        <span>Sending link…</span>
+                      </>
+                    ) : (
+                      <span>Send Sign-in Link</span>
+                    )}
+                  </button>
+                </form>
               </div>
-            )}
-
-            {!otpSent ? (
-              <form onSubmit={handleSendOtp} aria-busy={isSendingOtp} className="space-y-4">
-                <div className="space-y-1">
-                  <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                    <input
-                      id="account-email"
-                      type="email"
-                      required
-                      placeholder="Username, Phone, or Email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        clearFieldError('email');
-                      }}
-                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
-                    />
-                  </div>
-                  {fieldErrors.email && (
-                    <p className="text-xs text-rose-600 dark:text-rose-400 pl-1 pt-1">{fieldErrors.email}</p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSendingOtp}
-                  className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {isSendingOtp ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
-                      <span>Sending OTP…</span>
-                    </>
-                  ) : (
-                    <span>Send 6-Digit OTP Code</span>
-                  )}
-                </button>
-              </form>
             ) : (
-              <form onSubmit={handleVerifyOtp} aria-busy={isVerifyingOtp} className="space-y-5">
-                <div className="space-y-2 text-center">
-                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Enter the 6 digits sent to <span className="font-bold text-slate-900 dark:text-white">{email}</span>
+              <div className="space-y-5 text-center py-2">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-600/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                  <Mail className="w-7 h-7" aria-hidden="true" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Check your mail for signing in!
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-sm mx-auto leading-relaxed">
+                    We sent a sign-in link to <span className="font-semibold text-slate-900 dark:text-white">{email}</span>. Click the link in your email to sign in automatically.
                   </p>
-                  <div className="flex justify-center pt-2">
-                    <InputOTP
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(val) => {
-                        setOtpCode(val);
-                        clearFieldError('otp');
-                      }}
-                    >
-                      <InputOTPGroup className="gap-2 sm:gap-3">
-                        <InputOTPSlot index={0} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                        <InputOTPSlot index={1} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                        <InputOTPSlot index={2} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                        <InputOTPSlot index={3} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                        <InputOTPSlot index={4} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                        <InputOTPSlot index={5} className="w-10 sm:w-12 h-12 text-lg font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  {fieldErrors.otp && (
-                    <p className="text-xs text-rose-600 dark:text-rose-400 pt-1">{fieldErrors.otp}</p>
-                  )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isVerifyingOtp}
-                  className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {isVerifyingOtp ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
-                      <span>Verifying…</span>
-                    </>
-                  ) : (
-                    <span>Confirm &amp; Log In</span>
-                  )}
-                </button>
-
-                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-1">
+                <div className="pt-2 space-y-2.5">
                   <button
                     type="button"
-                    disabled={otpCountdown > 0 || isSendingOtp}
-                    onClick={handleSendOtp}
-                    className="hover:text-slate-800 dark:hover:text-white transition-colors disabled:opacity-40"
+                    disabled={magicLinkCountdown > 0 || isSendingMagicLink}
+                    onClick={handleSendMagicLink}
+                    className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                   >
-                    {otpCountdown > 0 ? `Resend code in ${otpCountdown}s` : 'Resend OTP Code'}
+                    {isSendingMagicLink ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                        <span>Resending link…</span>
+                      </>
+                    ) : magicLinkCountdown > 0 ? (
+                      <span>Resend link in ${magicLinkCountdown}s</span>
+                    ) : (
+                      <span>Resend Sign-in Link</span>
+                    )}
                   </button>
+
                   <button
                     type="button"
-                    onClick={() => setOtpSent(false)}
-                    className="hover:text-slate-800 dark:hover:text-white transition-colors"
+                    onClick={() => setMagicLinkSent(false)}
+                    className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 transition-all cursor-pointer"
                   >
-                    Change Email
+                    Use different email
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMethod('password');
+                      setMagicLinkSent(false);
+                    }}
+                    className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors pt-1"
+                  >
+                    ← Back to password sign in
                   </button>
                 </div>
-              </form>
+              </div>
             )}
           </div>
         ) : (
@@ -859,18 +801,19 @@ export default function AuthForm({
             </button>
           )}
 
-          {/* Email OTP Authentication Option */}
-          {authMethod !== 'otp' && (
+          {/* Email Link Authentication Option */}
+          {authMethod !== 'magiclink' && (
             <button
               type="button"
               onClick={() => {
-                setAuthMethod('otp');
+                setAuthMethod('magiclink');
+                setMagicLinkSent(false);
                 onDismissSubmitError?.();
               }}
               className="w-full h-12 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
             >
               <Mail className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-              <span>Sign in with Email OTP</span>
+              <span>Sign in with Email Link</span>
             </button>
           )}
         </div>

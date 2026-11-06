@@ -161,7 +161,18 @@ export default function App() {
   const [initialScreen] = useState(() => {
     if (typeof window === 'undefined') return { tab: 'dashboard', subTab: 'planner' };
     try {
+      const hasAuthHash = window.location.hash && (
+        window.location.hash.includes('access_token') ||
+        window.location.hash.includes('refresh_token') ||
+        window.location.hash.includes('type=magiclink') ||
+        window.location.hash.includes('type=recovery') ||
+        window.location.hash.includes('type=signup') ||
+        window.location.hash.includes('error=')
+      );
       const params = new URLSearchParams(window.location.search);
+      if (hasAuthHash || params.get('code') || params.get('tab') === 'account') {
+        return { tab: 'account', subTab: 'planner' };
+      }
       const resolved = resolveScreen(params.get('tab'));
       if (resolved) return resolved;
       if (params.get('share-target')) return { tab: 'installshare', subTab: 'planner' };
@@ -270,6 +281,18 @@ export default function App() {
 
   // Listen for Supabase Authentication callbacks (Magic Link or Google OAuth)
   useEffect(() => {
+    // Surface any OAuth redirect error
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('error=')) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const errorDesc = hashParams.get('error_description') || hashParams.get('error') || 'Authentication failed';
+        showToast(decodeURIComponent(errorDesc.replace(/\+/g, ' ')), 'error');
+        window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
+      } catch (err) {
+        console.warn('Error parsing auth hash error:', err);
+      }
+    }
+
     if (!isSupabaseConfigured || !supabase) return;
 
     const handleOAuthSession = async (session) => {
@@ -312,8 +335,8 @@ export default function App() {
       }
 
       // 3. Clean up URL hash so #access_token=... is removed from browser bar
-      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
-        window.history.replaceState(null, '', window.location.pathname);
+      if (typeof window !== 'undefined' && window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
+        window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
       }
 
       // 4. Navigate directly to account so user lands on their signed-in profile
@@ -326,7 +349,7 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session) {
         handleOAuthSession(session);
       }
     });
@@ -634,8 +657,15 @@ export default function App() {
     groupsResource.load();
     savedCommutesResource.load();
     analyticsResource.load();
-    // Day 14 — verify a stored Student Account session (no-op when signed out)
-    sessionResource.load();
+    // Day 14 — verify a stored Student Account session (skip on incoming auth hash to avoid race conditions)
+    const hasIncomingAuthHash = typeof window !== 'undefined' && window.location.hash && (
+      window.location.hash.includes('access_token') ||
+      window.location.hash.includes('refresh_token') ||
+      window.location.hash.includes('type=magiclink')
+    );
+    if (!hasIncomingAuthHash) {
+      sessionResource.load();
+    }
 
     // 2. Setup Socket.IO
     const socket = getSocket();

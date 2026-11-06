@@ -11,6 +11,7 @@
 
 const { verifyToken } = require('../utils/token');
 const { getSupabaseClient } = require('../db/supabase');
+const { authService } = require('../services/authService');
 const { UnauthorizedError, ForbiddenError, NotFoundError } = require('../errors');
 const { rideGroupRepository } = require('../repositories/RideGroupRepository');
 const { canModifyOwnedRecord } = require('../utils/ownership');
@@ -88,15 +89,28 @@ function authenticate(req, res, next) {
       const supabase = getSupabaseClient();
       if (supabase) {
         return supabase.auth.getUser(credential.token).then(({ data, error }) => {
-          if (!error && data?.user) {
+                    if (!error && data?.user) {
             const u = data.user;
             const meta = u.user_metadata || {};
+            const email = String(u.email || '').trim().toLowerCase();
+            const displayName = meta.full_name || meta.name || email.split('@')[0] || 'Student';
+            const avatarUrl = meta.avatar_url || meta.picture || null;
+            const collegeName = meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering';
+
+            const { user } = authService.loginWithSupabase({
+              email,
+              name: displayName,
+              picture: avatarUrl,
+              college_name: collegeName,
+              supabase_id: u.id
+            });
+
             req.user = {
-              id: u.id,
-              email: u.email,
-              role: meta.role || 'student',
-              full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
-              college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering'
+              id: user.id,
+              email: user.email,
+              role: user.role || 'student',
+              full_name: user.full_name || '',
+              college_name: user.college_name || ''
             };
             return next();
           }
