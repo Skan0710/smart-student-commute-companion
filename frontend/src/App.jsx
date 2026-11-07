@@ -270,6 +270,7 @@ export default function App() {
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [authSubmitError, setAuthSubmitError] = useState(null);
   const [lastVerifiedAt, setLastVerifiedAt] = useState(null);
+  const isProcessingAuthCallbackRef = useRef(false);
   const sessionResource = useAsyncResource(
     async () => {
       const session = await fetchCurrentUser();
@@ -291,72 +292,143 @@ export default function App() {
       } catch (err) {
         console.warn('Error parsing auth hash error:', err);
       }
+      sessionResource.load();
+      return;
     }
 
-    if (!isSupabaseConfigured || !supabase) return;
+    // Direct extraction of access_token from hash (Immediate & robust)
+    const processHashTokens = async () => {
+      if (typeof window === 'undefined') return false;
+      const hash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
+      if (!hash) return false;
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
 
-    const handleOAuthSession = async (session) => {
-      if (!session?.user) return;
-      const u = session.user;
-      const meta = u.user_metadata || {};
-      const profile = {
-        id: u.id,
-        email: u.email,
-        full_name: meta.full_name || meta.name || u.email?.split('@')[0] || 'Student',
-        college_name: meta.college_name || 'Dwarkadas J. Sanghvi College of Engineering',
-        profile_picture: meta.avatar_url || meta.picture || null,
-        role: 'student',
-      };
-      let token = session.access_token || 'supabase-oauth-token';
+      if (!accessToken) return false;
 
-      // 1. Immediately store authenticated session in frontend
-      writeAuthSession({ token, user: profile });
-      sessionResource.setData({ token, user: profile });
-      setLastVerifiedAt(new Date().toISOString());
-
-      // 2. Synchronize with backend to obtain authoritative cookie & JWT
       try {
         const syncRes = await fetch('/api/auth/supabase-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: session.access_token }),
+          body: JSON.stringify({ access_token: accessToken }),
         });
+
         if (syncRes.ok) {
           const syncData = await syncRes.json();
-          if (syncData?.data?.user && syncData?.data?.token) {
-            token = syncData.data.token;
-            Object.assign(profile, syncData.data.user);
-            writeAuthSession({ token, user: profile });
-            sessionResource.setData({ token, user: profile });
+          const user = syncData?.user || syncData?.data?.user;
+          const token = syncData?.token || syncData?.data?.token;
+          if (user && token) {
+            writeAuthSession({ token, user });
+            sessionResource.setData({ token, user });
+            setLastVerifiedAt(new Date().toISOString());
+
+            if (isSupabaseConfigured && supabase) {
+              supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken || '',
+              }).catch(() => {});
+            }
+
+            window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
+            navigateToScreen('account');
+            showToast(`Welcome! You are signed in as ${user.full_name}.`, 'success');
+            return true;
           }
         }
       } catch (err) {
-        console.warn('Backend session sync warning:', err);
+        console.warn('Backend hash token sync error:', err);
       }
 
-      // 3. Clean up URL hash so #access_token=... is removed from browser bar
-      if (typeof window !== 'undefined' && window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
-        window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
-      }
-
-      // 4. Navigate directly to account so user lands on their signed-in profile
-      navigateToScreen('account');
-      showToast(`Welcome! You are signed in as ${profile.full_name}.`, 'success');
+      window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
+      showToast('Authentication link was invalid or has expired. Please try again.', 'error');
+      sessionResource.load();
+      return true;
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) handleOAuthSession(session);
-    });
+    // Direct exchange of PKCE query code (?code=...)
+    const processQueryCode = async () => {
+      if (typeof window === 'undefined') return false;
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (!code || !isSupabaseConfigured || !supabase) return false;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session) {
-        handleOAuthSession(session);
+      try {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error && data?.session?.access_token) {
+          const accessToken = data.session.access_token;
+          const syncRes = await fetch('/api/auth/supabase-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: accessToken }),
+          });
+
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            const user = syncData?.user || syncData?.data?.user;
+            const token = syncData?.token || syncData?.data?.token;
+            if (user && token) {
+              writeAuthSession({ token, user });
+              sessionResource.setData({ token, user });
+              setLastVerifiedAt(new Date().toISOString());
+
+              params.delete('code');
+              const newSearch = params.toString() ? `?${params.toString()}` : '';
+              window.history.replaceState(null, '', window.location.pathname + newSearch);
+              navigateToScreen('account');
+              showToast(`Welcome! You are signed in as ${user.full_name}.`, 'success');
+              return true;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('PKCE exchange error:', err);
       }
-    });
 
-    return () => {
-      subscription?.unsubscribe();
+      sessionResource.load();
+      return true;
     };
+
+    const hasHash = typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token');
+    const hasCode = typeof window !== 'undefined' && window.location.search && window.location.search.includes('code=');
+
+    if (hasHash) {
+      if (isProcessingAuthCallbackRef.current) return;
+      isProcessingAuthCallbackRef.current = true;
+      processHashTokens();
+    } else if (hasCode) {
+      if (isProcessingAuthCallbackRef.current) return;
+      isProcessingAuthCallbackRef.current = true;
+      processQueryCode();
+    } else {
+      sessionResource.load();
+    }
+
+    if (isSupabaseConfigured && supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.access_token) {
+          fetch('/api/auth/supabase-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: session.access_token }),
+          })
+            .then((res) => res.json())
+            .then((syncData) => {
+              const user = syncData?.user || syncData?.data?.user;
+              const token = syncData?.token || syncData?.data?.token;
+              if (user && token) {
+                writeAuthSession({ token, user });
+                sessionResource.setData({ token, user });
+              }
+            })
+            .catch(() => {});
+        }
+      });
+
+      return () => {
+        subscription?.unsubscribe();
+      };
+    }
   }, []);
 
   // Client-side personalization preferences (device-local, no backend sync)
@@ -657,15 +729,7 @@ export default function App() {
     groupsResource.load();
     savedCommutesResource.load();
     analyticsResource.load();
-    // Day 14 — verify a stored Student Account session (skip on incoming auth hash to avoid race conditions)
-    const hasIncomingAuthHash = typeof window !== 'undefined' && window.location.hash && (
-      window.location.hash.includes('access_token') ||
-      window.location.hash.includes('refresh_token') ||
-      window.location.hash.includes('type=magiclink')
-    );
-    if (!hasIncomingAuthHash) {
-      sessionResource.load();
-    }
+    // Day 14 — session verification handled in dedicated auth effect
 
     // 2. Setup Socket.IO
     const socket = getSocket();

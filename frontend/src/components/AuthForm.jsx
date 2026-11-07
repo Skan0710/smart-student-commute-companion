@@ -515,7 +515,7 @@ export default function AuthForm({
                         <span>Resending link…</span>
                       </>
                     ) : magicLinkCountdown > 0 ? (
-                      <span>Resend link in ${magicLinkCountdown}s</span>
+                      <span>Resend link in {magicLinkCountdown}s</span>
                     ) : (
                       <span>Resend Sign-in Link</span>
                     )}

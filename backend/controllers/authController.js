@@ -291,7 +291,8 @@ async function supabaseSessionLogin(req, res, next) {
       message: 'Login successful',
       token,
       session_transport: 'cookie',
-      user
+      user,
+      data: { user, token }
     });
   } catch (err) {
     next(err);
