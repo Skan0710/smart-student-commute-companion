@@ -270,6 +270,24 @@ class DisruptionRepository {
         provenance: DataProvenance.estimated('Monsoon Flood Hotspot Heuristic', 'Calculated from active rainfall intensity and historical drainage capacity', 'HIGH').toJSON(),
         createdAt: now,
         updatedAt: now
+      }),
+
+      // 4. SYNTHETIC: Simulated peak hour crowding scenario
+      new CommuteDisruption({
+        id: 'disr-seed-metro-synthetic',
+        type: 'crowding',
+        affectedMode: 'metro',
+        affectedRouteId: 'METRO-LINE-1',
+        affectedArea: 'Ghatkopar - Versova',
+        severity: 'minor',
+        description: 'Synthetic simulated peak hour rush with extended platform dwell times.',
+        startTime: now - 10 * 60 * 1000,
+        endTime: now + duration3h,
+        status: 'active',
+        estimatedDelayMinutes: 8,
+        provenance: DataProvenance.synthetic('Peak Hour Simulation Model', 'Generated synthetic delay scenario for stress testing commute alternatives', 'MEDIUM').toJSON(),
+        createdAt: now,
+        updatedAt: now
       })
     ];
 

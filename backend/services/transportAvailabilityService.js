@@ -180,6 +180,28 @@ class TransportAvailabilityService {
           'Emergency traction power block announcement'
         ).toJSON(),
         createdAt: currentTime
+      }),
+
+      // 6. SYNTHETIC: Commute Availability Simulation Model
+      new ServiceStatusRecord({
+        id: 'avail-sim-metro-frequency',
+        serviceId: 'Line-2A',
+        lineIdentifier: 'Line-2A',
+        mode: TRANSPORT_MODES.METRO,
+        area: 'Dahisar - Andheri West',
+        status: SERVICE_AVAILABILITY_STATUSES.AVAILABLE,
+        expectedDelayMinutes: 0,
+        addedWaitMinutes: 3,
+        uncertaintyLevel: 'LOW',
+        reason: 'Simulated baseline timetable headway for Metro Line 2A',
+        effectiveTime: currentTime,
+        expiryTime: twoHoursAhead,
+        confidence: 'HIGH',
+        provenance: DataProvenance.synthetic(
+          'Metro Headway Simulation Engine',
+          'Simulated baseline frequency for routing engine evaluation'
+        ).toJSON(),
+        createdAt: currentTime
       })
     ];
   }

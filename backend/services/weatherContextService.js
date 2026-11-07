@@ -148,6 +148,28 @@ class WeatherContextService {
           'Doppler Radar Precipitation Nowcast Model'
         ).toJSON(),
         createdAt: currentTime - 10 * 60 * 1000
+      }),
+
+      // 4. SYNTHETIC: Simulation model for commute baseline
+      new WeatherCondition({
+        id: 'wx-simulated-weather-model',
+        condition: WEATHER_CONDITIONS.CLEAR,
+        temperatureC: 30,
+        feelsLikeC: 33,
+        humidity: 65,
+        precipitationProbability: 10,
+        precipitationMm: 0,
+        windSpeedKmh: 12,
+        description: 'Synthetic microclimate simulation model for baseline commute planning',
+        area: 'Vile Parle - Campus Perimeter',
+        startTime: currentTime - 10 * 60 * 1000,
+        expiryTime: twoHoursAhead,
+        confidence: 'HIGH',
+        provenance: DataProvenance.synthetic(
+          'Campus Weather Simulation Engine',
+          'Simulated clear baseline conditions for routing algorithm verification'
+        ).toJSON(),
+        createdAt: currentTime - 10 * 60 * 1000
       })
     ];
   }
