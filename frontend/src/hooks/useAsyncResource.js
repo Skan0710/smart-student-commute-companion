@@ -37,14 +37,14 @@ import { useState, useRef, useCallback, useEffect } from 'react';
  */
 export default function useAsyncResource(loadFn, { initialData = null, errorMessage } = {}) {
   const [data, setDataState] = useState(initialData);
-  const [status, setStatus] = useState('idle'); // idle | loading | refreshing | success | error
+  const [status, setStatus] = useState(initialData !== null ? 'success' : 'idle'); // idle | loading | refreshing | success | error
   const [error, setError] = useState(null);
 
   const loadFnRef = useRef(loadFn);
   const seqRef = useRef(0);
   const mountedRef = useRef(true);
   const statusRef = useRef(status);
-  const hasLoadedRef = useRef(false);
+  const hasLoadedRef = useRef(initialData !== null);
 
   // Keep refs current
   useEffect(() => {
@@ -109,15 +109,9 @@ export default function useAsyncResource(loadFn, { initialData = null, errorMess
    */
   const setData = useCallback((value) => {
     setDataState(value);
-    if (value) {
-      hasLoadedRef.current = true;
-      setError(null);
-      setStatus('success');
-    } else if (statusRef.current === 'error') {
-      hasLoadedRef.current = true;
-      setError(null);
-      setStatus('idle');
-    }
+    hasLoadedRef.current = true;
+    setError(null);
+    setStatus('success');
   }, []);
 
   return {
