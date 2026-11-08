@@ -1,7 +1,6 @@
 import React from 'react';
 import { FOOTER_LINKS } from '../content/siteContent.js';
 import { AnalyticsSettingsButton } from '../components/ConsentBanner.jsx';
-import DarkModeCursorSpotlight from '../components/ui/DarkModeCursorSpotlight';
 
 /**
  * AppShell - Master application shell layout
@@ -47,7 +46,6 @@ export default function AppShell({
       >
         Skip to main content
       </a>
-      <DarkModeCursorSpotlight />
 
       {/* Header Slot - Fixed to top of viewport during scrolling */}
       {header && (
