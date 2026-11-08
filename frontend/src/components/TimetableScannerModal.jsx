@@ -369,10 +369,10 @@ export default function TimetableScannerModal({ isOpen, onClose, onSaveTimetable
                   <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-xs text-blue-900 dark:text-blue-200 space-y-1">
                     <p className="font-bold flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      AI Timetable Reasoner Active
+                      Timetable Scanner Active
                     </p>
                     <p className="text-slate-600 dark:text-slate-300">
-                      Paste rows, tabular schedule data, or WhatsApp messages. AI expands course codes (DWM, AI, YPOO, TCS, CN) and resolves days and time slots automatically.
+                      Paste rows, tabular schedule data, or class messages. Automatically parses course codes and resolves days and time slots.
                     </p>
                   </div>
 
@@ -404,7 +404,7 @@ Tuesday | 10:00 - 11:00 | TCS (CR 67)`}
                       className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs sm:text-sm shadow-md transition-all"
                     >
                       <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
-                      <span>{isScanning ? 'AI Analyzing Subjects & Grid...' : 'Analyze Timetable with AI'}</span>
+                      <span>{isScanning ? 'Analyzing Subjects & Schedule...' : 'Analyze Timetable'}</span>
                     </button>
                   </div>
                 </div>
@@ -519,7 +519,7 @@ Tuesday | 10:00 - 11:00 | TCS (CR 67)`}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all disabled:opacity-50"
                   >
                     <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
-                    <span>{isScanning ? 'AI Analyzing Subjects & Grid…' : 'Extract Timetable with AI & OCR'}</span>
+                    <span>{isScanning ? 'Extracting Subjects & Schedule…' : 'Extract Timetable & Schedule'}</span>
                   </button>
                 </div>
               )}
@@ -540,7 +540,7 @@ Tuesday | 10:00 - 11:00 | TCS (CR 67)`}
                       {parserType?.startsWith('ai') && (
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                          AI Verified Subjects & Grid
+                          Verified Subjects &amp; Schedule
                         </span>
                       )}
                     </div>

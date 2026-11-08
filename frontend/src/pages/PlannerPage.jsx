@@ -18,7 +18,7 @@ import { Tabs, TabPanel } from '../components/ui';
 /**
  * PlannerPage - Plan Route Hub with nested subpages
  * Subpages:
- * - 'planner': Multimodal AI transit recommendations & map routing
+ * - 'planner': Multimodal transit recommendations & map routing
  * - 'mycommutes': Saved commute setups
  * - 'transit': Station & GTFS lookup
  * - 'alerts': Real-time crowd-sourced live transit alerts

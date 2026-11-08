@@ -45,7 +45,7 @@ export const GOOGLE_CLIENT_ID = getEnv('VITE_GOOGLE_CLIENT_ID', '');
 export const APP_TITLE = getEnv('VITE_APP_TITLE', 'Smart Student Companion');
 export const APP_DESCRIPTION = getEnv(
   'VITE_APP_DESCRIPTION',
-  'AI-powered student mobility assistant for Mumbai college commutes'
+  'Student mobility companion for Mumbai college commutes'
 );
 
 // Feature Flags

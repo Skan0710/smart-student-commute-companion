@@ -94,7 +94,7 @@ export default function AppShell({
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               <span className="font-medium text-slate-800 dark:text-slate-300">Smart Student Companion</span>
               <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
-              <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Mumbai Student Transit AI</span>
+              <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Mumbai Student Transit Companion</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
               <span>OpenStreetMap &amp; Leaflet</span>

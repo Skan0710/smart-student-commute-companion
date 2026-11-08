@@ -45,14 +45,14 @@ export const NAV_ITEMS = [
     label: 'Academics',
     shortLabel: 'Study',
     icon: GraduationCap,
-    description: 'Courses, calendar, resources & AI study plans'
+    description: 'Courses, calendar, resources & study plans'
   },
   {
     id: 'planner',
     label: 'Plan Route',
     shortLabel: 'Routes',
     icon: Compass,
-    description: 'Multimodal AI transit recommendations & commutes'
+    description: 'Multimodal transit recommendations & commutes'
   },
   {
     id: 'community',

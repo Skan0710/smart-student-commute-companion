@@ -362,13 +362,13 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
       if (res?.plan) {
         setCustomAiPlan(res.plan);
         setIsQuestionnaireOpen(false);
-        onNotify?.('Your personalized AI Study Plan is ready!', 'success');
+        onNotify?.('Your personalized Study Plan is ready!', 'success');
       } else {
         onNotify?.('Could not generate plan. Please try again.', 'error');
       }
     } catch (err) {
       onNotify?.(
-        err?.status === 401 ? 'Sign in to generate an AI study plan.' : err?.message || 'Failed to generate AI plan.',
+        err?.status === 401 ? 'Sign in to generate a study plan.' : err?.message || 'Failed to generate study plan.',
         'error'
       );
     } finally {
@@ -471,7 +471,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
     { id: 'courses', label: 'Courses', icon: GraduationCap, count: courses.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, count: events.length },
     { id: 'resources', label: 'Study Resources', icon: BookOpen, count: resources.length },
-    { id: 'studyplans', label: 'AI Planner', icon: Sparkles },
+    { id: 'studyplans', label: 'Study Planner', icon: Sparkles },
   ];
 
   // ── Create forms ──────────────────────────────────────────────────────────
@@ -537,7 +537,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
             Academic &amp; Study Hub
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
-            Your courses, timetable, study resources and an AI-optimized weekly study plan in one place.
+            Your courses, timetable, study resources and an optimized weekly study plan in one place.
           </p>
         </div>
 
@@ -1014,10 +1014,10 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs font-bold">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                    <span>Personalized AI Study Planner</span>
+                    <span>Personalized Study Planner</span>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                    {customAiPlan ? customAiPlan.title : 'AI Academic & Exam Study Planner'}
+                    {customAiPlan ? customAiPlan.title : 'Academic & Exam Study Planner'}
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                     Smart schedule tailored to your upcoming exam dates, daily study limits, and sleep requirements.
@@ -1046,7 +1046,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                         <span>Student Study Questionnaire</span>
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Please answer these questions so the AI can build an accurate, realistic study plan.
+                        Please answer these questions to generate an accurate, realistic study plan.
                       </p>
                     </div>
                     {customAiPlan && (
@@ -1226,7 +1226,7 @@ export default function AcademicsPage({ onNavigate, onNotify }) {
                       className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.99]"
                     >
                       <Sparkles className={`w-4 h-4 ${isGeneratingPlan ? 'animate-spin' : ''}`} />
-                      <span>{isGeneratingPlan ? 'Generating Custom AI Study Plan…' : 'Generate My Personalized AI Plan'}</span>
+                      <span>{isGeneratingPlan ? 'Generating Study Plan…' : 'Generate Personalized Study Plan'}</span>
                     </button>
                     {(!aiExamHas || !aiStudyHours.trim() || !aiSleepHours.trim() || aiSelectedSubjects.length === 0) && (
                       <p className="text-[11px] text-amber-600 dark:text-amber-400 text-center mt-2 font-medium">

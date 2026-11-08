@@ -498,7 +498,7 @@ export default function MainDashboardPage({
           index={2}
           accent="emerald"
           icon={Zap}
-          label="AI Study Plan"
+          label="Study Plan"
           value={show(academicLoading, planPercent !== null ? planPercent : '—')}
           suffix={planPercent !== null ? '%' : ''}
           ring={!academicLoading && planPercent !== null ? planPercent : undefined}
@@ -544,7 +544,7 @@ export default function MainDashboardPage({
           index={1}
           icon={Zap}
           chipClass="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-          title="AI Study Plan & Focus Tasks"
+          title="Study Plan & Focus Tasks"
           trailing={
             plan ? (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">

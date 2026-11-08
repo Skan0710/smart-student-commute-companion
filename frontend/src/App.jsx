@@ -7,7 +7,6 @@ import { NAV_ITEMS, SECONDARY_SCREENS } from './components/Navbar';
 import CreateReportModal from './components/CreateReportModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import FeedbackModal from './components/FeedbackModal';
-import CampusChatbot from './components/CampusChatbot';
 import ThankYouHost from './components/ThankYouHost';
 import { announceThankYou } from './utils/thankYou';
 import PreferencesDialog from './components/PreferencesDialog';
@@ -1517,8 +1516,6 @@ export default function App() {
       {/* Floating notification region (dismissible queue) */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Always-accessible Campus & Transit Chatbot */}
-      <CampusChatbot onNavigate={navigateToScreen} />
       <ThankYouHost onNavigate={navigateToScreen} />
 
       {/* Client-side personalization controls */}

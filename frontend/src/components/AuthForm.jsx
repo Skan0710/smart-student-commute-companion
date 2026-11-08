@@ -576,7 +576,7 @@ export default function AuthForm({
               {isRegisterMode && emailCheckStatus === 'checking' && (
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 pl-1 pt-0.5">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" aria-hidden="true" />
-                  <span>Checking email legitimacy via Supabase &amp; MX servers…</span>
+                  <span>Verifying email address…</span>
                 </div>
               )}
               {isRegisterMode && emailCheckStatus === 'legit' && (
