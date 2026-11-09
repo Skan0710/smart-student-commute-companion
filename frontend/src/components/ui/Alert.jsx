@@ -87,7 +87,7 @@ export default function Alert({
       {dismissible && onDismiss && (
         <button
           onClick={onDismiss}
-          className="shrink-0 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="shrink-0 min-h-[44px] min-w-[44px] -my-2.5 -mr-2.5 flex items-center justify-center rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Dismiss alert"
         >
           <X className="w-4 h-4" aria-hidden="true" />

@@ -207,13 +207,13 @@ export default function PreferencesDialog({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="md"
             icon={<RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />}
             onClick={onReset}
           >
             Restore defaults
           </Button>
-          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+          <Button type="button" variant="secondary" size="md" onClick={onClose}>
             Done
           </Button>
         </div>

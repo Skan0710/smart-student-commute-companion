@@ -336,10 +336,9 @@ export default function AuthForm({
     setFieldErrors({});
     setTouched({});
     setSubmitAttempted(false);
-    setOtpSent(false);
-    setOtpCode('');
-    setOtpMessage('');
     setAuthMethod('password');
+    setMagicLinkSent(false);
+    setMagicLinkCountdown(0);
     setForgotPasswordOpen(false);
     setResetEmailSent(false);
     onDismissSubmitError?.();
@@ -423,47 +422,119 @@ export default function AuthForm({
           </div>
         )}
 
-        {/* Passwordless Magic Link Screen */}
-        {authMethod === 'magiclink' ? (
+        {/* Google OAuth Login (Fitts's & Hick's Law: Prominent top 1-click action) */}
+        {googleEnabled && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMethod('password');
-                  setMagicLinkSent(false);
-                }}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-1 -ml-1 rounded-lg"
-                aria-label="Back to password login"
-              >
-                <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-              </button>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Sign in with Email Link
-              </h3>
-            </div>
+            <button
+              type="button"
+              onClick={handleGoogleClick}
+              disabled={isGoogleSigningIn || isSubmitting}
+              className="w-full min-h-[48px] h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              {isGoogleSigningIn ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-500" aria-hidden="true" />
+                  <span>Connecting to Google…</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                  <span>{isRegisterMode ? 'Sign up with Google' : 'Continue with Google'}</span>
+                </>
+              )}
+            </button>
 
+            {/* OR Divider */}
+            <div className="flex items-center my-3">
+              <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
+              <span className="px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                or with email
+              </span>
+              <div className="flex-1 border-t border-slate-200 dark:border-slate-800" />
+            </div>
+          </div>
+        )}
+
+        {/* In Sign In Mode: Clean Segmented Tab to choose Password vs Magic Link */}
+        {!isRegisterMode && (
+          <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod('password');
+                setMagicLinkSent(false);
+              }}
+              className={`flex-1 min-h-[40px] rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                authMethod === 'password'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Password Login</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod('magiclink');
+                setMagicLinkSent(false);
+              }}
+              className={`flex-1 min-h-[40px] rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                authMethod === 'magiclink'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Instant Email Link</span>
+            </button>
+          </div>
+        )}
+
+        {/* Passwordless Magic Link Screen */}
+        {!isRegisterMode && authMethod === 'magiclink' ? (
+          <div className="space-y-4 pt-1">
             {!magicLinkSent ? (
               <div className="space-y-4">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  We'll email you an instant sign-in link. No password or OTP required.
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Enter your email address to receive an instant, one-click sign-in link. No password required.
                 </p>
 
                 <form onSubmit={handleSendMagicLink} aria-busy={isSendingMagicLink} className="space-y-4">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
+                    <label htmlFor="account-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Email Address <span className="text-rose-500">*</span>
+                    </label>
                     <div className="relative flex items-center">
-                      <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                      <Mail className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                       <input
                         id="account-email"
                         type="email"
                         required
-                        placeholder="Enter your email address"
+                        placeholder="e.g. student@djsanghvi.edu.in"
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
                           clearFieldError('email');
                         }}
-                        className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                        className="w-full min-h-[48px] bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                       />
                     </div>
                     {fieldErrors.email && (
@@ -474,7 +545,7 @@ export default function AuthForm({
                   <button
                     type="submit"
                     disabled={isSendingMagicLink}
-                    className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full min-h-[48px] h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   >
                     {isSendingMagicLink ? (
                       <>
@@ -498,7 +569,7 @@ export default function AuthForm({
                     Check your mail for signing in!
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-sm mx-auto leading-relaxed">
-                    We sent a sign-in link to <span className="font-semibold text-slate-900 dark:text-white">{email}</span>. Click the link in your email to sign in automatically.
+                    We sent an instant sign-in link to <span className="font-semibold text-slate-900 dark:text-white">{email}</span>. Click the link in your email to sign in automatically.
                   </p>
                 </div>
 
@@ -507,7 +578,7 @@ export default function AuthForm({
                     type="button"
                     disabled={magicLinkCountdown > 0 || isSendingMagicLink}
                     onClick={handleSendMagicLink}
-                    className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full min-h-[48px] h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   >
                     {isSendingMagicLink ? (
                       <>
@@ -524,7 +595,7 @@ export default function AuthForm({
                   <button
                     type="button"
                     onClick={() => setMagicLinkSent(false)}
-                    className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 transition-all cursor-pointer"
+                    className="w-full min-h-[44px] bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   >
                     Use different email
                   </button>
@@ -535,7 +606,7 @@ export default function AuthForm({
                       setAuthMethod('password');
                       setMagicLinkSent(false);
                     }}
-                    className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors pt-1"
+                    className="min-h-[44px] px-3 text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors inline-flex items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   >
                     ← Back to password sign in
                   </button>
@@ -544,23 +615,26 @@ export default function AuthForm({
             )}
           </div>
         ) : (
-          /* Email & Password Credential Layout */
+          /* Email & Password Credential Layout (Jakob's Law & WCAG Accessible Labels) */
           <form
             onSubmit={handleSubmit}
             noValidate
             aria-busy={isSubmitting}
-            className="space-y-3.5"
+            className="space-y-4 pt-1"
           >
-            {/* Email input field */}
-            <div className="space-y-1">
+            {/* Email input field with permanent label */}
+            <div className="space-y-1.5">
+              <label htmlFor="account-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Email Address <span className="text-rose-500">*</span>
+              </label>
               <div className="relative flex items-center">
-                <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                <Mail className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                 <input
                   id="account-email"
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="Username, Phone, or Email"
+                  placeholder="e.g. student@djsanghvi.edu.in"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -568,7 +642,7 @@ export default function AuthForm({
                     checkEmailAuthenticity(e.target.value);
                   }}
                   onBlur={(e) => handleBlur('email', e.target.value)}
-                  className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                  className="w-full min-h-[48px] bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
               </div>
 
@@ -593,22 +667,25 @@ export default function AuthForm({
             {/* Extra registration fields (Full name & College) */}
             {isRegisterMode && (
               <>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
+                  <label htmlFor="account-full-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Full Name <span className="text-rose-500">*</span>
+                  </label>
                   <div className="relative flex items-center">
-                    <User className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <User className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       id="account-full-name"
                       type="text"
                       autoComplete="name"
                       required
-                      placeholder="Full Name"
+                      placeholder="e.g. Anirudh Shenoy"
                       value={fullName}
                       onChange={(e) => {
                         setFullName(e.target.value);
                         clearFieldError('full_name');
                       }}
                       onBlur={(e) => handleBlur('full_name', e.target.value)}
-                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      className="w-full min-h-[48px] bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                   {fieldErrors.full_name && (
@@ -616,22 +693,25 @@ export default function AuthForm({
                   )}
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
+                  <label htmlFor="account-college" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    College Name <span className="text-rose-500">*</span>
+                  </label>
                   <div className="relative flex items-center">
-                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <GraduationCap className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       id="account-college"
                       type="text"
                       autoComplete="organization"
                       required
-                      placeholder="College Name (e.g. DJSCE)"
+                      placeholder="e.g. Dwarkadas J. Sanghvi College of Engineering"
                       value={collegeName}
                       onChange={(e) => {
                         setCollegeName(e.target.value);
                         clearFieldError('college_name');
                       }}
                       onBlur={(e) => handleBlur('college_name', e.target.value)}
-                      className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                      className="w-full min-h-[48px] bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-4 py-3 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                   {fieldErrors.college_name && (
@@ -659,27 +739,30 @@ export default function AuthForm({
             )}
 
             {/* Password input field with Eye reveal toggle */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
+              <label htmlFor="account-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Password <span className="text-rose-500">*</span>
+              </label>
               <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-5 h-5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                <Lock className="absolute left-3.5 w-5 h-5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                 <input
                   id="account-password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
                   required
-                  placeholder="Password"
+                  placeholder={isRegisterMode ? 'At least 8 characters, letters & numbers' : 'Enter your password'}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     clearFieldError('password');
                   }}
                   onBlur={(e) => handleBlur('password', e.target.value)}
-                  className="w-full bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 rounded-xl pl-11 pr-12 py-3.5 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-[#800020] dark:focus:border-[#0047ff] focus:outline-none transition-colors"
+                  className="w-full min-h-[48px] bg-slate-50/80 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:focus:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-11 pr-12 py-3 text-sm font-medium border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-1"
+                  className="absolute right-1 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -696,7 +779,7 @@ export default function AuthForm({
 
             {/* Sub-row: Remember me (shadcn Checkbox) & Forgot Password */}
             <div className="flex items-center justify-between text-xs pt-1 pb-1">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-200 select-none">
+              <label className="min-h-[44px] flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-200 select-none">
                 <Checkbox
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
@@ -705,21 +788,23 @@ export default function AuthForm({
                 <span className="font-medium">Remember me</span>
               </label>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setForgotPasswordOpen(true);
-                  if (email) handleForgotPassword({ preventDefault: () => {} });
-                }}
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline transition-colors font-semibold"
-              >
-                Forgot Password?
-              </button>
+              {!isRegisterMode && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotPasswordOpen(true);
+                    if (email) handleForgotPassword({ preventDefault: () => {} });
+                  }}
+                  className="min-h-[44px] px-2.5 py-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline transition-colors font-semibold rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 inline-flex items-center"
+                >
+                  Forgot Password?
+                </button>
+              )}
             </div>
 
             {/* Password Reset Notification */}
             {forgotPasswordOpen && (
-              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/40 text-blue-800 dark:text-blue-200 text-xs">
+              <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/40 text-blue-800 dark:text-blue-200 text-xs">
                 {resetEmailSent ? (
                   <p>Password reset link has been dispatched to your email address.</p>
                 ) : (
@@ -729,7 +814,7 @@ export default function AuthForm({
                       type="button"
                       disabled={isResettingPassword}
                       onClick={handleForgotPassword}
-                      className="ml-2 px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg"
+                      className="ml-2 min-h-[36px] px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     >
                       {isResettingPassword ? 'Sending…' : 'Send'}
                     </button>
@@ -738,11 +823,11 @@ export default function AuthForm({
               </div>
             )}
 
-            {/* Primary Action Button (Burgundy in light mode, Acid Blue in dark mode) */}
+            {/* Primary Action Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+              className="w-full min-h-[48px] h-12 bg-[#800020] hover:bg-[#6b001a] active:bg-[#570015] dark:bg-[#0047ff] dark:hover:bg-[#003be0] dark:active:bg-[#0030c0] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#800020]/20 dark:shadow-[#0047ff]/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               {isSubmitting ? (
                 <>
@@ -750,73 +835,11 @@ export default function AuthForm({
                   <span>{isRegisterMode ? 'Creating account…' : 'Logging in…'}</span>
                 </>
               ) : (
-                <span>{isRegisterMode ? 'Sign Up' : 'Log In'}</span>
+                <span>{isRegisterMode ? 'Create Account' : 'Log In'}</span>
               )}
             </button>
           </form>
         )}
-
-        {/* OR Divider */}
-        <div className="flex items-center my-4">
-          <div className="flex-1 border-t border-slate-300 dark:border-slate-700" />
-          <span className="px-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-            OR
-          </span>
-          <div className="flex-1 border-t border-slate-300 dark:border-slate-700" />
-        </div>
-
-        {/* Alternate Login Stack: Google & Email OTP (Uniform button sizes & full width) */}
-        <div className="space-y-2.5">
-          {/* Google OAuth Login (Full-width, theme-aware, matches other buttons) */}
-          {googleEnabled && (
-            <button
-              type="button"
-              onClick={handleGoogleClick}
-              disabled={isGoogleSigningIn || isSubmitting}
-              className="w-full h-12 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer disabled:opacity-50"
-            >
-              {isGoogleSigningIn ? (
-                <Loader2 className="w-5 h-5 animate-spin text-blue-500" aria-hidden="true" />
-              ) : (
-                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                  />
-                </svg>
-              )}
-              <span>{isRegisterMode ? 'Sign up with Google' : 'Continue with Google'}</span>
-            </button>
-          )}
-
-          {/* Email Link Authentication Option */}
-          {authMethod !== 'magiclink' && (
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMethod('magiclink');
-                setMagicLinkSent(false);
-                onDismissSubmitError?.();
-              }}
-              className="w-full h-12 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold px-4 rounded-xl flex items-center justify-center gap-3 border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 shadow-sm transition-all text-sm sm:text-base active:scale-[0.99] cursor-pointer"
-            >
-              <Mail className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-              <span>Sign in with Email Link</span>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Docked bottom banner */}

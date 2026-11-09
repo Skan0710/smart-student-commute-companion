@@ -159,8 +159,8 @@ export default function Tabs({
 
   const isSmall = size === 'sm';
   const sizeClasses = isSmall
-    ? 'px-3 py-1.5 text-xs'
-    : 'px-4 py-2 text-xs sm:text-sm';
+    ? 'min-h-[36px] px-3 py-1.5 text-xs'
+    : 'min-h-[44px] px-4 py-2.5 text-xs sm:text-sm';
 
   return (
     <div

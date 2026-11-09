@@ -63,7 +63,7 @@ export default function ConfirmDialog({
           <Button
             type="button"
             variant="secondary"
-            size="sm"
+            size="md"
             onClick={onCancel}
             disabled={isPending}
           >
@@ -72,7 +72,7 @@ export default function ConfirmDialog({
           <Button
             type="button"
             variant={destructive ? 'danger' : 'primary'}
-            size="sm"
+            size="md"
             onClick={onConfirm}
             disabled={isPending}
             aria-busy={isPending}

@@ -479,7 +479,7 @@ export default function Navbar({
               <span className="hidden sm:inline lg:hidden min-[1360px]:inline max-w-[130px] truncate">{profileLabel}</span>
             </button>
 
-            {/* Mobile Hamburger Toggle Button */}
+            {/* Mobile Hamburger Toggle Button (Fitts's Law touch target) */}
             <button
               ref={menuButtonRef}
               type="button"
@@ -487,7 +487,7 @@ export default function Navbar({
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="lg:hidden p-2 rounded-xl bg-white/80 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+              className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl bg-white/80 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
             >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />

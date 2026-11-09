@@ -190,7 +190,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit, isSubmitti
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+              className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               Cancel
             </button>
@@ -198,7 +198,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit, isSubmitti
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20 flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 transition-all"
+              className="min-h-[44px] px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20 flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 transition-all"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
               <span>{isSubmitting ? 'Creating...' : 'Create Group'}</span>

@@ -140,7 +140,7 @@ function Panel({ icon: Icon, chipClass, title, action, onAction, actionClass, tr
             <button
               type="button"
               onClick={onAction}
-              className={`shrink-0 inline-flex items-center gap-1 min-h-9 px-2 -mr-2 text-xs font-semibold rounded-lg hover:underline ${FOCUS_RING} ${actionClass}`}
+              className={`shrink-0 inline-flex items-center gap-1 min-h-[44px] px-3 -mr-2 text-xs font-semibold rounded-xl hover:underline ${FOCUS_RING} ${actionClass}`}
             >
               {action}
               <ArrowRight className="w-3 h-3" aria-hidden="true" />
@@ -172,7 +172,7 @@ function EmptyNote({ children, actionLabel, onAction }) {
         <button
           type="button"
           onClick={onAction}
-          className={`inline-flex items-center gap-1.5 min-h-9 px-3.5 rounded-xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/20 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-[#800020] dark:hover:border-white active:scale-95 transition-all ${FOCUS_RING}`}
+          className={`inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/20 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-[#800020] dark:hover:border-white active:scale-95 transition-all ${FOCUS_RING}`}
         >
           {actionLabel}
           <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
